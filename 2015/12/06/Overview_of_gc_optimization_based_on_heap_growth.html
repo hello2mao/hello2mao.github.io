@@ -1,0 +1,333 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+<title>基于动态堆增长技术的GC调优综述 | 毛宏斌的博客</title>
+<meta name="author" content="Billy Mao">
+
+  <meta name="keywords" content="android,GC">
+
+
+<link rel="shortcut icon" href="/public/img/mhb-logo.png" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="/public/css/bootstrap.css">
+<link rel="stylesheet" href="/public/css/font-awesome.css">
+<link rel="stylesheet" href="/public/js/prettify/prettify.css">
+<link rel="stylesheet" href="/public/css/base.css">
+<link href="/pages/atom.xml" rel="alternate" title="毛宏斌的博客" type="application/atom+xml">
+</head>
+<body>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-3 col-lg-3 col-sm-13 col-xs-13 aside visible-md visible-lg">
+  <div class="row">
+    <div class="col-md-2 col-xs-2 aside1">
+      <br>
+      <a class="pjaxlink" href="/"><img src="/public/img/mhb-logo.png" class="img-ronuded avatar" style="border-width:0px; border-color:#000"></a>
+      <br><br><br><br>
+      <ul class="nav nav-pills nav-stacked">
+        <li><a href="#tags" data-toggle="tab">分类</a></li>  
+             <!-- 这里是aside1的技术、生活、工作、转载、链接-->
+         <li><a href="#技术" data-toggle="tab">技术</a></li>
+             <!-- 这里是aside1的技术、生活、工作、转载、链接-->
+         <li><a href="#其他" data-toggle="tab">其他</a></li>
+        
+        <li><a class="pjaxlink" href="/pages/archive.html">归档</a></li>
+        <li><a class="pjaxlink" href="/pages/about.html">关于</a></li>  
+        <!-- <li><a href="#tags" data-toggle="tab"><i class="fa fa-tags fa-lg"></i></a></li>
+        <li><a class="pjaxlink" href="/pages/archive.html"><i class="fa fa-archive fa-lg"></i></a></li>
+        <li><a class="pjaxlink" href="/pages/about.html"><i class="fa fa-user fa-lg"></i></a></li>
+        这是原来现实汉字的代码，我改为了图标 -->
+      </ul>
+      <div class="aside1_bottom">
+        <table class="table table-condensed">
+          <tr>
+            <td><a href="/pages/atom.xml" target="_blank"><i class="fa fa-rss fa-lg" style="color:#fff;"></i></a></td>
+            <td><a href="mailto:hello2mao@outlook.com"><i class="fa fa-envelope-o fa-lg" style="color:#fff;"></i></a></td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    <div class="col-md-10 col-xs-10 aside2">
+      <div class="row">
+        <div class="tab-content"> 
+           
+            <div class="tab-pane" id="技术">
+              <div class="list-group">
+                <!--<h2 class="center">技术</h2>-->     <!--原来aside2上面的大标题-->
+                
+                  <a href="/2015/12/16/Android_ART_GC_GrowForUtilization.html" class="list-group-item-lay pjaxlink">Android ART GC之GrowForUtilization的分析</a>
+                
+                  <a href="/2015/12/11/ART_GC_VS_Dalvik_GC.html" class="list-group-item-lay pjaxlink">Android 5.0 ART GC 对比 Android 4.x Dalvik GC</a>
+                
+                  <a href="/2015/12/06/Overview_of_gc_optimization_based_on_heap_growth.html" class="list-group-item-lay pjaxlink">基于动态堆增长技术的GC调优综述</a>
+                
+                  <a href="/2015/12/02/Linux_I2C_driver.html" class="list-group-item-lay pjaxlink">详解Linux-I2C驱动</a>
+                
+                  <a href="/2015/11/30/0xBenchmark.html" class="list-group-item-lay pjaxlink">0xBenchmark中垃圾回收测试模块的分析及改进</a>
+                
+              </div>
+            </div>
+           
+            <div class="tab-pane" id="其他">
+              <div class="list-group">
+                <!--<h2 class="center">其他</h2>-->     <!--原来aside2上面的大标题-->
+                
+                  <a href="/2017/01/08/Data_Analysis_Job.html" class="list-group-item-lay pjaxlink">Data Analysis Job</a>
+                
+              </div>
+            </div>
+                
+          <div class="tab-pane" id="tags">
+            <div class="panel-group" id="accordion">
+              <!--<h2 class="center">分类</h2>-->
+               
+                <div class="panel panel-info">
+                  <div class="panel-heading">
+                    <h4 class="panel-title">
+                      <a data-toggle="collapse" data-toggle="collapse" data-parent="#accordion" href="#Android">Android</a>
+                      <span class="badge pull-right">4</span>
+                    </h4>
+                  </div>
+                  <div id="Android" class="panel-collapse collapse">
+                    
+                      <a  href='/2015/12/16/Android_ART_GC_GrowForUtilization.html' class="list-group-item pjaxlink">
+                        Android ART GC之GrowForUtilization的分析
+                      </a>
+                    
+                      <a  href='/2015/12/11/ART_GC_VS_Dalvik_GC.html' class="list-group-item pjaxlink">
+                        Android 5.0 ART GC 对比 Android 4.x Dalvik GC
+                      </a>
+                    
+                      <a  href='/2015/12/06/Overview_of_gc_optimization_based_on_heap_growth.html' class="list-group-item pjaxlink">
+                        基于动态堆增长技术的GC调优综述
+                      </a>
+                    
+                      <a  href='/2015/11/30/0xBenchmark.html' class="list-group-item pjaxlink">
+                        0xBenchmark中垃圾回收测试模块的分析及改进
+                      </a>
+                    
+                  </div>
+                </div>
+               
+                <div class="panel panel-info">
+                  <div class="panel-heading">
+                    <h4 class="panel-title">
+                      <a data-toggle="collapse" data-toggle="collapse" data-parent="#accordion" href="#Linux">Linux</a>
+                      <span class="badge pull-right">1</span>
+                    </h4>
+                  </div>
+                  <div id="Linux" class="panel-collapse collapse">
+                    
+                      <a  href='/2015/12/02/Linux_I2C_driver.html' class="list-group-item pjaxlink">
+                        详解Linux-I2C驱动
+                      </a>
+                    
+                  </div>
+                </div>
+               
+                <div class="panel panel-info">
+                  <div class="panel-heading">
+                    <h4 class="panel-title">
+                      <a data-toggle="collapse" data-toggle="collapse" data-parent="#accordion" href="#Other">Other</a>
+                      <span class="badge pull-right">1</span>
+                    </h4>
+                  </div>
+                  <div id="Other" class="panel-collapse collapse">
+                    
+                      <a  href='/2017/01/08/Data_Analysis_Job.html' class="list-group-item pjaxlink">
+                        Data Analysis Job
+                      </a>
+                    
+                  </div>
+                </div>
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      <div class="col-md-13 col-lg-13 col-sm-13 col-xs-13 aside3">
+        <div id="container">
+          <div id="pjax">
+            <div class="row">
+  <div class="col-md-13 aside3-title">
+    <br>
+    <h2 id="#identifier">基于动态堆增长技术的GC调优综述</h2>
+    2015年12月06日
+  </div>
+  <div class="col-md-13 aside3-content">
+    <hr>
+    <div id="content">
+      <p><strong><em>版权声明：本文为博主原创文章，未经博主允许不得转载。</em></strong></p>
+
+<hr>
+
+<h3>一、论文概要</h3>
+
+<p><strong><em>The Economics of Garbage Collection</em></strong><br>
+<strong><em>作  者：</em></strong>  J Singer，RE Jones，G Brown，M Luján<br>
+<strong><em>摘  要：</em></strong>  This paper argues that economic theory can improve our understanding of memory management. We introduce the allocation curve, as an analogue of the demand curve from microeconomics. An allocation curve for a program characterises how the amount of garbage collection activity required during its execution varies in relation to the heap size associated with that program. The standard treatment of microeconomic demand curves (shifts and elasticity) can be applied directly and intuitively to our new allocation curves. As an application of this new theory, we show how allocation elasticity can be used to control the heap growth rate for variable sized heaps in Jikes RVM.<br>
+<strong><em>出版源：</em></strong>  《Acm Sigplan Notices》, 2010, 45(8):103-112<br>
+<strong><em>关键词：</em></strong>  allocation curve / elasticity / garbage collection / java / memory management / microeconomics<br>
+<strong><em>被引量：</em></strong>  10</p>
+
+<hr>
+
+<p><strong><em>Controlling garbage collection and heap growth to reduce the execution time of Java applications</em></strong><br>
+<strong><em>作  者：</em></strong>  T Brecht，E Arjomandi，L Chang，P Hang<br>
+<strong><em>摘  要：</em></strong>  In systems that support garbage collection, a tension exists between collecting garbage too frequently and not collecting garbage frequently enough. Garbage collection that occurs too frequently may introduce unnecessary overheads at the rist of not collecting much garbage during each cycle. On the other hand, collecting garbage too infrequently can result in applications that execute with a large amount of virtual memory (i.e., with a large footprint) and suffer from increased execution times die to paging. In this paper, we use a large colleciton of Java applications and the highly tuned and widely used Boehm-Demers-Weiser (BDW) conservative mark-and-sweep garbage collector to experimentally examine the extent to which the frequency of garbage collectio impacts an application&#39;s execution time, footprint, and pause times. We use these results to devise some guidelines for controlling garbage and heap growth in a conservative garbage collection in order to minimize application execution times. Then we describe new strategies for controlling in order to minimize application execution times.<br>
+<strong><em>出版源：</em></strong>  《Acm Transactions on Programming Languages &amp; Sy..., 2006, 28(11):353--366<br>
+<strong><em>关键词：</em></strong>  garbage collection / heap growth / implementation / Java / memory / management / performance measurement / programming languages<br>
+<strong><em>被引量：</em></strong>  73</p>
+
+<h3>二、The Economics of Garbage Collection</h3>
+
+<p>全文在这里：<a href="http://citeseerx.ist.psu.edu/viewdoc/download;jsessionid=CF223C43EEB7D2C4D85275FD75F03E7F?doi=10.1.1.164.2789&rep=rep1&type=pdf">Citeseer</a>  </p>
+
+<p>这篇论文提出了分配弹性的概念，并利用系统的实时弹性来调节堆的增长速率。</p>
+
+<h4>2.1 GC的分配曲线及分配弹性</h4>
+
+<p>这篇论文针对GC提出了分配曲线的概念，如下图所示：</p>
+
+<p><img src="/public/img/technology/allocation_curve.png" alt="allocation_curve.png">  </p>
+
+<p>此概念来源于微观经济学中的供求关系，本文模仿微观经济学中的弹性理论，提出了分配弹性的概念，用来描述java堆大小的变化对GC数量的影响(其中g是GC的数量，h是java堆的大小)：</p>
+
+<p><img src="/public/img/technology/Eq_2.png" alt="Eq_2.png"></p>
+
+<p>作者把此公式化简为：</p>
+
+<p><img src="/public/img/technology/Eq_3.png" alt="Eq_3"></p>
+
+<p>那么当前的分配弹性就可以用下面的公式来计算：</p>
+
+<p><img src="/public/img/technology/Eq_4.png" alt="Eq_4.png"></p>
+
+<p>用DaCapo Benchmark测试此分配曲线，得到如下图所示：</p>
+
+<p><img src="/public/img/technology/benchmark-test.png" alt="benchmark-test.png"></p>
+
+<p>假设分配曲线的分配弹性为E，如果|E|<1,那么此时java堆过大，存在浪费空间的现象；如果|E|>1,那么此时大多数GC都不能回收足够的内存，也就是java堆剩余空间过小。</p>
+
+<h4>2.2 利用分配弹性来控制堆增长</h4>
+
+<p>我们知道java堆大小或者说java堆是否需要扩大、扩大多少取决于两个因素：（1）当前GC负载，也就是当前GC执行的时间。（2）当前对象存活率。当这两个值都比较大的时候，java堆就需要增大，并且值越大java堆增大越多。</p>
+
+<p>论文的作者提出了利用系统的实时分配弹性来控制堆增长的方法。首先系统启动的时候设定一个作为参考标准的分配弹性E，当系统的实时弹性|currE| &gt; |E|时，java堆的大小就需要增加，此时，较大的|currE|会减慢堆增长的频率，较小的|currE|意味着堆会迅速的扩大。同样用benchmark测试得到如下图所示：</p>
+
+<p><img src="/public/img/technology/benchmark-test-2.png" alt="benchmark-test-2.png"></p>
+
+<p>可以看出基于弹性的堆增长策略更加的灵活，能更加简单的去改变堆增长的速率，当然，减小应用执行时间的开销就是堆变得更大，也就消耗了更多的内存空间。</p>
+
+<h3>三、 Controlling garbage collection and heap growth to reduce the execution time of Java applications</h3>
+
+<p>全文在这里：<a href="http://citeseerx.ist.psu.edu/viewdoc/download;jsessionid=227A37ABF73E6C66E33D41B0EFE7CF96?doi=10.1.1.23.6538&rep=rep1&type=pdf">Citeseer</a></p>
+
+<p>这篇论文主要关注以下两点：<br>
+（1）何时触发GC。<br>
+（2）何时java堆应该扩张，应该扩张多大。</p>
+
+<h4>3.1 BDW标记清楚垃圾回收器</h4>
+
+<p>针对问题一，作者使用的是Boehm-Demers-Weiser(BDW)标记清除垃圾回收器，何时触发GC取决于一个称为free-space-divisor(FSD)的常数，如下面伪代码所示：</p>
+
+<p><img src="/public/img/technology/BDW.png" alt="BDW.png"></p>
+
+<p>当内存分配器在分配一个对象遇到java堆空间不够时就会调用此代码，此段代码会检查已使用的内存是否大于heap/FSD，如果是就触发GC，否则就根据要求扩展堆。</p>
+
+<h4>3.2 基于阈值的堆扩展</h4>
+
+<p>上节介绍的BDW垃圾回收器扩展堆时没有考虑系统的可用内存，如果系统可用内存比较少了，对于扩展堆就应该谨慎考虑。</p>
+
+<p>考虑到这个，作者设计并实现了一个基于可用内存阈值的的新算法来控制GC和堆增长。同时也针对最开始提出的问题二。如下图所示：</p>
+
+<p><img src="/public/img/technology/thresholds-1.png" alt="thresholds-1.png"></p>
+
+<p>T1~Ti为设定的阈值，当第一次到达阈值时，GC会触发。到达阈值Ti而触发GC所回收的内存为Ri，Ri用来决定下次到达Ti时是否GC。假设：</p>
+
+<p><img src="/public/img/technology/thresholds-2.png" alt="thresholds-2.png"></p>
+
+<p>当第一次到达T1时触发GC，也就是C点。回收内存R1，降到D。第二次到达T1时也就是在E点，此时由于前一次GC的R1小于S1，也就是前一次回收的内存太少，所以此时不触发GC，而是扩展堆到T2。当到达T2，也就是F点时触发GC回到G，回收内存为R2。再次到达T1，由于R2大于S1，也就是前一次GC回收了足够多的内存，此时触发GC。后面以此类推。</p>
+
+<p>关于Ti阈值的选择，作者是通过实验决定的，给出了两个参考，对于可用内存为64MB的应用：<br>
+0.40, 0.55, 0.70, 0.85, 0.92, 1.00, 1.15, 和 30.00。<br>
+对于可用内存为128MB的应用：<br>
+0.80, 0.85, 0.90, 0.95, 1.00, 1.05, 和 10.00。</p>
+
+<h3>四、总结</h3>
+
+<p>这两篇论文都尝试用数学的方法来描述所遇到的GC问题。第一篇利用分配弹性的计算来改变堆的增长率，第二篇利用FSD来限定是触发GC还是增长堆，并且设计基于阈值的新算法来进行堆扩展。</p>
+
+    </div>
+    <hr>
+    <!-- 多说评论框 start -->
+	<div class="ds-thread" data-thread-key="/2015/12/06/Overview_of_gc_optimization_based_on_heap_growth" data-title="基于动态堆增长技术的GC调优综述" data-url="hello2mao.github.io/2015/12/06/Overview_of_gc_optimization_based_on_heap_growth.html"></div>
+<!-- 多说评论框 end -->
+<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"hello2mao"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		 || document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+<!-- 多说公共JS代码 end -->
+  </div>
+  <!-- 目录 -->
+  <div id="content_table" style="position:fixed;right:20px;top:120px;display:none;">
+    <div class="panel panel-success">
+      <div class="panel-body" id="nav"></div>
+    </div>
+  </div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div style="position:fixed;right:15px;top:62px;">
+  <button id="content_btn" class="btn btn-primary" style="width:43px; height:34px;">
+    <i class="fa fa-lg fa-plus"></i>
+  </button>
+</div>
+<div style="position:fixed;right:15px;top:20px;">
+  <button id="nav_btn" class="btn btn-primary">
+    <i class="fa fa-lg fa-navicon"></i>
+  </button>
+</div>
+<script type="text/javascript" src="/public/js/jquery.js"></script>
+<script type="text/javascript" src="/public/js/bootstrap.js"></script>
+<script src="/public/js/jquery.pjax.js"></script>
+<script src="/public/js/prettify/prettify.js"></script>
+<script src="/public/js/base.js"></script>
+<!--
+<script src="/public/js/jquery.scrollUp.js"></script>
+-->
+<script>
+    $('a[href="#tags"]').tab('show');
+</script>
+
+
+<!--button是右上方导航和显示目录的按钮-->
+
+
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', '', '');
+  ga('send', 'pageview');
+</script>
+</body>
+</html>

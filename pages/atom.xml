@@ -1,0 +1,2347 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0">
+  <channel>
+    <title>毛宏斌的博客</title>
+    <link>http://hello2mao.github.io</link>
+    <description>My personal blog</description>
+    
+      <item>
+        <title>Data Analysis Job</title>
+        <link>http://hello2mao.github.io/2017/01/08/Data_Analysis_Job.html</link>
+        <guid isPermaLink="true">http://hello2mao.github.io/2017/01/08/Data_Analysis_Job.html</guid>
+        <pubDate>Sun, 08 Jan 2017 00:00:00 +0800</pubDate>
+        <description>&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;社招网址&lt;br&gt;
+&lt;a href=&quot;http://talent.baidu.com/external/baidu/index.html#/social/2&quot;&gt;http://talent.baidu.com/external/baidu/index.html#/social/2&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;内推职位  &lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;社招职位  &lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;商业运营规划部_数据产品经理(2016-12-22)&lt;br&gt;
+&lt;a href=&quot;http://talent.baidu.com/external/baidu/index.html#/jobDetail/2/1276657910&quot;&gt;http://talent.baidu.com/external/baidu/index.html#/jobDetail/2/1276657910&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;云计算事业部_资深经营数据分析师(2016-05-05)&lt;br&gt;
+&lt;a href=&quot;http://talent.baidu.com/external/baidu/index.html#/jobDetail/2/1145427988&quot;&gt;http://talent.baidu.com/external/baidu/index.html#/jobDetail/2/1145427988&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;大客户销售部_行业分析师(2015-07-07)&lt;br&gt;
+&lt;a href=&quot;http://talent.baidu.com/external/baidu/index.html#/jobDetail/2/886490122&quot;&gt;http://talent.baidu.com/external/baidu/index.html#/jobDetail/2/886490122&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;运维部_高级数据分析师(2016-06-21)&lt;br&gt;
+&lt;a href=&quot;http://talent.baidu.com/external/baidu/index.html#/jobDetail/2/1179687718&quot;&gt;http://talent.baidu.com/external/baidu/index.html#/jobDetail/2/1179687718&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;风险和信息管理部_资深风险策略分析师（标签方向）(2016-06-13)&lt;br&gt;
+&lt;a href=&quot;http://talent.baidu.com/external/baidu/index.html#/jobDetail/2/1172862138&quot;&gt;http://talent.baidu.com/external/baidu/index.html#/jobDetail/2/1172862138&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;风险和信息管理部_资深风险策略分析师（策略方向）(2016-06-02)&lt;br&gt;
+&lt;a href=&quot;http://talent.baidu.com/external/baidu/index.html#/jobDetail/2/1172843563&quot;&gt;http://talent.baidu.com/external/baidu/index.html#/jobDetail/2/1172843563&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;风险和信息管理部_高级风险数据分析师（监控方向）(2016-06-02)&lt;br&gt;
+&lt;a href=&quot;http://talent.baidu.com/external/baidu/index.html#/jobDetail/2/1172813574&quot;&gt;http://talent.baidu.com/external/baidu/index.html#/jobDetail/2/1172813574&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+      </item>
+    
+      <item>
+        <title>Android ART GC之GrowForUtilization的分析</title>
+        <link>http://hello2mao.github.io/2015/12/16/Android_ART_GC_GrowForUtilization.html</link>
+        <guid isPermaLink="true">http://hello2mao.github.io/2015/12/16/Android_ART_GC_GrowForUtilization.html</guid>
+        <pubDate>Wed, 16 Dec 2015 00:00:00 +0800</pubDate>
+        <description>&lt;p&gt;&lt;strong&gt;&lt;em&gt;版权声明：本文为博主原创文章，未经博主允许不得转载。&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Android运行过程中有多种情况会触发垃圾回收（GC，garbage collection），以android 5.0为例，可以发现，在应用运行过程中最常见的触发GC的方式如下图所示：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/public/img/technology/gc_trigger.png&quot; alt=&quot;gc_trigger.png&quot;&gt;&lt;/p&gt;
+
+&lt;p&gt;此图是通过android studio截取的android应用运行过程中某应用内存占用情况的动态变化图，蓝色部分是应用占用的内存，灰色部分是当前空闲的内存。可以看到，在白色圈内的那点，当应用空闲的内存到达某阈值时，android系统认为当前内存不太够，所以系统唤醒GC线程来进行垃圾回收。通过logcat可以看到打印出如下log表示垃圾回收的效果。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/public/img/technology/gc_logcat_log.png&quot; alt=&quot;gc_logcat_log.png&quot;&gt;&lt;/p&gt;
+
+&lt;p&gt;在现在android 5.0 ART GC中，每次GC清扫玩垃圾之后，系统都会重新调整堆大小以控制堆的剩余内存使其满足预先设置好的堆利用率等限制条件（实际上，java堆在应用启动时就已经初始化并固定到内存地址空间中，这里调整堆大小的意思只是调整堆可用内存这个统计量，android这样做的目的是通过动态调整堆可用内存这个统计量，使堆中的对象分布更加紧凑，可以稍微消除由于采取标记清楚垃圾回收算法导致的堆内存碎片化）。如下图所示：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/public/img/technology/gc_trigger_al.png&quot; alt=&quot;gc_trigger_al.png&quot;&gt;&lt;/p&gt;
+
+&lt;p&gt;GC触发后，回收了应用不再使用的垃圾对象，这样可用内存就变大了，如上图右边collect garbage过程所示，但是android系统不会把这么大一块可用内存都给应用，它会根据系统预先设定的堆利用率等参数调整可用内存的大小，暂且把这块调节大小后的可用内存称为预留空闲内存，这一过程在代码里通过调用GrowForUtilization实现。当这块预留空闲内存被应用使用差不多的时候就会触发下次GC。通过后面的分析可以看出这个预留空闲内存的大小从某种意义上来说几乎就是一个定值。&lt;/p&gt;
+
+&lt;p&gt;下面我就详细分析下GrowForUtilization的实现。&lt;/p&gt;
+
+&lt;p&gt;GrowForUtilization在art/runtime/gc/heap.cc中实现。代码如下：&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-&quot; data-lang=&quot;&quot;&gt;void Heap::GrowForUtilization(collector::GarbageCollector* collector_ran) {
+  // We know what our utilization is at this moment.
+  // This doesn't actually resize any memory. It just lets the heap grow more when necessary.
+  const uint64_t bytes_allocated = GetBytesAllocated();
+  last_gc_size_ = bytes_allocated;
+  last_gc_time_ns_ = NanoTime();
+  uint64_t target_size;
+  collector::GcType gc_type = collector_ran-&amp;gt;GetGcType();
+  if (gc_type != collector::kGcTypeSticky) {
+    // Grow the heap for non sticky GC.
+    const float multiplier = HeapGrowthMultiplier();  // Use the multiplier to grow more for
+    // foreground.
+    intptr_t delta = bytes_allocated / GetTargetHeapUtilization() - bytes_allocated;
+    CHECK_GE(delta, 0);
+    target_size = bytes_allocated + delta * multiplier;
+    target_size = std::min(target_size,
+                         bytes_allocated + static_cast&amp;lt;uint64_t&amp;gt;(max_free_ * multiplier));
+    target_size = std::max(target_size,
+                         bytes_allocated + static_cast&amp;lt;uint64_t&amp;gt;(min_free_ * multiplier));
+    native_need_to_run_finalization_ = true;
+    next_gc_type_ = collector::kGcTypeSticky;
+  } else {
+    collector::GcType non_sticky_gc_type =
+        have_zygote_space_ ? collector::kGcTypePartial : collector::kGcTypeFull;
+    // Find what the next non sticky collector will be.
+    collector::GarbageCollector* non_sticky_collector = FindCollectorByGcType(non_sticky_gc_type);
+    // If the throughput of the current sticky GC &amp;gt;= throughput of the non sticky collector, then
+    // do another sticky collection next.
+    // We also check that the bytes allocated aren't over the footprint limit in order to prevent a
+    // pathological case where dead objects which aren't reclaimed by sticky could get accumulated
+    // if the sticky GC throughput always remained &amp;gt;= the full/partial throughput.
+    if (current_gc_iteration_.GetEstimatedThroughput() * kStickyGcThroughputAdjustment &amp;gt;=
+        non_sticky_collector-&amp;gt;GetEstimatedMeanThroughput() &amp;amp;&amp;amp;
+        non_sticky_collector-&amp;gt;NumberOfIterations() &amp;gt; 0 &amp;amp;&amp;amp;
+        bytes_allocated &amp;lt;= max_allowed_footprint_) {
+      next_gc_type_ = collector::kGcTypeSticky;
+    } else {
+      next_gc_type_ = non_sticky_gc_type;
+    }
+    // If we have freed enough memory, shrink the heap back down.
+    if (bytes_allocated + max_free_ &amp;lt; max_allowed_footprint_) {
+      target_size = bytes_allocated + max_free_;
+    } else {
+      target_size = std::max(bytes_allocated, static_cast&amp;lt;uint64_t&amp;gt;(max_allowed_footprint_));
+    }
+  }
+  if (!ignore_max_footprint_) {
+    SetIdealFootprint(target_size);
+    if (IsGcConcurrent()) {
+      // Calculate when to perform the next ConcurrentGC.
+      // Calculate the estimated GC duration.
+      const double gc_duration_seconds = NsToMs(current_gc_iteration_.GetDurationNs()) / 1000.0;
+      // Estimate how many remaining bytes we will have when we need to start the next GC.
+      size_t remaining_bytes = allocation_rate_ * gc_duration_seconds;
+      remaining_bytes = std::min(remaining_bytes, kMaxConcurrentRemainingBytes);
+      remaining_bytes = std::max(remaining_bytes, kMinConcurrentRemainingBytes);
+      if (UNLIKELY(remaining_bytes &amp;gt; max_allowed_footprint_)) {
+        // A never going to happen situation that from the estimated allocation rate we will exceed
+        // the applications entire footprint with the given estimated allocation rate. Schedule
+        // another GC nearly straight away.
+        remaining_bytes = kMinConcurrentRemainingBytes;
+      }
+      DCHECK_LE(remaining_bytes, max_allowed_footprint_);
+      DCHECK_LE(max_allowed_footprint_, GetMaxMemory());
+      // Start a concurrent GC when we get close to the estimated remaining bytes. When the
+      // allocation rate is very high, remaining_bytes could tell us that we should start a GC
+      // right away.
+      concurrent_start_bytes_ = std::max(max_allowed_footprint_ - remaining_bytes,
+                                       static_cast&amp;lt;size_t&amp;gt;(bytes_allocated));
+    }
+  }
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;代码根据GC的种类来设置target_size，而target-size - bytes-allocated就是上面所说的预留空闲内存。设max-free- = a，min-free- = b，utilization = c，multiplier = d，bytes-allocated = x，target-size = T。&lt;/p&gt;
+
+&lt;p&gt;当GC是不是sticky gc时，&lt;br&gt;
+delta = x/c - x&lt;br&gt;
+t1 = x + d * delta = x + d(1-c)x/c&lt;br&gt;
+t2 = min(t1,x + da)&lt;br&gt;
+T = max(t2,x + db)&lt;br&gt;
+预留空闲内存 = T - x&lt;br&gt;
+而当GC是sticky gc时，&lt;br&gt;
+预留空闲内存 = a&lt;br&gt;
+假如开发版的配置（build.prop中配置）：max-free- = 8M，min-free- = 4M，utilization = 0.75，multiplier = 2 。  &lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-&quot; data-lang=&quot;&quot;&gt;dalvik.vm.heaptargetutilization=0.75
+dalvik.vm.heapminfree=4m
+dalvik.vm.heapmaxfree=8m
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;可以得到预留空闲内存与已使用内存的关系如下图所示：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/public/img/technology/gc_graph.png&quot; alt=&quot;gc_graph.png&quot;&gt;&lt;/p&gt;
+
+&lt;p&gt;可以看出，当GC为sticky gc的时候，预留空闲内存就是一个定值为max-free-。而当GC为非sticky gc
+的时候，预留空闲内存的大小与应用已使用的内存有关，以本开发版为例，当应用的占用内存超过24M后，预留空闲内存也成为了一个定值16M，而对于用户经常使用的应用，很容易超过24M。超过24M之后，每次GC后，预留空闲内存就为16M，当16M用光，就会触发下一个GC。&lt;/p&gt;
+
+&lt;p&gt;所以当应用在短时间内分配了很多对象的话，8/16M内存会很快用光，这样的话GC的数量会非常的多，如下图所示：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/public/img/technology/gc_sohu.png&quot; alt=&quot;gc_sohu.png&quot;&gt;&lt;/p&gt;
+
+&lt;p&gt;从代码里也可以看出，如果本次GC不是sticky gc，那么下次gc就一定是sticky gc。而如果本次gc是sticky gc，那么会根据gc的吞吐量来决定下次是sticky gc还是partial gc或者full gc。&lt;/p&gt;
+</description>
+      </item>
+    
+      <item>
+        <title>Android 5.0 ART GC 对比 Android 4.x Dalvik GC</title>
+        <link>http://hello2mao.github.io/2015/12/11/ART_GC_VS_Dalvik_GC.html</link>
+        <guid isPermaLink="true">http://hello2mao.github.io/2015/12/11/ART_GC_VS_Dalvik_GC.html</guid>
+        <pubDate>Fri, 11 Dec 2015 00:00:00 +0800</pubDate>
+        <description>&lt;p&gt;&lt;strong&gt;&lt;em&gt;版权声明：本文为博主原创文章，未经博主允许不得转载。&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;为了研究Android虚拟机中的内存管理机制，前期进行了初步调研，下面列出Android 5.0 ART 中GC的更新概要以供参考，资料来源于网络以及对源码的初步阅读。  &lt;/p&gt;
+
+&lt;p&gt;谷歌在2014年6月26日的I/O 2014开发者大会上正式推出了Android L,有以下几个方面值得重点关注：&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;全新的UI/UE设计风格和框架Material Design以及和通知（Notification）栏有关的UI/UE变化&lt;/li&gt;
+&lt;li&gt;能大幅改善系统运行速度的运行时库Android Runtime（简称ART）。&lt;/li&gt;
+&lt;li&gt;致力于改善功耗的Project Volta。&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;其中第二点中得ART是Android Runtime的缩写，它是Google用于替代饱受诟病的Dalvik虚拟机的替代品。其实，ART早在Android KitKat（版本号为4.4）就已经推出，不过当时它还很不完善，所以被放到设置程序中的“开发者选项”里供一些供感兴趣的开发者使用。&lt;/p&gt;
+
+&lt;p&gt;ART究竟有什么神奇之处呢？根据相关资料，总结如下：&lt;br&gt;
+（1）采用AOT（Ahead-Of-Time，预编译）编译技术，它能将Java字节码直接转换成目标机器的机器码。&lt;br&gt;
+（2）更为高效和细粒度的垃圾回收机制（GC）。  &lt;/p&gt;
+
+&lt;p&gt;下面简短的介绍下android 5.0 ART GC 的改动：&lt;/p&gt;
+
+&lt;p&gt;（一）内存分配器  &lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;&lt;p&gt;Dalvik&lt;br&gt;
+在Android 系统C 语言库bionic 中直接使用了dlmalloc这一个十分流行的开源内存分配器。&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;ART&lt;br&gt;
+参考&lt;a href=&quot;http://blog.tek-life.com/understanding-ros-memory-allocator-in-art-virtual-machine/&quot;&gt;http://blog.tek-life.com/understanding-ros-memory-allocator-in-art-virtual-machine/&lt;/a&gt;
+创建了一种名叫Runs-of-Slots-Allocator（RosAlloc）的分配器。这种分配器的特点是分配内存时，会采用更细粒度的锁控制。例如有不同的锁来保护不同的对象分配，或者当线程分配一些小尺寸对象时使用线程自己的堆栈，从而可完全不使用锁保护。同时这种分配器也更适合多线程的实现。&lt;br&gt;
+据Google自己的数据，RosAlloc能达到最多10倍的速度提升.&lt;/p&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;（二）垃圾回收算法&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;&lt;p&gt;Dalvik&lt;br&gt;
+Dalvik的垃圾回收分为两个阶段。&lt;br&gt;
+第一个阶段，Dalvik暂停所有的线程来分析堆的使用情况。&lt;br&gt;
+第二个阶段，Dalvik暂停所有线程来清理堆。这就会导致应用在性能上的“卡顿”。  &lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;ART&lt;br&gt;
+ART改进后的垃圾回收算法只暂停线程一次。ART 能够做到这一点，是因为应用本身做了垃圾回收的一些工作。垃圾回收启动后，不再是两次暂停，而是一次暂停。在遍历阶段，应用不需要暂停，同时垃圾回收停时间也大大缩短，因为 Google使用了一种新技术（packard pre-cleaning），在暂停前就做了许多事情，减轻了暂停时的工作量。&lt;/p&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;（三）超大对象存储空间的支持&lt;br&gt;
+ART还引入了一个特殊的超大对象存储空间(large object space，LOS)，这个空间与堆空间是分开的，不过仍然驻留在应用程序内存空间中。这一特殊的设计是为了让ART可以更好的管理较大的对象，比如位图对象(bitmaps)。&lt;br&gt;
+堆空间碎片化严重时，较大的对象会带来一些问题。比如，在分配一个此类对象时，相比其他普通对象，会导致垃圾收集器启动的次数增加很多。有了这个超大对象存储空间的支持，垃圾收集器因堆空间分段而引发调用次数将会大大降低，这样垃圾收集器就能做更加合理的内存分配，从而降低运行时开销。&lt;/p&gt;
+
+&lt;p&gt;（四）Moving GC策略&lt;br&gt;
+ART为了解决堆空间内存碎片化的问题，近期提出了“Moving GC”的方法。其目的是清理堆栈以减少内存碎片。由于这个工作会导致应用程序长时间中断，所以它必须等程序退到后台时才能开展。核心思想是，当应用程序运行在后台时，将程序的堆空间做段合并操作。&lt;/p&gt;
+
+&lt;p&gt;（五）GC调度策略的多样性&lt;br&gt;
+经过比较Dalvik和ART的源码后，发现ART中GC调度策略发生了很大的变动。&lt;br&gt;
+具体来说分为以下几个方面  &lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-&quot; data-lang=&quot;&quot;&gt;（a）GC触发方式  
+（b）GC的种类  
+（c）垃圾回收算法的多样性  
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;（a）GC触发方式&lt;br&gt;
+（1）Dalvik&lt;br&gt;
+  GC触发方式主要有GC&lt;em&gt;FOR&lt;/em&gt;MALLOC;GC&lt;em&gt;CONCURRENT;GC&lt;/em&gt;EXPLICIT;GC&lt;em&gt;BEFORE&lt;/em&gt;OOM这四种。&lt;br&gt;
+（2）ART&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-&quot; data-lang=&quot;&quot;&gt;enum GcCause {  
+  // GC triggered by a failed allocation. Thread doing allocation is blocked waiting for GC before  
+  // retrying allocation.  
+  kGcCauseForAlloc,  
+  // A background GC trying to ensure there is free memory ahead of allocations.  
+  kGcCauseBackground,  
+  // An explicit System.gc() call.  
+  kGcCauseExplicit,  
+  // GC triggered for a native allocation.  
+  kGcCauseForNativeAlloc,  
+  // GC triggered for a collector transition.  
+  kGcCauseCollectorTransition,  
+  // Not a real GC cause, used when we disable moving GC (currently for     GetPrimitiveArrayCritical).  
+  kGcCauseDisableMovingGc,  
+  // Not a real GC cause, used when we trim the heap.  
+  kGcCauseTrim,  
+  // GC triggered for background transition when both foreground and background     collector are CMS.  
+  kGcCauseHomogeneousSpaceCompact, 
+};  
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;（b）GC的种类&lt;br&gt;
+（1）Dalvik&lt;br&gt;
+就一种GC(并发、非并发)&lt;br&gt;
+（2）ART&lt;br&gt;
+三种GC(并发、非并发)：快速GC策略Sticky GC；局部GC策略Partial GC；全局GC策略Full GC。&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-&quot; data-lang=&quot;&quot;&gt;enum GcType {  
+  // Placeholder for when no GC has been performed.  
+  kGcTypeNone,  
+  // Sticky mark bits GC that attempts to only free objects allocated since the last GC.  
+  kGcTypeSticky,  
+  // Partial GC that marks the application heap but not the Zygote.
+  kGcTypePartial,  
+  // Full GC that marks and frees in both the application and Zygote heap. 
+  kGcTypeFull,  
+  // Number of different GC types.  
+  kGcTypeMax, 
+};  
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;（c）垃圾回收算法的多样性&lt;br&gt;
+（1）Dalvik&lt;br&gt;
+两种：串行Mark-Sweep算法、并行Mark-Sweep算法&lt;br&gt;
+（2）ART  &lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-&quot; data-lang=&quot;&quot;&gt;enum CollectorType {  
+// No collector selected.  
+kCollectorTypeNone,  
+// Non concurrent mark-sweep.  
+kCollectorTypeMS,  
+// Concurrent mark-sweep.  
+kCollectorTypeCMS,  
+// Semi-space / mark-sweep hybrid, enables compaction.  
+kCollectorTypeSS,  
+// A generational variant of kCollectorTypeSS.  
+kCollectorTypeGSS,  
+// Mark compact colector.  
+kCollectorTypeMC,  
+// Heap trimming collector, doesn't do any actual collecting.  
+kCollectorTypeHeapTrim,  
+// A (mostly) concurrent copying collector.  
+kCollectorTypeCC,  
+// A homogeneous space compaction collector used in background transition  
+// when both foreground and background collector are CMS.  
+kCollectorTypeHomogeneousSpaceCompact,  
+};  
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;可以看到，除了标记清楚算法，基于半空间（semi-space）的拷贝算法也实现了，其中GSS（分代半空间拷贝算法）的实现具有很大的研究性。&lt;/p&gt;
+
+&lt;p&gt;上面只是初步的认识，很多地方得详细研究后才能确定。&lt;/p&gt;
+
+&lt;p&gt;参考：&lt;br&gt;
+【1】&lt;a href=&quot;http://www.cnblogs.com/jinkeep/p/3818180.html&quot;&gt;http://www.cnblogs.com/jinkeep/p/3818180.html&lt;/a&gt;  【原创】【Android】揭秘 ART 细节 ---- Garbage collection&lt;br&gt;
+【2】&lt;a href=&quot;https://www.infinum.co/the-capsized-eight/articles/art-vs-dalvik-introducing-the-new-android-runtime-in-kit-kat&quot;&gt;https://www.infinum.co/the-capsized-eight/articles/art-vs-dalvik-introducing-the-new-android-runtime-in-kit-kat&lt;/a&gt;&lt;br&gt;
+【3】&lt;a href=&quot;http://www.lingcc.com/2014/07/16/12599/&quot;&gt;http://www.lingcc.com/2014/07/16/12599/&lt;/a&gt;  近距离端详Android ART运行时库&lt;br&gt;
+【4】&lt;a href=&quot;http://blog.tek-life.com/understanding-garbage-collector-in-art-of-android/&quot;&gt;http://blog.tek-life.com/understanding-garbage-collector-in-art-of-android/&lt;/a&gt;   &lt;/p&gt;
+</description>
+      </item>
+    
+      <item>
+        <title>基于动态堆增长技术的GC调优综述</title>
+        <link>http://hello2mao.github.io/2015/12/06/Overview_of_gc_optimization_based_on_heap_growth.html</link>
+        <guid isPermaLink="true">http://hello2mao.github.io/2015/12/06/Overview_of_gc_optimization_based_on_heap_growth.html</guid>
+        <pubDate>Sun, 06 Dec 2015 00:00:00 +0800</pubDate>
+        <description>&lt;p&gt;&lt;strong&gt;&lt;em&gt;版权声明：本文为博主原创文章，未经博主允许不得转载。&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;hr&gt;
+
+&lt;h3&gt;一、论文概要&lt;/h3&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;em&gt;The Economics of Garbage Collection&lt;/em&gt;&lt;/strong&gt;&lt;br&gt;
+&lt;strong&gt;&lt;em&gt;作  者：&lt;/em&gt;&lt;/strong&gt;  J Singer，RE Jones，G Brown，M Luján&lt;br&gt;
+&lt;strong&gt;&lt;em&gt;摘  要：&lt;/em&gt;&lt;/strong&gt;  This paper argues that economic theory can improve our understanding of memory management. We introduce the allocation curve, as an analogue of the demand curve from microeconomics. An allocation curve for a program characterises how the amount of garbage collection activity required during its execution varies in relation to the heap size associated with that program. The standard treatment of microeconomic demand curves (shifts and elasticity) can be applied directly and intuitively to our new allocation curves. As an application of this new theory, we show how allocation elasticity can be used to control the heap growth rate for variable sized heaps in Jikes RVM.&lt;br&gt;
+&lt;strong&gt;&lt;em&gt;出版源：&lt;/em&gt;&lt;/strong&gt;  《Acm Sigplan Notices》, 2010, 45(8):103-112&lt;br&gt;
+&lt;strong&gt;&lt;em&gt;关键词：&lt;/em&gt;&lt;/strong&gt;  allocation curve / elasticity / garbage collection / java / memory management / microeconomics&lt;br&gt;
+&lt;strong&gt;&lt;em&gt;被引量：&lt;/em&gt;&lt;/strong&gt;  10&lt;/p&gt;
+
+&lt;hr&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;em&gt;Controlling garbage collection and heap growth to reduce the execution time of Java applications&lt;/em&gt;&lt;/strong&gt;&lt;br&gt;
+&lt;strong&gt;&lt;em&gt;作  者：&lt;/em&gt;&lt;/strong&gt;  T Brecht，E Arjomandi，L Chang，P Hang&lt;br&gt;
+&lt;strong&gt;&lt;em&gt;摘  要：&lt;/em&gt;&lt;/strong&gt;  In systems that support garbage collection, a tension exists between collecting garbage too frequently and not collecting garbage frequently enough. Garbage collection that occurs too frequently may introduce unnecessary overheads at the rist of not collecting much garbage during each cycle. On the other hand, collecting garbage too infrequently can result in applications that execute with a large amount of virtual memory (i.e., with a large footprint) and suffer from increased execution times die to paging. In this paper, we use a large colleciton of Java applications and the highly tuned and widely used Boehm-Demers-Weiser (BDW) conservative mark-and-sweep garbage collector to experimentally examine the extent to which the frequency of garbage collectio impacts an application&amp;#39;s execution time, footprint, and pause times. We use these results to devise some guidelines for controlling garbage and heap growth in a conservative garbage collection in order to minimize application execution times. Then we describe new strategies for controlling in order to minimize application execution times.&lt;br&gt;
+&lt;strong&gt;&lt;em&gt;出版源：&lt;/em&gt;&lt;/strong&gt;  《Acm Transactions on Programming Languages &amp;amp; Sy..., 2006, 28(11):353--366&lt;br&gt;
+&lt;strong&gt;&lt;em&gt;关键词：&lt;/em&gt;&lt;/strong&gt;  garbage collection / heap growth / implementation / Java / memory / management / performance measurement / programming languages&lt;br&gt;
+&lt;strong&gt;&lt;em&gt;被引量：&lt;/em&gt;&lt;/strong&gt;  73&lt;/p&gt;
+
+&lt;h3&gt;二、The Economics of Garbage Collection&lt;/h3&gt;
+
+&lt;p&gt;全文在这里：&lt;a href=&quot;http://citeseerx.ist.psu.edu/viewdoc/download;jsessionid=CF223C43EEB7D2C4D85275FD75F03E7F?doi=10.1.1.164.2789&amp;rep=rep1&amp;type=pdf&quot;&gt;Citeseer&lt;/a&gt;  &lt;/p&gt;
+
+&lt;p&gt;这篇论文提出了分配弹性的概念，并利用系统的实时弹性来调节堆的增长速率。&lt;/p&gt;
+
+&lt;h4&gt;2.1 GC的分配曲线及分配弹性&lt;/h4&gt;
+
+&lt;p&gt;这篇论文针对GC提出了分配曲线的概念，如下图所示：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/public/img/technology/allocation_curve.png&quot; alt=&quot;allocation_curve.png&quot;&gt;  &lt;/p&gt;
+
+&lt;p&gt;此概念来源于微观经济学中的供求关系，本文模仿微观经济学中的弹性理论，提出了分配弹性的概念，用来描述java堆大小的变化对GC数量的影响(其中g是GC的数量，h是java堆的大小)：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/public/img/technology/Eq_2.png&quot; alt=&quot;Eq_2.png&quot;&gt;&lt;/p&gt;
+
+&lt;p&gt;作者把此公式化简为：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/public/img/technology/Eq_3.png&quot; alt=&quot;Eq_3&quot;&gt;&lt;/p&gt;
+
+&lt;p&gt;那么当前的分配弹性就可以用下面的公式来计算：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/public/img/technology/Eq_4.png&quot; alt=&quot;Eq_4.png&quot;&gt;&lt;/p&gt;
+
+&lt;p&gt;用DaCapo Benchmark测试此分配曲线，得到如下图所示：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/public/img/technology/benchmark-test.png&quot; alt=&quot;benchmark-test.png&quot;&gt;&lt;/p&gt;
+
+&lt;p&gt;假设分配曲线的分配弹性为E，如果|E|&lt;1,那么此时java堆过大，存在浪费空间的现象；如果|E|&gt;1,那么此时大多数GC都不能回收足够的内存，也就是java堆剩余空间过小。&lt;/p&gt;
+
+&lt;h4&gt;2.2 利用分配弹性来控制堆增长&lt;/h4&gt;
+
+&lt;p&gt;我们知道java堆大小或者说java堆是否需要扩大、扩大多少取决于两个因素：（1）当前GC负载，也就是当前GC执行的时间。（2）当前对象存活率。当这两个值都比较大的时候，java堆就需要增大，并且值越大java堆增大越多。&lt;/p&gt;
+
+&lt;p&gt;论文的作者提出了利用系统的实时分配弹性来控制堆增长的方法。首先系统启动的时候设定一个作为参考标准的分配弹性E，当系统的实时弹性|currE| &amp;gt; |E|时，java堆的大小就需要增加，此时，较大的|currE|会减慢堆增长的频率，较小的|currE|意味着堆会迅速的扩大。同样用benchmark测试得到如下图所示：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/public/img/technology/benchmark-test-2.png&quot; alt=&quot;benchmark-test-2.png&quot;&gt;&lt;/p&gt;
+
+&lt;p&gt;可以看出基于弹性的堆增长策略更加的灵活，能更加简单的去改变堆增长的速率，当然，减小应用执行时间的开销就是堆变得更大，也就消耗了更多的内存空间。&lt;/p&gt;
+
+&lt;h3&gt;三、 Controlling garbage collection and heap growth to reduce the execution time of Java applications&lt;/h3&gt;
+
+&lt;p&gt;全文在这里：&lt;a href=&quot;http://citeseerx.ist.psu.edu/viewdoc/download;jsessionid=227A37ABF73E6C66E33D41B0EFE7CF96?doi=10.1.1.23.6538&amp;rep=rep1&amp;type=pdf&quot;&gt;Citeseer&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;这篇论文主要关注以下两点：&lt;br&gt;
+（1）何时触发GC。&lt;br&gt;
+（2）何时java堆应该扩张，应该扩张多大。&lt;/p&gt;
+
+&lt;h4&gt;3.1 BDW标记清楚垃圾回收器&lt;/h4&gt;
+
+&lt;p&gt;针对问题一，作者使用的是Boehm-Demers-Weiser(BDW)标记清除垃圾回收器，何时触发GC取决于一个称为free-space-divisor(FSD)的常数，如下面伪代码所示：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/public/img/technology/BDW.png&quot; alt=&quot;BDW.png&quot;&gt;&lt;/p&gt;
+
+&lt;p&gt;当内存分配器在分配一个对象遇到java堆空间不够时就会调用此代码，此段代码会检查已使用的内存是否大于heap/FSD，如果是就触发GC，否则就根据要求扩展堆。&lt;/p&gt;
+
+&lt;h4&gt;3.2 基于阈值的堆扩展&lt;/h4&gt;
+
+&lt;p&gt;上节介绍的BDW垃圾回收器扩展堆时没有考虑系统的可用内存，如果系统可用内存比较少了，对于扩展堆就应该谨慎考虑。&lt;/p&gt;
+
+&lt;p&gt;考虑到这个，作者设计并实现了一个基于可用内存阈值的的新算法来控制GC和堆增长。同时也针对最开始提出的问题二。如下图所示：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/public/img/technology/thresholds-1.png&quot; alt=&quot;thresholds-1.png&quot;&gt;&lt;/p&gt;
+
+&lt;p&gt;T1~Ti为设定的阈值，当第一次到达阈值时，GC会触发。到达阈值Ti而触发GC所回收的内存为Ri，Ri用来决定下次到达Ti时是否GC。假设：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/public/img/technology/thresholds-2.png&quot; alt=&quot;thresholds-2.png&quot;&gt;&lt;/p&gt;
+
+&lt;p&gt;当第一次到达T1时触发GC，也就是C点。回收内存R1，降到D。第二次到达T1时也就是在E点，此时由于前一次GC的R1小于S1，也就是前一次回收的内存太少，所以此时不触发GC，而是扩展堆到T2。当到达T2，也就是F点时触发GC回到G，回收内存为R2。再次到达T1，由于R2大于S1，也就是前一次GC回收了足够多的内存，此时触发GC。后面以此类推。&lt;/p&gt;
+
+&lt;p&gt;关于Ti阈值的选择，作者是通过实验决定的，给出了两个参考，对于可用内存为64MB的应用：&lt;br&gt;
+0.40, 0.55, 0.70, 0.85, 0.92, 1.00, 1.15, 和 30.00。&lt;br&gt;
+对于可用内存为128MB的应用：&lt;br&gt;
+0.80, 0.85, 0.90, 0.95, 1.00, 1.05, 和 10.00。&lt;/p&gt;
+
+&lt;h3&gt;四、总结&lt;/h3&gt;
+
+&lt;p&gt;这两篇论文都尝试用数学的方法来描述所遇到的GC问题。第一篇利用分配弹性的计算来改变堆的增长率，第二篇利用FSD来限定是触发GC还是增长堆，并且设计基于阈值的新算法来进行堆扩展。&lt;/p&gt;
+</description>
+      </item>
+    
+      <item>
+        <title>详解Linux-I2C驱动</title>
+        <link>http://hello2mao.github.io/2015/12/02/Linux_I2C_driver.html</link>
+        <guid isPermaLink="true">http://hello2mao.github.io/2015/12/02/Linux_I2C_driver.html</guid>
+        <pubDate>Wed, 02 Dec 2015 00:00:00 +0800</pubDate>
+        <description>&lt;p&gt;&lt;strong&gt;&lt;em&gt;版权声明：本文为博主原创文章，未经博主允许不得转载。&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;h1&gt;目录&lt;/h1&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;#1&quot;&gt;一、LinuxI2C驱动--概述&lt;/a&gt;&lt;br&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#1.1&quot;&gt;1.1 写在前面&lt;/a&gt;&lt;br&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#1.2&quot;&gt;1.2 I2C&lt;/a&gt;&lt;br&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#1.3&quot;&gt;1.3 硬件&lt;/a&gt;&lt;br&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#1.4&quot;&gt;1.4 软件&lt;/a&gt;&lt;br&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#1.5&quot;&gt;1.5 参考&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#2&quot;&gt;二、LinuxI2C驱动--I2C总线&lt;/a&gt;&lt;br&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#2.1&quot;&gt;2.1 I2C总线物理结构&lt;/a&gt;&lt;br&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#2.2&quot;&gt;2.2 I2C总线特性&lt;/a&gt;&lt;br&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#2.3&quot;&gt;2.3 开始和停止条件&lt;/a&gt;&lt;br&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#2.4&quot;&gt;2.4 数据传输格式&lt;/a&gt;&lt;br&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#2.5&quot;&gt;2.5 响应&lt;/a&gt;&lt;br&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#2.6&quot;&gt;2.6 总线仲裁&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#3&quot;&gt;三、LinuxI2C驱动--解析EEPROM的读写&lt;/a&gt;&lt;br&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#3.1&quot;&gt;3.1 概述&lt;/a&gt;&lt;br&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#3.2&quot;&gt;3.2 设备地址&lt;/a&gt;&lt;br&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#3.3&quot;&gt;3.3 读eeprom&lt;/a&gt;&lt;br&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#3.4&quot;&gt;3.4 写eeprom&lt;/a&gt;&lt;br&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#4&quot;&gt;四、LinuxI2C驱动--从两个访问eeprom的例子开始&lt;/a&gt;&lt;br&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#4.1&quot;&gt;4.1 通过sysfs文件系统访问I2C设备&lt;/a&gt;&lt;br&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#4.2&quot;&gt;4.2 通过devfs访问I2C设备&lt;/a&gt;&lt;br&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#4.3&quot;&gt;4.3 总结&lt;/a&gt;&lt;br&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#5&quot;&gt;五、LinuxI2C驱动--浅谈LinuxI2C驱动架构&lt;/a&gt;&lt;br&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#5.1&quot;&gt;5.1 I2C体系结构&lt;/a&gt;&lt;br&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#5.2&quot;&gt;5.2 I2C重要数据结构&lt;/a&gt;&lt;br&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#6&quot;&gt;六、LinuxI2C驱动--I2C设备驱动&lt;/a&gt;&lt;br&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#6.1&quot;&gt;6.1 eeprom板级设备资源&lt;/a&gt;&lt;br&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#6.2&quot;&gt;6.2 AT24C01A EEPROM 的I2C设备驱动&lt;/a&gt;&lt;br&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#6.2.1&quot;&gt;6.2.1 at24_driver&lt;/a&gt;&lt;br&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#6.2.2&quot;&gt;6.2.2 at24probe() / at24remove()&lt;/a&gt;&lt;br&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#6.2.3&quot;&gt;6.2.3 at24binread()&lt;/a&gt;&lt;br&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#6.2.4&quot;&gt;6.2.4 at24binwrite()&lt;/a&gt;&lt;br&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#6.3&quot;&gt;6.3 总结&lt;/a&gt;&lt;br&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#7&quot;&gt;七、LinuxI2C驱动--I2C总线驱动&lt;/a&gt;&lt;br&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#7.1&quot;&gt;7.1 三星S5PV210 i2c适配器的硬件描述&lt;/a&gt;&lt;br&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#7.2&quot;&gt;7.2 i2c总线驱动的加载/卸载&lt;/a&gt;&lt;br&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#7.3&quot;&gt;7.3 i2c总线驱动的probe&lt;/a&gt;&lt;br&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#7.4&quot;&gt;7.4 启动i2c传输&lt;/a&gt;&lt;br&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#7.5&quot;&gt;7.5 通过中断来推进i2c的传输&lt;/a&gt;&lt;br&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#7.6&quot;&gt;7.6 总结&lt;/a&gt;&lt;br&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;1&quot;&gt;一、LinuxI2C驱动--概述&lt;/h2&gt;
+
+&lt;h3 id=&quot;1.1&quot;&gt;1.1 写在前面&lt;/h3&gt;
+
+&lt;p&gt;本人学生一枚，之前没有详细的接触过linux驱动，只是读过宋宝华的《Linux设备驱动开发详解》，这段时间想静下心来学习下linux i2c驱动，在网上找了很多资料，前辈们写的文章让我受益匪浅，但是一开始上手真的很痛苦，基本上大家都是从linux i2c体系结构的三大组成谈起：i2c核心，i2c总线驱动，i2c设备驱动，好抽象。所以我才想写这个文章，从一个新人的角度分享下我学习linux i2c驱动的心得，写的不对的地方欢迎大家批评指正。&lt;/p&gt;
+
+&lt;p&gt;因为对Linux设备模型还不是很熟悉，所以我按照如何去实现一个i2c传输来讲述，对于平台总线、设备与总线如何去匹配等暂时忽略。&lt;/p&gt;
+
+&lt;p&gt;当然很多东西都是我从网上搜刮而来的，也请大家原谅。我会把一些有用的博文链接放在后面，希望对大家有用。&lt;/p&gt;
+
+&lt;h3 id=&quot;1.2&quot;&gt;1.2 I2C&lt;/h3&gt;
+
+&lt;p&gt;I2C总线是由Philips公司开发的两线式串行总线，这两根线为时钟线(SCL)和双向数据线(SDA)。由于I2C总线仅需要两根线，因此在电路板上占用的空间更少，带来的问题是带宽较窄。I2C在标准模式下传输速率最高100Kb/s，在快速模式下最高可达400kb/s。属于半双工。&lt;/p&gt;
+
+&lt;p&gt;在嵌入式系统中，I2C应用非常广泛，大多数微控制器中集成了I2C总线，一般用于和RTC，EEPROM，智能电池电路，传感器，LCD以及其他类似设备之间的通信。&lt;/p&gt;
+
+&lt;h3 id=&quot;1.3&quot;&gt;1.3 硬件&lt;/h3&gt;
+
+&lt;p&gt;开发板：飞凌OK210 &lt;/p&gt;
+
+&lt;p&gt;CPU型号：Samsung S5PV210 &lt;/p&gt;
+
+&lt;p&gt;EEPROM型号：AT24C01A&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/public/img/technology/linux-i2c-1.3.png&quot; alt=&quot;linux-i2c-1.3.png&quot;&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;1.4&quot;&gt;1.4 软件&lt;/h3&gt;
+
+&lt;p&gt;linux版本：Linux 2.6.35.7 &lt;/p&gt;
+
+&lt;p&gt;I2C总线驱动：drivers/i2c/busses/i2c-s3c2410.c &lt;/p&gt;
+
+&lt;p&gt;eeprom驱动：drivers/misc/eeprom/at24.c&lt;/p&gt;
+
+&lt;h3 id=&quot;1.5&quot;&gt;1.5 参考&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;《Linux设备驱动开发详解》 宋宝华&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;http://blog.csdn.net/liaozc/article/details/6655015&quot;&gt;http://blog.csdn.net/liaozc/article/details/6655015&lt;/a&gt; Zechin的专栏&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;http://www.linxh.blog.chinaunix.net/uid/25445243/sid-179653-list-1.html&quot;&gt;http://www.linxh.blog.chinaunix.net/uid/25445243/sid-179653-list-1.html&lt;/a&gt; 辉辉308&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;http://www.linuxidc.com/Linux/2011-11/47651.htm&quot;&gt;http://www.linuxidc.com/Linux/2011-11/47651.htm&lt;/a&gt; Linux社区 作者：cjok376240497&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;http://www.embedu.org/Column/Column190.htm&quot;&gt;http://www.embedu.org/Column/Column190.htm&lt;/a&gt; 作者：刘老师,华清远见嵌入式学院讲师。&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;http://www.linuxidc.com/Linux/2013-10/91993p14.htm&quot;&gt;http://www.linuxidc.com/Linux/2013-10/91993p14.htm&lt;/a&gt; Linux社区 作者：赵春江&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;2&quot;&gt;二、LinuxI2C驱动--I2C总线&lt;/h2&gt;
+
+&lt;p&gt;本节分析下I2C总线协议，因为我的开发板是三星s5pv210芯片，所以就以此为例。&lt;/p&gt;
+
+&lt;h3 id=&quot;2.1&quot;&gt;2.1 I2C总线物理结构&lt;/h3&gt;
+
+&lt;p&gt;&lt;img src=&quot;/public/img/technology/linux-i2c-2.1.png&quot; alt=&quot;linux-i2c-2.1.png&quot;&gt;&lt;/p&gt;
+
+&lt;p&gt;I2C总线在物理连接上非常简单，分别由SDA(串行数据线)和SCL(串行时钟线)及上拉电阻组成。通信原理是通过对SCL和SDA线高低电平时序的控制，来产生I2C总线协议所需要的信号进行数据的传递。在总线空闲状态时，这两根线一般被上面所接的上拉电阻拉高，保持着高电平。&lt;/p&gt;
+
+&lt;h3 id=&quot;2.2&quot;&gt;2.2 I2C总线特性&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;每个连接到总线的器件都可以通过唯一的地址和一直存在的简单的主机/从机关系来软件设定地址&lt;/li&gt;
+&lt;li&gt;多主机总线，如果两个或者更多的主机同时初始化数据传输，可以通过仲裁防止数据被破坏。&lt;/li&gt;
+&lt;li&gt;串行8位双向数据传输&lt;/li&gt;
+&lt;li&gt;标准模式传输速率为100kbits/s&lt;/li&gt;
+&lt;li&gt;快速模式传输速率为400kbits/s&lt;/li&gt;
+&lt;li&gt;7位地址模&lt;/li&gt;
+&lt;li&gt;支持主机发、主机收，从机发、从机收&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;2.3&quot;&gt;2.3 开始和停止条件&lt;/h3&gt;
+
+&lt;p&gt;当SCL是高电平时，SDA线由高电平向低电平切换，表示开始；当SCL是高电平时，SDA线由低电平向高电平切换，表示停止。如下图所示。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/public/img/technology/linux-i2c-2.3.png&quot; alt=&quot;linux-i2c-2.3.png&quot;&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;2.4&quot;&gt;2.4 数据传输格式&lt;/h3&gt;
+
+&lt;p&gt;发送到SDA线上的每个字节必须为8位，每次传输可以发送的字节数不受限制，但是每个字节后面必须跟一个响应位。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/public/img/technology/linux-i2c-2.4.1.png&quot; alt=&quot;linux-i2c-2.4.1.png&quot;&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/public/img/technology/linux-i2c-2.4.2.png&quot; alt=&quot;linux-i2c-2.4.2.png&quot;&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;2.5&quot;&gt;2.5 响应&lt;/h3&gt;
+
+&lt;p&gt;数据传输必须带响应，响应时钟脉冲由主机产生，在SCL的第9个时钟脉冲上，前8个时钟脉冲用来传输8位即1byte的数据。 &lt;/p&gt;
+
+&lt;p&gt;当发送端收到响应时钟脉冲的时候就会拉高SDA从而释放SDA线，而接收端通过拉低SDA先来表示收到数据，即SDA在响应期间保持低电平。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/public/img/technology/linux-i2c-2.5.png&quot; alt=&quot;linux-i2c-2.5.png&quot;&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;2.6&quot;&gt;2.6 总线仲裁&lt;/h3&gt;
+
+&lt;p&gt;当两个主机在总线上产生竞争时就需要仲裁。 &lt;/p&gt;
+
+&lt;p&gt;SDA线低电平的优先级高于高电平。当一个主机首先产生低电平，而紧接着另一个主机产生高电平，但是由于低电平的优先级高于高电平，所以总线成低电平，也就是发低电平的主机占有总线而发高电平的主机不占有总线。如果两个主机都是发送低电平，那么继续比较下一个时钟周期的电平来决定谁占有总线，以此类推。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/public/img/technology/linux-i2c-2.6.png&quot; alt=&quot;linux-i2c-2.6.png&quot;&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;3&quot;&gt;三、LinuxI2C驱动--解析EEPROM的读写&lt;/h2&gt;
+
+&lt;p&gt;本节介绍eeprom的读写时序，参考的是AT24C01A的datasheet。&lt;/p&gt;
+
+&lt;h3 id=&quot;3.1&quot;&gt;3.1 概述&lt;/h3&gt;
+
+&lt;p&gt;AT24C01A的存储大小是1K，页大小是8个字节。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/public/img/technology/linux-i2c-3.1.png&quot; alt=&quot;linux-i2c-3.1.png&quot;&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;3.2&quot;&gt;3.2 设备地址&lt;/h3&gt;
+
+&lt;p&gt;&lt;img src=&quot;/public/img/technology/linux-i2c-3.2.png&quot; alt=&quot;linux-i2c-3.2.png&quot;&gt;&lt;/p&gt;
+
+&lt;p&gt;7位地址，前四位是1010，后三位由芯片引脚决定，由原理图可知后三位是000，也就是设备地址为0x50，因为数据传输是8位的，最后一位决定是读还是写。&lt;/p&gt;
+
+&lt;h3 id=&quot;3.3&quot;&gt;3.3 读eeprom&lt;/h3&gt;
+
+&lt;p&gt;&lt;img src=&quot;/public/img/technology/linux-i2c-3.3.png&quot; alt=&quot;linux-i2c-3.3.png&quot;&gt;&lt;/p&gt;
+
+&lt;p&gt;读任意地址eeprom的数据，首先第一个字节得先在SDA上发出eeprom的设备地址，也就是0x50，并且8位数据的最后一位是低电平表示写设备，然后第二个字节是要读的数据在eeprom内的地址，这样以后再产生开始条件，第三个字节在SDA上发出设备地址，此时的最后一位是高电平，表示读设备，第四个字节的数据就是读eeprom的对应地址的数据。&lt;/p&gt;
+
+&lt;p&gt;可以看到，读eeprom需要两个开始条件，也就是2条消息，第一条消息写eeprom确定读的位置，大小为2个字节，第二条消息才是真正的读eeprom。&lt;/p&gt;
+
+&lt;h3 id=&quot;3.4&quot;&gt;3.4 写eeprom&lt;/h3&gt;
+
+&lt;p&gt;&lt;img src=&quot;/public/img/technology/linux-i2c-3.4.png&quot; alt=&quot;linux-i2c-3.4.png&quot;&gt;&lt;/p&gt;
+
+&lt;p&gt;写eeprom就相对简单，只需一个开始条件，第一个字节发出设备地址和置最低位为低电平表示写eeprom，第二个字节发出要读数据在eerpom的地址，第三个字节读到的数据就对应地址在eeprom上的数据&lt;/p&gt;
+
+&lt;h2 id=&quot;4&quot;&gt;四、LinuxI2C驱动--从两个访问eeprom的例子开始&lt;/h2&gt;
+
+&lt;p&gt;本小节介绍两个在linux应用层访问eeprom的方法，并给出示例代码方便大家理解。第一个方法是通过sysfs文件系统对eeprom进行访问，第二个方法是通过eeprom的设备文件进行访问。这两个方法分别对应了i2c设备驱动的两个不同的实现，在后面的小结会详细的分析。&lt;/p&gt;
+
+&lt;h3 id=&quot;4.1&quot;&gt;4.1 通过sysfs文件系统访问I2C设备&lt;/h3&gt;
+
+&lt;p&gt;eeprom的设备驱动在/sys/bus/i2c/devices/0-0050/目录下把eeprom设备映射为一个二进制节点，文件名为eeprom。对这个eeprom文件的读写就是对eeprom进行读写。&lt;/p&gt;
+
+&lt;p&gt;我们可以先用cat命令来看下eeprom的内容。&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-&quot; data-lang=&quot;&quot;&gt;[root@FORLINX210]# cat eeprom                                                                      
+�����������X�����������������������������������������������
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;发现里面都是乱码，然后用echo命令把字符串“test”输入给eeprom文件，然后再cat出来。&lt;/p&gt;
+
+&lt;p&gt;就会发现字符串test已经存在eeprom里面了，我们知道sysfs文件系统断电后就没了，也无法对数据进行保存，为了验证确实把“test”字符串存储在了eeprom，可以把系统断电重启，然后cat eeprom，会发现test还是存在的，证明确实对eeprom进行了写入操作。&lt;/p&gt;
+
+&lt;p&gt;当然，因为eeprom已经映射为一个文件了，我们还可以通过文件I/O写应用程序对其进行简单的访问测试。比如以下程序对特定地址（0x40）写入特定数据（Hi,this is an eepromtest!），然后再把写入的数据在此地址上读出来。&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-&quot; data-lang=&quot;&quot;&gt;#include&amp;lt;stdio.h&amp;gt;
+#include&amp;lt;stdlib.h&amp;gt;
+#include&amp;lt;sys/types.h&amp;gt;
+#include&amp;lt;sys/stat.h&amp;gt;
+#include&amp;lt;fcntl.h&amp;gt;
+#include&amp;lt;string.h&amp;gt;
+
+int main(void){
+  int fd, size, len, i;
+  char buf[50]= {0};
+  char *bufw=&quot;Hi,this is an eepromtest!&quot;;//要写入的数据
+
+  len=strlen(bufw);//数据长度
+  fd= open(&quot;/sys/bus/i2c/devices/0-0050/eeprom&quot;,O_RDWR);//打开文件
+  if(fd&amp;lt; 0)
+  {
+      printf(&quot;####i2c test device open failed####/n&quot;);
+      return(-1);
+  }
+  //写操作
+  lseek(fd,0x40,SEEK_SET); //定位地址，地址是0x40
+  if((size=write(fd,bufw, len))&amp;lt;0)//写入数据
+  {
+      printf(&quot;write error\n&quot;);
+      return 1;
+  }
+  printf(&quot;writeok\n&quot;);
+  //读操作
+  lseek(fd,0x40, SEEK_SET);//准备读，首先定位地址，因为前面写入的时候更新了当前文件偏移量，所以这边需要重新定位到0x40.
+  if((size=read(fd,buf,len))&amp;lt;0)//读数据
+  {
+      printf(&quot;readerror\n&quot;);
+      return 1;
+  }
+  printf(&quot;readok\n&quot;);
+  for(i=0; i&amp;lt; len; i++)
+      printf(&quot;buff[%d]=%x\n&quot;,i, buf[i]);//打印数据
+  close(fd);
+
+  return 0;
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;h3 id=&quot;4.2&quot;&gt;4.2 通过devfs访问I2C设备&lt;/h3&gt;
+
+&lt;p&gt;linux的i2c驱动会针对每个i2c适配器在/dev/目录下生成一个主设备号为89的设备文件，简单的来说，对于本例的eeprom驱动，/dev/i2c/0就是它的设备文件，因此接下来的eeprom的访问就变为了对此设备文件的访问。&lt;/p&gt;
+
+&lt;p&gt;我们需要用到两个结构体i2c&lt;em&gt;msg和i2c&lt;/em&gt;rdwr&lt;em&gt;ioctl&lt;/em&gt;data。&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-&quot; data-lang=&quot;&quot;&gt;struct i2c_msg { //i2c消息结构体，每个i2c消息对应一个结构体
+ __u16 addr; /* 从设备地址，此处就是eeprom地址，即0x50 */
+ __u16 flags;    /* 一些标志，比如i2c读等*/
+ __u16 len;      /* i2c消息的长度 */
+ __u8 *buf;      /* 指向i2c消息中的数据 */
+ };
+
+struct i2c_rdwr_ioctl_data {
+ struct i2c_msg __user *msgs;    /* 指向一个i2c消息 */
+ __u32 nmsgs;            /* i2c消息的数量 */
+};
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;对一个eeprom上的特定地址（0x10）写入特定数据（0x58）并在从此地址读出写入数据的示例程序如下所示。&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-&quot; data-lang=&quot;&quot;&gt;#include &amp;lt;stdio.h&amp;gt;
+#include &amp;lt;linux/types.h&amp;gt;
+#include &amp;lt;stdlib.h&amp;gt;
+#include &amp;lt;fcntl.h&amp;gt;
+#include &amp;lt;unistd.h&amp;gt;
+#include &amp;lt;sys/types.h&amp;gt;
+#include &amp;lt;sys/ioctl.h&amp;gt;
+#include &amp;lt;errno.h&amp;gt;
+#include &amp;lt;linux/i2c.h&amp;gt;
+#include &amp;lt;linux/i2c-dev.h&amp;gt;
+
+int main()
+{
+    int fd,ret;
+    struct i2c_rdwr_ioctl_data e2prom_data;
+    fd=open(&quot;/dev/i2c/0&quot;,O_RDWR);//打开eeprom设备文件结点
+    if(fd&amp;lt;0)
+    {
+        perror(&quot;open error&quot;);
+    }
+
+    e2prom_data.nmsgs=2; 
+    e2prom_data.msgs=(struct i2c_msg*)malloc(e2prom_data.nmsgs*sizeof(struct i2c_msg));//分配空间
+    if(!e2prom_data.msgs)
+    {
+        perror(&quot;malloc error&quot;);
+        exit(1);
+    }
+    ioctl(fd,I2C_TIMEOUT,1);/*超时时间*/
+    ioctl(fd,I2C_RETRIES,2);/*重复次数*/
+
+    /*写eeprom*/
+    e2prom_data.nmsgs=1;//由前面eeprom读写分析可知，写eeprom需要一条消息
+    (e2prom_data.msgs[0]).len=2; //此消息的长度为2个字节，第一个字节是要写入数据的地址，第二个字节是要写入的数据
+    (e2prom_data.msgs[0]).addr=0x50;//e2prom 设备地址
+    (e2prom_data.msgs[0]).flags=0; //写
+    (e2prom_data.msgs[0]).buf=(unsigned char*)malloc(2);
+    (e2prom_data.msgs[0]).buf[0]=0x10;// e2prom 写入目标的地址
+    (e2prom_data.msgs[0]).buf[1]=0x58;//写入的数据
+    ret=ioctl(fd,I2C_RDWR,(unsigned long)&amp;amp;e2prom_data);//通过ioctl进行实际写入操作，后面会详细分析
+    if(ret&amp;lt;0)
+    {
+        perror(&quot;ioctl error1&quot;);
+    }
+    sleep(1);
+
+    /*读eeprom*/
+    e2prom_data.nmsgs=2;//读eeprom需要两条消息
+    (e2prom_data.msgs[0]).len=1; //第一条消息实际是写eeprom，需要告诉eeprom需要读数据的地址，因此长度为1个字节
+    (e2prom_data.msgs[0]).addr=0x50; // e2prom 设备地址
+    (e2prom_data.msgs[0]).flags=0;//先是写
+    (e2prom_data.msgs[0]).buf[0]=0x10;//e2prom上需要读的数据的地址
+    (e2prom_data.msgs[1]).len=1;//第二条消息才是读eeprom，
+    (e2prom_data.msgs[1]).addr=0x50;// e2prom 设备地址 
+    (e2prom_data.msgs[1]).flags=I2C_M_RD;//然后是读
+    (e2prom_data.msgs[1]).buf=(unsigned char*)malloc(1);//存放返回值的地址。
+    (e2prom_data.msgs[1]).buf[0]=0;//初始化读缓冲，读到的数据放到此缓冲区
+    ret=ioctl(fd,I2C_RDWR,(unsigned long)&amp;amp;e2prom_data);//通过ioctl进行实际的读操作
+    if(ret&amp;lt;0)
+    {
+        perror(&quot;ioctl error2&quot;);
+    }
+
+    printf(&quot;buff[0]=%x\n&quot;,(e2prom_data.msgs[1]).buf[0]);
+    /***打印读出的值，没错的话，就应该是前面写的0x58了***/
+    close(fd);
+
+    return 0;
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;h3 id=&quot;4.3&quot;&gt;4.3 总结&lt;/h3&gt;
+
+&lt;p&gt;本小节介绍了两种在linux应用层访问eeprom的方法，并且给出了示例程序，通过sysfs文件系统访问eeprom操作简单，无需了解eeprom的硬件特性以及访问时序，而通过devfs访问eeprom的方法则需要了解eeprom的读写时序。&lt;/p&gt;
+
+&lt;p&gt;后面分析后会发现，第一种通过sysfs文件系统的二进制结点访问eeprom的方法是由eeprom的设备驱动实现的，是一种专有的方法；而第二种通过devfs访问eeprom的方法是linux i2c提供的一种通用的方法，访问设备的能力有限。&lt;/p&gt;
+
+&lt;h2 id=&quot;5&quot;&gt;五、LinuxI2C驱动--浅谈LinuxI2C驱动架构&lt;/h2&gt;
+
+&lt;p&gt;前面几个小结介绍了i2c总线的协议，又介绍了我们关注的eeprom的读写访问时序，还给出了两个访问eeprom的例子，我的目的是为了能更好的理解后面解析Linux下i2c驱动。&lt;/p&gt;
+
+&lt;p&gt;网上介绍Linux I2C驱动架构的文章非常的多，我把这些内容做了个归纳与简化，但是在搬出这些非常抽象的内容之前，我想先谈下我的理解。&lt;/p&gt;
+
+&lt;p&gt;如下图&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/public/img/technology/linux-i2c-5.0.png&quot; alt=&quot;linux-i2c-5.0.png&quot;&gt;&lt;/p&gt;
+
+&lt;p&gt;图中画了一个三星的s5pv210处理器，在处理器的里面集成了一个I2C适配器，外面有一个eeprom，通过SDA、SCL连接到cpu内集成的i2c适配器上。这样cpu就可以控制i2c适配器与外部的eeprom进行交互，也就是i2c适配器产生符合i2c协议的信号与eeprom进行通信。&lt;/p&gt;
+
+&lt;p&gt;所以对应到linux驱动下，控制i2c适配器有一套驱动代码，叫做i2c总线驱动，是用来产生i2c时序信号的，可以发送和接受数据；控制eeprom有一套驱动代码，叫做i2c设备驱动，这套驱动代码才是真正的对硬件eeprom控制。这也符合linux设备驱动分层的思想。而两套驱动代码之间有一个i2c核心，用来起到承上启下的作用。&lt;/p&gt;
+
+&lt;p&gt;以一个写eeprom为例，应用层发出写eeprom消息，i2c设备驱动接到消息，把消息封装成一个前文提到的i2c消息结构体，然后经i2c核心的调度把消息传给i2c适配器，i2c适配器就根据当前cpu的i2c总线协议把消息通过SDA和SCL发给了eeprom。&lt;/p&gt;
+
+&lt;p&gt;接下来开始搬运，，&lt;/p&gt;
+
+&lt;h3 id=&quot;5.1&quot;&gt;5.1 I2C体系结构&lt;/h3&gt;
+
+&lt;p&gt;linux的i2c体系结构分为三个组成部分。放张图加深理解。 &lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/public/img/technology/linux-i2c-5.0.png&quot; alt=&quot;linux-i2c-5.0.png&quot;&gt;&lt;/p&gt;
+
+&lt;p&gt;（1）i2c核心&lt;/p&gt;
+
+&lt;p&gt;提供了I2C总线驱动的注册、注销方法
+提供了I2C设备驱动的注册、注销方法
+提供了I2C通信方法(algorithm) 
+对应代码：drivers/i2c/i2c-core.c&lt;/p&gt;
+
+&lt;p&gt;（2）i2c总线驱动&lt;/p&gt;
+
+&lt;p&gt;I2C总线驱动是对I2C硬件体系结构中适配器端的实现，适配器可由CPU控制，甚至集成在CPU内部(大多数微控制器都这么做)。适配器就是我们经常所说的控制器。&lt;/p&gt;
+
+&lt;p&gt;经由I2C总线驱动的代码，我们可以控制I2C适配器以主控方式产生开始位，停止位，读写周期，以及以从设备方式被读写，产生ACK等。&lt;/p&gt;
+
+&lt;p&gt;I2C总线驱动由i2c&lt;em&gt;adapter和i2c&lt;/em&gt;algorithm来描述 
+对应代码：drivers/i2c/busses/i2c-s3c2410.c&lt;/p&gt;
+
+&lt;p&gt;（3）i2c设备驱动&lt;/p&gt;
+
+&lt;p&gt;I2C设备驱动是对I2C硬件体系结构中设备端的实现，设备一般挂接在收CPU控制的I2C适配器上，通过I2C适配器与CPU交换数据。&lt;/p&gt;
+
+&lt;p&gt;I2C设备驱动程序由i2c_driver来描述&lt;/p&gt;
+
+&lt;p&gt;对应代码：drivers/misc/eeprom/at24.c&lt;/p&gt;
+
+&lt;h3 id=&quot;5.2&quot;&gt;5.2 I2C重要数据结构&lt;/h3&gt;
+
+&lt;p&gt;在include/linux/i2c.h中定义四个I2C驱动中重要的数据结构：i2c&lt;em&gt;adapter,i2c&lt;/em&gt;algorithm,i2c&lt;em&gt;driver,i2c&lt;/em&gt;client.&lt;/p&gt;
+
+&lt;p&gt;i2c_adapter对应物理上的一个i2c适配器&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-&quot; data-lang=&quot;&quot;&gt;struct i2c_adapter {
+  struct module *owner;//所属模块
+  unsigned int id;
+  unsigned int class;       /* classes to allow probing for */
+  const struct i2c_algorithm *algo; /* 总线通讯方法指针，需要其产生特定的访问周期信号 */
+  void *algo_data;
+
+  /* data fields that are valid for all devices   */
+  struct rt_mutex bus_lock;
+
+  int timeout;            /* in jiffies */
+  int retries;/* 重复次数 */
+  struct device dev;      /* the adapter device */
+
+  int nr;
+  char name[48];
+  struct completion dev_released;
+
+  struct list_head userspace_clients;
+};
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;i2c_algorithm对应一套通讯方法&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-&quot; data-lang=&quot;&quot;&gt;struct i2c_algorithm {
+  int (*master_xfer)(struct i2c_adapter *adap, struct i2c_msg *msgs,
+            int num);//产生i2c访问周期说需要的信号
+  int (*smbus_xfer) (struct i2c_adapter *adap, u16 addr,
+            unsigned short flags, char read_write,
+            u8 command, int size, union i2c_smbus_data *data);
+
+  /* To determine what the adapter supports */
+  u32 (*functionality) (struct i2c_adapter *);//返回说支持的通讯协议
+};
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;i2c_driver对应一套驱动方法&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-&quot; data-lang=&quot;&quot;&gt;struct i2c_driver {
+ unsigned int class;
+
+ int (*probe)(struct i2c_client *, const struct i2c_device_id *);
+ int (*remove)(struct i2c_client *);
+ void (*shutdown)(struct i2c_client *);
+ int (*suspend)(struct i2c_client *, pm_message_t mesg);
+ int (*resume)(struct i2c_client *);
+ void (*alert)(struct i2c_client *, unsigned int data);
+ int (*command)(struct i2c_client *client, unsigned int cmd, void *arg);
+ struct device_driver driver;
+ const struct i2c_device_id *id_table;//该驱动所支持的i2c设备的ID表
+ int (*detect)(struct i2c_client *, struct i2c_board_info *);
+ const unsigned short *address_list;
+ struct list_head clients;
+};
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;i2c&lt;em&gt;client对应真实的物理设备，每个i2c设备都需要一个i2c&lt;/em&gt;client来描述&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-&quot; data-lang=&quot;&quot;&gt;struct i2c_client {
+ unsigned short flags;       /* div., see below      */
+ unsigned short addr;        /* chip address - NOTE: 7bit    */
+                 /* addresses are stored in the  */
+                 /* _LOWER_ 7 bits       */
+ char name[I2C_NAME_SIZE];
+ struct i2c_adapter *adapter;    /* the adapter we sit on    */
+ struct i2c_driver *driver;  /* and our access routines  */
+ struct device dev;      /* the device structure     */
+ int irq;            /* irq issued by device     */
+ struct list_head detected;
+};
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;（1）i2c&lt;em&gt;adapter与i2c&lt;/em&gt;algorithm 
+一个I2C适配器需要i2c&lt;em&gt;algorithm中提供的通信函数来控制适配器上产生特定的访问周期。i2c&lt;/em&gt;algorithm中的关键函数master&lt;em&gt;xfer()用于产生I2C访问周期需要的信号，以i2c&lt;/em&gt;msg为单位。&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-&quot; data-lang=&quot;&quot;&gt;struct i2c_msg {
+ __u16 addr; /* slave address            */
+ __u16 flags;
+ __u16 len;      /* msg length               */
+ __u8 *buf;      /* pointer to msg data          */
+};
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;（2）i2c&lt;em&gt;adapter与i2c&lt;/em&gt;client 
+i2c&lt;em&gt;driver与i2c&lt;/em&gt;client是一对多的关系，一个i2c&lt;em&gt;driver上可以支持多个同等类型的i2c&lt;/em&gt;client。&lt;/p&gt;
+
+&lt;p&gt;（3）i2c&lt;em&gt;adapter与i2c&lt;/em&gt;client 
+i2c&lt;em&gt;adapter与i2c&lt;/em&gt;client的关系与I2C硬件体系中适配器和从设备的关系一致，i2c&lt;em&gt;client依附在i2c&lt;/em&gt;adapter上。&lt;/p&gt;
+
+&lt;h2 id=&quot;6&quot;&gt;六、LinuxI2C驱动--I2C设备驱动&lt;/h2&gt;
+
+&lt;p&gt;本节主要分析eeprom的所属的i2c设备驱动，此驱动主要实现了能够通过sysfs文件系统访问eeprom。&lt;/p&gt;
+
+&lt;h3 id=&quot;6.1&quot;&gt;6.1 eeprom板级设备资源&lt;/h3&gt;
+
+&lt;p&gt;因为原开发板的eeprom驱动还没调试好，板级资源还没写好，所以需要自己加进去。 
+修改arch/arm/mach-s5pv210/mach-smdkc110.c文件。&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-&quot; data-lang=&quot;&quot;&gt;static struct at24_platform_data at24c01 = {
+ .byte_len = SZ_8K / 8,/*eeprom大小*/
+ .page_size = 8,/*页大小*/
+};
+
+/* I2C0 */
+static struct i2c_board_info i2c_devs0[] __initdata = {
+ {
+     I2C_BOARD_INFO(&quot;24c01&quot;,0x50),//0x50是eeprom的设备地址
+     .platform_data=&amp;amp;at24c01,
+ },
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;这样以后后面调用smdkc110&lt;em&gt;machine&lt;/em&gt;init就会把资源注册进去。&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-&quot; data-lang=&quot;&quot;&gt; static void __init smdkc110_machine_init(void)
+ {
+ ….
+ i2c_register_board_info(0, i2c_devs0, ARRAY_SIZE(i2c_devs0));
+ ….
+ }
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;h3 id=&quot;6.2&quot;&gt;6.2 AT24C01A EEPROM 的I2C设备驱动&lt;/h3&gt;
+
+&lt;h4 id=&quot;6.2.1&quot;&gt;6.2.1 at24_driver&lt;/h4&gt;
+
+&lt;p&gt;前面讲i2c驱动架构的时候，说到I2C设备驱动主要由i2c_driver来描述。&lt;/p&gt;
+
+&lt;p&gt;在drivers/misc/eeprom/at24.c中可以看到eeprom驱动对i2c_driver结构的实例化。&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-&quot; data-lang=&quot;&quot;&gt; static struct i2c_driver at24_driver = {
+ .driver = {
+     .name = &quot;at24&quot;,
+     .owner = THIS_MODULE,
+ },
+ .probe = at24_probe,
+ .remove = __devexit_p(at24_remove),
+ .id_table = at24_ids,
+ };
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;其中probe和remove会在模块初始化和卸载的时候被调用。&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-&quot; data-lang=&quot;&quot;&gt; static int __init at24_init(void)//模块初始化
+ {
+    io_limit = rounddown_pow_of_two(io_limit);//io_limit是写eeprom时允许一次写入的最大字节，默认128Byte，是驱动模块参数。
+    return i2c_add_driver(&amp;amp;at24_driver);//添加i2c_driver,在i2c核心中实现，会调用at24_probe.
+ }
+ module_init(at24_init);
+
+ static void __exit at24_exit(void)//模块卸载
+ {
+    i2c_del_driver(&amp;amp;at24_driver);//删除i2c_driver,会调用at24_remove
+ }
+ module_exit(at24_exit);
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;h4 id=&quot;6.2.2&quot;&gt;6.2.2 at24_probe() / at24_remove()&lt;/h4&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-&quot; data-lang=&quot;&quot;&gt;static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+{
+struct at24_platform_data chip;
+bool writable;
+int use_smbus = 0;
+struct at24_data *at24;
+int err;
+unsigned i, num_addresses;
+kernel_ulong_t magic;
+
+//获取板级设备信息
+if (client-&amp;gt;dev.platform_data) {
+    chip = *(struct at24_platform_data *)client-&amp;gt;dev.platform_data;
+} else {
+    if (!id-&amp;gt;driver_data) {
+        err = -ENODEV;
+        goto err_out;
+    }
+    magic = id-&amp;gt;driver_data;
+    chip.byte_len = BIT(magic &amp;amp; AT24_BITMASK(AT24_SIZE_BYTELEN));
+    magic &amp;gt;&amp;gt;= AT24_SIZE_BYTELEN;
+    chip.flags = magic &amp;amp; AT24_BITMASK(AT24_SIZE_FLAGS);
+    /*
+     * This is slow, but we can't know all eeproms, so we better
+     * play safe. Specifying custom eeprom-types via platform_data
+     * is recommended anyhow.
+     */
+    chip.page_size = 1;
+
+    chip.setup = NULL;
+    chip.context = NULL;
+}
+
+//检查参数，必须为2的幂
+if (!is_power_of_2(chip.byte_len))
+    dev_warn(&amp;amp;client-&amp;gt;dev,
+        &quot;byte_len looks suspicious (no power of 2)!\n&quot;);
+if (!is_power_of_2(chip.page_size))
+    dev_warn(&amp;amp;client-&amp;gt;dev,
+        &quot;page_size looks suspicious (no power of 2)!\n&quot;);
+
+/* Use I2C operations unless we're stuck with SMBus extensions. */
+//检查是否支持I2C协议，如果不支持则检查是否支持SMBUS
+if (!i2c_check_functionality(client-&amp;gt;adapter, I2C_FUNC_I2C)) {
+    if (chip.flags &amp;amp; AT24_FLAG_ADDR16) {
+        err = -EPFNOSUPPORT;
+        goto err_out;
+    }
+    if (i2c_check_functionality(client-&amp;gt;adapter,
+            I2C_FUNC_SMBUS_READ_I2C_BLOCK)) {
+        use_smbus = I2C_SMBUS_I2C_BLOCK_DATA;
+    } else if (i2c_check_functionality(client-&amp;gt;adapter,
+            I2C_FUNC_SMBUS_READ_WORD_DATA)) {
+        use_smbus = I2C_SMBUS_WORD_DATA;
+    } else if (i2c_check_functionality(client-&amp;gt;adapter,
+            I2C_FUNC_SMBUS_READ_BYTE_DATA)) {
+        use_smbus = I2C_SMBUS_BYTE_DATA;
+    } else {
+        err = -EPFNOSUPPORT;
+        goto err_out;
+    }
+}
+
+if (chip.flags &amp;amp; AT24_FLAG_TAKE8ADDR)//检查时候使用8个地址
+    num_addresses = 8;
+else
+    num_addresses = DIV_ROUND_UP(chip.byte_len,//AT24C01使用一个地址
+        (chip.flags &amp;amp; AT24_FLAG_ADDR16) ? 65536 : 256);
+
+at24 = kzalloc(sizeof(struct at24_data) +
+    num_addresses * sizeof(struct i2c_client *), GFP_KERNEL);//为at24_data分配内存，同时根据地址个数分配i2c_client
+if (!at24) {
+    err = -ENOMEM;
+    goto err_out;
+}
+
+mutex_init(&amp;amp;at24-&amp;gt;lock);
+//初始化at24_data，也就是填充此结构体
+at24-&amp;gt;use_smbus = use_smbus;
+at24-&amp;gt;chip = chip;
+at24-&amp;gt;num_addresses = num_addresses;
+
+/*
+ * Export the EEPROM bytes through sysfs, since that's convenient.
+ * By default, only root should see the data (maybe passwords etc)
+ */
+//以二进制结点的形式呈现eeprom的数据
+sysfs_bin_attr_init(&amp;amp;at24-&amp;gt;bin);
+at24-&amp;gt;bin.attr.name = &quot;eeprom&quot;;//结点名字
+at24-&amp;gt;bin.attr.mode = chip.flags &amp;amp; AT24_FLAG_IRUGO ? S_IRUGO : S_IRUSR;
+at24-&amp;gt;bin.read = at24_bin_read;//绑定读函数
+at24-&amp;gt;bin.size = chip.byte_len;
+
+at24-&amp;gt;macc.read = at24_macc_read;
+
+//判断是否可写
+writable = !(chip.flags &amp;amp; AT24_FLAG_READONLY);
+if (writable) {//如果可写
+    if (!use_smbus || i2c_check_functionality(client-&amp;gt;adapter,
+            I2C_FUNC_SMBUS_WRITE_I2C_BLOCK)) {
+
+        unsigned write_max = chip.page_size;
+
+        at24-&amp;gt;macc.write = at24_macc_write;
+
+        at24-&amp;gt;bin.write = at24_bin_write;//绑定写函数
+        at24-&amp;gt;bin.attr.mode |= S_IWUSR;//文件拥有者可写
+
+        if (write_max &amp;gt; io_limit)//一次最多写io_limit个字节
+            write_max = io_limit;
+        if (use_smbus &amp;amp;&amp;amp; write_max &amp;gt; I2C_SMBUS_BLOCK_MAX)
+            write_max = I2C_SMBUS_BLOCK_MAX;
+        at24-&amp;gt;write_max = write_max;
+
+        /* buffer (data + address at the beginning) */
+        at24-&amp;gt;writebuf = kmalloc(write_max + 2, GFP_KERNEL);//分配缓冲区，多余两个字节用于保存寄存器地址
+        if (!at24-&amp;gt;writebuf) {
+            err = -ENOMEM;
+            goto err_struct;
+        }
+    } else {
+        dev_warn(&amp;amp;client-&amp;gt;dev,
+            &quot;cannot write due to controller restrictions.&quot;);
+    }
+}
+
+at24-&amp;gt;client[0] = client;
+
+/* use dummy devices for multiple-address chips */
+for (i = 1; i &amp;lt; num_addresses; i++) {
+    at24-&amp;gt;client[i] = i2c_new_dummy(client-&amp;gt;adapter,
+                client-&amp;gt;addr + i);
+    if (!at24-&amp;gt;client[i]) {
+        dev_err(&amp;amp;client-&amp;gt;dev, &quot;address 0x%02x unavailable\n&quot;,
+                client-&amp;gt;addr + i);
+        err = -EADDRINUSE;
+        goto err_clients;
+    }
+}
+
+//向sysfs文件系统注册二进制结点
+err = sysfs_create_bin_file(&amp;amp;client-&amp;gt;dev.kobj, &amp;amp;at24-&amp;gt;bin);
+if (err)
+    goto err_clients;
+
+//保存驱动数据
+i2c_set_clientdata(client, at24);
+
+dev_info(&amp;amp;client-&amp;gt;dev, &quot;%zu byte %s EEPROM %s\n&quot;,
+    at24-&amp;gt;bin.size, client-&amp;gt;name,
+    writable ? &quot;(writable)&quot; : &quot;(read-only)&quot;);
+if (use_smbus == I2C_SMBUS_WORD_DATA ||
+    use_smbus == I2C_SMBUS_BYTE_DATA) {
+    dev_notice(&amp;amp;client-&amp;gt;dev, &quot;Falling back to %s reads, &quot;
+           &quot;performance will suffer\n&quot;, use_smbus ==
+           I2C_SMBUS_WORD_DATA ? &quot;word&quot; : &quot;byte&quot;);
+}
+dev_dbg(&amp;amp;client-&amp;gt;dev,
+    &quot;page_size %d, num_addresses %d, write_max %d, use_smbus %d\n&quot;,
+    chip.page_size, num_addresses,
+    at24-&amp;gt;write_max, use_smbus);
+
+/* export data to kernel code */
+if (chip.setup)
+    chip.setup(&amp;amp;at24-&amp;gt;macc, chip.context);
+
+return 0;
+err_clients:
+for (i = 1; i &amp;lt; num_addresses; i++)
+    if (at24-&amp;gt;client[i])
+        i2c_unregister_device(at24-&amp;gt;client[i]);
+
+kfree(at24-&amp;gt;writebuf);
+err_struct:
+kfree(at24);
+err_out:
+dev_dbg(&amp;amp;client-&amp;gt;dev, &quot;probe error %d\n&quot;, err);
+return err;
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;at24&lt;em&gt;probe()函数主要的工作是在sys目录在创建bin结点文件，也就是前面通过sysfs文件系统访问i2c设备中提到的/sys/bus/i2c/devices/0-0050/eeprom文件，用户可以用此文件来操作eeprom，提供读/写操作方法，在probe里面读写操作已经与二进制结点绑定，读操作函数是at24&lt;/em&gt;bin&lt;em&gt;read()，写操作函数是at24&lt;/em&gt;bin_write()。&lt;/p&gt;
+
+&lt;p&gt;其中有个重要的结构体：&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-&quot; data-lang=&quot;&quot;&gt;struct at24_data {
+ struct at24_platform_data chip;
+ struct memory_accessor macc;
+ int use_smbus;
+
+ /*
+  * Lock protects against activities from other Linux tasks,
+  * but not from changes by other I2C masters.
+  */
+ struct mutex lock;
+ struct bin_attribute bin;//二进制结点
+
+ u8 *writebuf;//写缓冲区
+ unsigned write_max;
+ unsigned num_addresses;
+
+ /* 
+  * Some chips tie up multiple I2C addresses; dummy devices reserve
+  * them for us, and we'll use them with SMBus calls.
+  */
+ struct i2c_client *client[];
+};
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;at24_data是此驱动的一些私有数据的封装，包括二进制结点，以及写缓冲区。&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-&quot; data-lang=&quot;&quot;&gt;static int __devexit at24_remove(struct i2c_client *client)
+{
+struct at24_data *at24;
+int i;
+
+at24 = i2c_get_clientdata(client);
+sysfs_remove_bin_file(&amp;amp;client-&amp;gt;dev.kobj, &amp;amp;at24-&amp;gt;bin);
+
+for (i = 1; i &amp;lt; at24-&amp;gt;num_addresses; i++)
+    i2c_unregister_device(at24-&amp;gt;client[i]);
+
+kfree(at24-&amp;gt;writebuf);
+kfree(at24);
+return 0;
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;at24&lt;em&gt;remove()基本就是at24&lt;/em&gt;probe()的反操作。&lt;/p&gt;
+
+&lt;h4 id=&quot;6.2.3&quot;&gt;6.2.3 at24_bin_read()&lt;/h4&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-&quot; data-lang=&quot;&quot;&gt;static ssize_t at24_bin_read(struct file *filp, struct kobject *kobj,
+     struct bin_attribute *attr,
+     char *buf, loff_t off, size_t count)
+{
+ struct at24_data *at24;
+
+ //通过kobj获得device，再获取driver_data
+ at24 = dev_get_drvdata(container_of(kobj, struct device, kobj));
+ return at24_read(at24, buf, off, count);//调用at24_read()
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;at24&lt;em&gt;bin&lt;/em&gt;read()通过dev&lt;em&gt;get&lt;/em&gt;drvdata()获取at24&lt;em&gt;data结构体数据。然后调用at24&lt;/em&gt;read()。&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-&quot; data-lang=&quot;&quot;&gt;static ssize_t at24_read(struct at24_data *at24,
+     char *buf, loff_t off, size_t count)
+{
+ ssize_t retval = 0;
+
+ if (unlikely(!count))
+     return count;
+
+ /*
+  * Read data from chip, protecting against concurrent updates
+  * from this host, but not from other I2C masters.
+  */
+ mutex_lock(&amp;amp;at24-&amp;gt;lock);//访问设备前加锁
+
+ while (count) {
+     ssize_t status;
+
+     status = at24_eeprom_read(at24, buf, off, count);
+     if (status &amp;lt;= 0) {
+         if (retval == 0)
+             retval = status;
+         break;
+     }
+     buf += status;
+     off += status;
+     count -= status;
+     retval += status;
+ }
+
+ mutex_unlock(&amp;amp;at24-&amp;gt;lock);//访问结束后解锁
+
+ return retval;
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;at24&lt;em&gt;read()传入的参数，at24是驱动私有数据结构体at24&lt;/em&gt;data，buf是读eeprom后读到的数据存储的缓冲区，off是数据的偏移地址，count是要读数据的大小。at24&lt;em&gt;read()主要调用at24&lt;/em&gt;eeprom_read()去读，但是此函数读eeprom能读到的数据个数有限制，不一定一次就把count个数据都读到，所以用while来读，并且读到status个数据后更新count，表示还剩多少个数据没读到，同时也要更新数据偏移off，和读入缓冲buf。&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-&quot; data-lang=&quot;&quot;&gt;static ssize_t at24_eeprom_read(struct at24_data *at24, char *buf,
+    unsigned offset, size_t count)
+{
+struct i2c_msg msg[2];
+u8 msgbuf[2];
+struct i2c_client *client;
+unsigned long timeout, read_time;
+int status, i;
+
+memset(msg, 0, sizeof(msg));
+
+/*
+ * REVISIT some multi-address chips don't rollover page reads to
+ * the next slave address, so we may need to truncate the count.
+ * Those chips might need another quirk flag.
+ *
+ * If the real hardware used four adjacent 24c02 chips and that
+ * were misconfigured as one 24c08, that would be a similar effect:
+ * one &quot;eeprom&quot; file not four, but larger reads would fail when
+ * they crossed certain pages.
+ */
+
+/*
+ * Slave address and byte offset derive from the offset. Always
+ * set the byte address; on a multi-master board, another master
+ * may have changed the chip's &quot;current&quot; address pointer.
+ */
+client = at24_translate_offset(at24, &amp;amp;offset);//获得client
+
+if (count &amp;gt; io_limit)
+    count = io_limit;
+
+switch (at24-&amp;gt;use_smbus) {//如果使用SMBUS
+case I2C_SMBUS_I2C_BLOCK_DATA:
+    /* Smaller eeproms can work given some SMBus extension calls */
+    if (count &amp;gt; I2C_SMBUS_BLOCK_MAX)
+        count = I2C_SMBUS_BLOCK_MAX;
+    break;
+case I2C_SMBUS_WORD_DATA:
+    count = 2;
+    break;
+case I2C_SMBUS_BYTE_DATA:
+    count = 1;
+    break;
+default://使用I2C协议
+    /*
+     * When we have a better choice than SMBus calls, use a
+     * combined I2C message. Write address; then read up to
+     * io_limit data bytes. Note that read page rollover helps us
+     * here (unlike writes). msgbuf is u8 and will cast to our
+     * needs.
+     */
+    i = 0;
+    if (at24-&amp;gt;chip.flags &amp;amp; AT24_FLAG_ADDR16)
+        msgbuf[i++] = offset &amp;gt;&amp;gt; 8;
+    msgbuf[i++] = offset;
+
+    //由前小节读eeprom的时序可知，需要2条消息，第一条消息是写eeprom
+    msg[0].addr = client-&amp;gt;addr;//设备地址，即0x50
+    msg[0].buf = msgbuf;
+    msg[0].len = i;
+
+    //第二条消息才是读eeprom，读到的数据存储在buf中。
+    msg[1].addr = client-&amp;gt;addr;//设备地址
+    msg[1].flags = I2C_M_RD;//读
+    msg[1].buf = buf;//读缓冲区
+    msg[1].len = count;//要读数据的长度
+}
+
+/*
+ * Reads fail if the previous write didn't complete yet. We may
+ * loop a few times until this one succeeds, waiting at least
+ * long enough for one entire page write to work.
+ */
+timeout = jiffies + msecs_to_jiffies(write_timeout);
+do {
+    read_time = jiffies;
+    switch (at24-&amp;gt;use_smbus) {
+    case I2C_SMBUS_I2C_BLOCK_DATA:
+        status = i2c_smbus_read_i2c_block_data(client, offset,
+                count, buf);
+        break;
+    case I2C_SMBUS_WORD_DATA:
+        status = i2c_smbus_read_word_data(client, offset);
+        if (status &amp;gt;= 0) {
+            buf[0] = status &amp;amp; 0xff;
+            buf[1] = status &amp;gt;&amp;gt; 8;
+            status = count;
+        }
+        break;
+    case I2C_SMBUS_BYTE_DATA:
+        status = i2c_smbus_read_byte_data(client, offset);
+        if (status &amp;gt;= 0) {
+            buf[0] = status;
+            status = count;
+        }
+        break;
+    default://使用I2C协议去读
+        status = i2c_transfer(client-&amp;gt;adapter, msg, 2);//实际的数据传输，
+        if (status == 2)
+            status = count;
+    }
+    dev_dbg(&amp;amp;client-&amp;gt;dev, &quot;read %zu@%d --&amp;gt; %d (%ld)\n&quot;,
+            count, offset, status, jiffies);
+
+    if (status == count)//已经全部读取，则返回
+        return count;
+
+    /* REVISIT: at HZ=100, this is sloooow */
+    msleep(1);
+} while (time_before(read_time, timeout));
+
+return -ETIMEDOUT;
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;at24&lt;em&gt;eeprom&lt;/em&gt;read()根据读eeprom所需要的时序，填充两个i2c消息结构体，第一个i2c消息结构体是写eeprom，告诉eeprom要读的数据是哪个，第二个i2c消息才是真正的读eeprom。最后把这两个i2c消息结构体传给i2c&lt;em&gt;transfer()进行实际的消息传输。i2c&lt;/em&gt;transfer()是i2c核心的函数，用于i2c设备与i2c适配器直接的消息传递，后面会分析。这里我们看到了i2c设备驱动通过i2c核心向i2c总线驱动传递消息的主要途径，i2c总线驱动接收到i2c消息后就会控制i2c适配器根据传入的i2c消息，通过SDA和SCL与eeprom进行交互。&lt;/p&gt;
+
+&lt;h4 id=&quot;6.2.5&quot;&gt;6.2.4 at24_bin_write()&lt;/h4&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-&quot; data-lang=&quot;&quot;&gt; static ssize_t at24_bin_write(struct file *filp, struct kobject *kobj,
+     struct bin_attribute *attr,
+     char *buf, loff_t off, size_t count)
+ {
+ struct at24_data *at24;
+
+ at24 = dev_get_drvdata(container_of(kobj, struct device, kobj));
+ return at24_write(at24, buf, off, count);
+ }
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;at24&lt;em&gt;bin&lt;/em&gt;write()与at24&lt;em&gt;bin&lt;/em&gt;read()一样操作，获得at24&lt;em&gt;data后调用at24&lt;/em&gt;write().&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-&quot; data-lang=&quot;&quot;&gt;static ssize_t at24_write(struct at24_data *at24, const char *buf, loff_t off,
+           size_t count)
+{
+ ssize_t retval = 0;
+
+ if (unlikely(!count))
+     return count;
+
+ /*
+  * Write data to chip, protecting against concurrent updates
+  * from this host, but not from other I2C masters.
+  */
+ mutex_lock(&amp;amp;at24-&amp;gt;lock);
+
+ while (count) {
+     ssize_t status;
+
+     status = at24_eeprom_write(at24, buf, off, count);
+     if (status &amp;lt;= 0) {
+         if (retval == 0)
+             retval = status;
+         break;
+     }
+     buf += status;
+     off += status;
+     count -= status;
+     retval += status;
+ }
+
+ mutex_unlock(&amp;amp;at24-&amp;gt;lock);
+
+ return retval;
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;at24&lt;em&gt;write()的操作也是类似的，通过调用at24&lt;/em&gt;eeprom_write()来实现。&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-&quot; data-lang=&quot;&quot;&gt;static ssize_t at24_eeprom_write(struct at24_data *at24, const char *buf,
+    unsigned offset, size_t count)
+{
+struct i2c_client *client;
+struct i2c_msg msg;
+ssize_t status;
+unsigned long timeout, write_time;
+unsigned next_page;
+
+/* Get corresponding I2C address and adjust offset */
+client = at24_translate_offset(at24, &amp;amp;offset);//获得对应的client
+
+/* write_max is at most a page */
+//检查写入字数
+if (count &amp;gt; at24-&amp;gt;write_max)
+    count = at24-&amp;gt;write_max;
+
+/* Never roll over backwards, to the start of this page */
+//写入不会越过页边界（下一页）
+next_page = roundup(offset + 1, at24-&amp;gt;chip.page_size);
+if (offset + count &amp;gt; next_page)
+    count = next_page - offset;
+
+/* If we'll use I2C calls for I/O, set up the message */
+if (!at24-&amp;gt;use_smbus) {//使用i2c协议，则填充i2c消息结构体
+    int i = 0;
+
+    //由前小节分析，写eeprom只需一条i2c消息
+    msg.addr = client-&amp;gt;addr;//设备地址
+    msg.flags = 0;//写eeprom
+
+    /* msg.buf is u8 and casts will mask the values */
+    msg.buf = at24-&amp;gt;writebuf;//写缓冲区
+    if (at24-&amp;gt;chip.flags &amp;amp; AT24_FLAG_ADDR16)
+        msg.buf[i++] = offset &amp;gt;&amp;gt; 8;
+
+    msg.buf[i++] = offset;
+    memcpy(&amp;amp;msg.buf[i], buf, count);//复制需要发送的数据
+    msg.len = i + count;//发送传读为要发送的数据长度，加上地址长度
+}
+
+/*
+ * Writes fail if the previous one didn't complete yet. We may
+ * loop a few times until this one succeeds, waiting at least
+ * long enough for one entire page write to work.
+ */
+timeout = jiffies + msecs_to_jiffies(write_timeout);//超时时间，为驱动模块参数，默认25ms
+do {
+    write_time = jiffies;
+    if (at24-&amp;gt;use_smbus) {
+        status = i2c_smbus_write_i2c_block_data(client,
+                offset, count, buf);
+        if (status == 0)
+            status = count;
+    } else {//i2c传输
+        status = i2c_transfer(client-&amp;gt;adapter, &amp;amp;msg, 1);//实际传输
+        if (status == 1)
+            status = count;
+    }
+    dev_dbg(&amp;amp;client-&amp;gt;dev, &quot;write %zu@%d --&amp;gt; %zd (%ld)\n&quot;,
+            count, offset, status, jiffies);
+
+    if (status == count)//已经全部写入，返回
+        return count;
+
+    /* REVISIT: at HZ=100, this is sloooow */
+    msleep(1);
+} while (time_before(write_time, timeout));
+
+return -ETIMEDOUT;
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;与at24&lt;em&gt;eeprom&lt;/em&gt;read()类似，at24&lt;em&gt;eeprom&lt;/em&gt;write()因为写eeprom需要1条i2c消息，最后实际的传输也是通过i2c_transfer()实现。&lt;/p&gt;
+
+&lt;h3 id=&quot;6.3&quot;&gt;6.3 总结&lt;/h3&gt;
+
+&lt;p&gt;由上面简单的分析可知，通过sysfs文件系统访问eeprom，对/sys/bus/i2c/devices/0-0050/eeprom的读写是通过at24&lt;em&gt;bin&lt;/em&gt;read()/at24&lt;em&gt;bin&lt;/em&gt;write() ==&amp;gt; at24&lt;em&gt;eeprom&lt;/em&gt;read()/at24&lt;em&gt;eeprom&lt;/em&gt;write() ==&amp;gt;i2c_transfer()来实现的。&lt;/p&gt;
+
+&lt;h2 id=&quot;7&quot;&gt;七、LinuxI2C驱动--I2C总线驱动&lt;/h2&gt;
+
+&lt;p&gt;前面分析了i2c设备驱动如何实现通过sysfs文件系统访问eeprom，对于读写eeprom，最后都是调用了i2c_transfer()，此函数的实现在i2c核心中。&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-&quot; data-lang=&quot;&quot;&gt;int i2c_transfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
+{
+ unsigned long orig_jiffies;
+ int ret, try;
+
+ /* REVISIT the fault reporting model here is weak:
+  *
+  *  - When we get an error after receiving N bytes from a slave,
+  *    there is no way to report &quot;N&quot;.
+  *
+  *  - When we get a NAK after transmitting N bytes to a slave,
+  *    there is no way to report &quot;N&quot; ... or to let the master
+  *    continue executing the rest of this combined message, if
+  *    that's the appropriate response.
+  *
+  *  - When for example &quot;num&quot; is two and we successfully complete
+  *    the first message but get an error part way through the
+  *    second, it's unclear whether that should be reported as
+  *    one (discarding status on the second message) or errno
+  *    (discarding status on the first one).
+  */
+
+ if (adap-&amp;gt;algo-&amp;gt;master_xfer) {
+ #ifdef DEBUG
+     for (ret = 0; ret &amp;lt; num; ret++) {
+         dev_dbg(&amp;amp;adap-&amp;gt;dev, &quot;master_xfer[%d] %c, addr=0x%02x, &quot;
+             &quot;len=%d%s\n&quot;, ret, (msgs[ret].flags &amp;amp; I2C_M_RD)
+             ? 'R' : 'W', msgs[ret].addr, msgs[ret].len,
+             (msgs[ret].flags &amp;amp; I2C_M_RECV_LEN) ? &quot;+&quot; : &quot;&quot;);
+     }
+ #endif      
+
+     if (in_atomic() || irqs_disabled()) {
+         ret = rt_mutex_trylock(&amp;amp;adap-&amp;gt;bus_lock); 
+         if (!ret)
+             /* I2C activity is ongoing. */
+             return -EAGAIN;
+     } else {
+         rt_mutex_lock(&amp;amp;adap-&amp;gt;bus_lock);
+     }   
+
+     /* Retry automatically on arbitration loss */
+     orig_jiffies = jiffies;
+     for (ret = 0, try = 0; try &amp;lt;= adap-&amp;gt;retries; try++) {
+         ret = adap-&amp;gt;algo-&amp;gt;master_xfer(adap, msgs, num);//i2c总线驱动的入口
+         if (ret != -EAGAIN)
+             break;
+         if (time_after(jiffies, orig_jiffies + adap-&amp;gt;timeout))
+             break;
+     }
+     rt_mutex_unlock(&amp;amp;adap-&amp;gt;bus_lock);
+
+     return ret;
+ } else {
+     dev_dbg(&amp;amp;adap-&amp;gt;dev, &quot;I2C level transfers not supported\n&quot;);
+     return -EOPNOTSUPP;
+ }
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;可以看到，语句ret = adap-&amp;gt;algo-&amp;gt;master&lt;em&gt;xfer(adap, msgs, num)就是i2c总线驱动的入口，此语句是寻找i2c&lt;/em&gt;adapter对应的i2c&lt;em&gt;algorithm后，使用master&lt;/em&gt;xfer()驱动硬件流程来进行实际的传输。&lt;/p&gt;
+
+&lt;p&gt;那么i2c&lt;em&gt;adapter是在哪里绑定了i2c&lt;/em&gt;algorithm呢？master_xfer()又是如何来启动i2c传输的呢？在i2c总线驱动中我们就可以找到答案。&lt;/p&gt;
+
+&lt;h3 id=&quot;7.1&quot;&gt;7.1 三星S5PV210 i2c适配器的硬件描述&lt;/h3&gt;
+
+&lt;p&gt;s5pv210处理器内部集成了一个i2c控制器，通过4个主要的寄存器就可以对其进行控制。 
+在arch/arm/plat-samsung/include/plat/regs-iic.h中列出了这几个寄存器。&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-&quot; data-lang=&quot;&quot;&gt;#define S3C2410_IICREG(x) (x)
+
+#define S3C2410_IICCON    S3C2410_IICREG(0x00)//i2c控制寄存器
+#define S3C2410_IICSTAT   S3C2410_IICREG(0x04)//i2c状态寄存器
+#define S3C2410_IICADD    S3C2410_IICREG(0x08)//i2c地址寄存器
+#define S3C2410_IICDS     S3C2410_IICREG(0x0C)//i2c收发数据移位寄存器
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;i2c寄存器支持收发两种模式，我们主要使用主模式，通过对IICCON、IICDS和IICADD寄存器的操作，可以在i2c总线上产生开始位，停止位，数据和地址，而传输的状态则是通过IICSTAT寄存器获取。&lt;/p&gt;
+
+&lt;p&gt;在三星的i2c总线说明文档中给出了i2c总线进行传输的整个流程。 &lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/public/img/technology/linux-i2c-7.1.png&quot; alt=&quot;linux-i2c-7.1.png&quot;&gt;&lt;/p&gt;
+
+&lt;p&gt;以通过i2c总线写eeprom为例，具体的流程如下：&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;设置GPIO的相关引脚为IIC输出；&lt;/li&gt;
+&lt;li&gt;设置IIC（打开ACK，打开IIC中断，设置CLK等）；&lt;/li&gt;
+&lt;li&gt;设备地址赋给IICDS ，并设置IICSTAT，启动IIC发送设备地址出去；从而找到相应的设备即IIC总线上的设备。&lt;/li&gt;
+&lt;li&gt;第一个Byte的设备地址发送后，从EEPROM得到ACK信号，此信号触发中断；&lt;/li&gt;
+&lt;li&gt;在中断处理函数中把第二个Byte（设备内地址）发送出去；发送之后，接收到ACK又触发中断；&lt;/li&gt;
+&lt;li&gt;中断处理函数把第三个Byte（真正的数据）发送到设备中。&lt;/li&gt;
+&lt;li&gt;发送之后同样接收到ACK并触发中断，中断处理函数判断，发现数据传送完毕。&lt;/li&gt;
+&lt;li&gt;IIC Stop信号，关IIC中断，置位各寄存器。&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;在下面的小节中将结合代码来分析i2c总线对上面流程的具体实现。&lt;/p&gt;
+
+&lt;h3 id=&quot;7.2&quot;&gt;7.2 i2c总线驱动的加载/卸载&lt;/h3&gt;
+
+&lt;p&gt;i2c总线驱动被作为一个单独的模块加载，下面首先分析它的加载/卸载函数。&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-&quot; data-lang=&quot;&quot;&gt;static int __init i2c_adap_s3c_init(void)
+{
+ return platform_driver_register(&amp;amp;s3c24xx_i2c_driver);//注册为平台驱动
+}
+subsys_initcall(i2c_adap_s3c_init);
+
+static void __exit i2c_adap_s3c_exit(void)
+{
+ platform_driver_unregister(&amp;amp;s3c24xx_i2c_driver);
+}
+module_exit(i2c_adap_s3c_exit);
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;三星s5pv210的i2c总线驱动是作为平台驱动来实现的，其中传入的结构体s3c24xx&lt;em&gt;i2c&lt;/em&gt;driver就是platform_driver。&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-&quot; data-lang=&quot;&quot;&gt;static struct platform_driver s3c24xx_i2c_driver = {
+ .probe      = s3c24xx_i2c_probe,
+ .remove     = s3c24xx_i2c_remove,
+ .id_table   = s3c24xx_driver_ids,
+ .driver     = {
+     .owner  = THIS_MODULE,
+     .name   = &quot;s3c-i2c&quot;,
+     .pm = S3C24XX_DEV_PM_OPS,
+ },
+};
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;h3 id=&quot;7.3&quot;&gt;7.3 i2c总线驱动的probe&lt;/h3&gt;
+
+&lt;p&gt;i2c总线驱动的probe函数会在一个合适的设备被发现的时候由总线驱动调用。&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-&quot; data-lang=&quot;&quot;&gt;/* s3c24xx_i2c_probe
+*
+* called by the bus driver when a suitable device is found
+*/
+static int s3c24xx_i2c_probe(struct platform_device *pdev)
+{
+struct s3c24xx_i2c *i2c;//封装i2c适配器的信息
+struct s3c2410_platform_i2c *pdata;//i2c平台数据
+struct resource *res;//平台资源
+int ret;
+
+pdata = pdev-&amp;gt;dev.platform_data;//找到平台数据
+if (!pdata) {
+    dev_err(&amp;amp;pdev-&amp;gt;dev, &quot;no platform data\n&quot;);
+    return -EINVAL;
+}
+
+i2c = kzalloc(sizeof(struct s3c24xx_i2c), GFP_KERNEL);//为i2c适配器私有数据结构体分配内存空间，并且初始化为0
+if (!i2c) {
+    dev_err(&amp;amp;pdev-&amp;gt;dev, &quot;no memory for state\n&quot;);
+    return -ENOMEM;
+}
+
+//填充i2c适配器私有数据结构体
+strlcpy(i2c-&amp;gt;adap.name, &quot;s3c2410-i2c&quot;, sizeof(i2c-&amp;gt;adap.name));//名字
+i2c-&amp;gt;adap.owner   = THIS_MODULE;//模块拥有者
+i2c-&amp;gt;adap.algo    = &amp;amp;s3c24xx_i2c_algorithm;//总线通讯方法
+i2c-&amp;gt;adap.retries = 2;//重试次数
+i2c-&amp;gt;adap.class   = I2C_CLASS_HWMON | I2C_CLASS_SPD;
+i2c-&amp;gt;tx_setup     = 50;
+
+spin_lock_init(&amp;amp;i2c-&amp;gt;lock);//i2c适配器私有数据的锁进行初始化
+init_waitqueue_head(&amp;amp;i2c-&amp;gt;wait);//初始化等待队列
+
+/* find the clock and enable it */
+//找到时钟，并且使能
+i2c-&amp;gt;dev = &amp;amp;pdev-&amp;gt;dev;
+i2c-&amp;gt;clk = clk_get(&amp;amp;pdev-&amp;gt;dev, &quot;i2c&quot;);//找到时钟
+
+if (IS_ERR(i2c-&amp;gt;clk)) {
+    dev_err(&amp;amp;pdev-&amp;gt;dev, &quot;cannot get clock\n&quot;);
+    ret = -ENOENT;
+    goto err_noclk;
+}
+
+dev_dbg(&amp;amp;pdev-&amp;gt;dev, &quot;clock source %p\n&quot;, i2c-&amp;gt;clk);
+
+clk_enable(i2c-&amp;gt;clk);//使能
+
+/* map the registers */
+//映射寄存器
+
+//获取平台设备资源，对于IORESOURSE_MEM类型的资源，start,end表示platform_device占据的内存的开始地址和结束地址
+res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+if (res == NULL) {
+    dev_err(&amp;amp;pdev-&amp;gt;dev, &quot;cannot find IO resource\n&quot;);
+    ret = -ENOENT;
+    goto err_clk;
+}
+
+//申请io内存资源
+i2c-&amp;gt;ioarea = request_mem_region(res-&amp;gt;start, resource_size(res),
+                 pdev-&amp;gt;name);
+
+if (i2c-&amp;gt;ioarea == NULL) {
+    dev_err(&amp;amp;pdev-&amp;gt;dev, &quot;cannot request IO\n&quot;);
+    ret = -ENXIO;
+    goto err_clk;
+}
+
+//映射io
+//I/O端口空间映射到内存的虚拟地址
+i2c-&amp;gt;regs = ioremap(res-&amp;gt;start, resource_size(res));
+
+if (i2c-&amp;gt;regs == NULL) {
+    dev_err(&amp;amp;pdev-&amp;gt;dev, &quot;cannot map IO\n&quot;);
+    ret = -ENXIO;
+    goto err_ioarea;
+}
+
+dev_dbg(&amp;amp;pdev-&amp;gt;dev, &quot;registers %p (%p, %p)\n&quot;,
+    i2c-&amp;gt;regs, i2c-&amp;gt;ioarea, res);
+
+/* setup info block for the i2c core */
+//设置i2c核心所需数据
+
+i2c-&amp;gt;adap.algo_data = i2c;
+i2c-&amp;gt;adap.dev.parent = &amp;amp;pdev-&amp;gt;dev;
+
+/* initialise the i2c controller */
+//i2c适配器私有数据结构提填充完了，就初始化i2c控制器
+
+ret = s3c24xx_i2c_init(i2c);
+if (ret != 0)
+    goto err_iomap;
+
+/* find the IRQ for this unit (note, this relies on the init call to
+ * ensure no current IRQs pending
+ */
+
+//找到要申请的中断号
+i2c-&amp;gt;irq = ret = platform_get_irq(pdev, 0);
+if (ret &amp;lt;= 0) {
+    dev_err(&amp;amp;pdev-&amp;gt;dev, &quot;cannot find IRQ\n&quot;);
+    goto err_iomap;
+}
+
+//申请中断，指定了中断处理函数s3c24xx_i2c_irq
+ret = request_irq(i2c-&amp;gt;irq, s3c24xx_i2c_irq, IRQF_DISABLED,
+          dev_name(&amp;amp;pdev-&amp;gt;dev), i2c);
+
+if (ret != 0) {
+    dev_err(&amp;amp;pdev-&amp;gt;dev, &quot;cannot claim IRQ %d\n&quot;, i2c-&amp;gt;irq);
+    goto err_iomap;
+}
+
+//动态变频，忽略
+ret = s3c24xx_i2c_register_cpufreq(i2c);
+if (ret &amp;lt; 0) {
+    dev_err(&amp;amp;pdev-&amp;gt;dev, &quot;failed to register cpufreq notifier\n&quot;);
+    goto err_irq;
+}
+
+/* Note, previous versions of the driver used i2c_add_adapter()
+ * to add the bus at any number. We now pass the bus number via
+ * the platform data, so if unset it will now default to always
+ * being bus 0.
+ */
+
+i2c-&amp;gt;adap.nr = pdata-&amp;gt;bus_num;
+
+//添加i2c适配器（cpu内部集成）
+ret = i2c_add_numbered_adapter(&amp;amp;i2c-&amp;gt;adap);
+if (ret &amp;lt; 0) {
+    dev_err(&amp;amp;pdev-&amp;gt;dev, &quot;failed to add bus to i2c core\n&quot;);
+    goto err_cpufreq;
+}
+
+platform_set_drvdata(pdev, i2c);
+
+clk_disable(i2c-&amp;gt;clk);
+
+dev_info(&amp;amp;pdev-&amp;gt;dev, &quot;%s: S3C I2C adapter\n&quot;, dev_name(&amp;amp;i2c-&amp;gt;adap.dev));
+return 0;
+err_cpufreq:
+    s3c24xx_i2c_deregister_cpufreq(i2c);
+err_irq:
+    free_irq(i2c-&amp;gt;irq, i2c);
+err_iomap:
+    iounmap(i2c-&amp;gt;regs);
+err_ioarea:
+    release_resource(i2c-&amp;gt;ioarea);
+    kfree(i2c-&amp;gt;ioarea);
+err_clk:
+    clk_disable(i2c-&amp;gt;clk);
+    clk_put(i2c-&amp;gt;clk);
+err_noclk:
+    kfree(i2c);
+return ret;
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;可以看到，i2c24xx&lt;em&gt;i2c&lt;/em&gt;probe()的主要工作有：使能硬件，申请i2c适配器使用的io地址、中断号，然后向i2c核心添加了这个适配器。&lt;/p&gt;
+
+&lt;p&gt;s3c24xx_i2c是i2c适配器的私有数据结构体，封装了适配器的所有信息。&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-&quot; data-lang=&quot;&quot;&gt;struct s3c24xx_i2c {
+spinlock_t      lock;//用于防止并发访问的锁
+wait_queue_head_t   wait;//等待队列
+unsigned int        suspended:1;
+
+struct i2c_msg      *msg;//i2c消息
+unsigned int        msg_num;//i2c消息的数量
+unsigned int        msg_idx;//当前消息中的一个指针
+unsigned int        msg_ptr;//消息索引
+
+unsigned int        tx_setup;//等待数据发送到总线上的一个建立时间
+unsigned int        irq;//中断
+
+enum s3c24xx_i2c_state  state;//i2c状态
+unsigned long       clkrate;
+
+void __iomem        *regs;
+struct clk      *clk;
+struct device       *dev;
+struct resource     *ioarea;
+struct i2c_adapter  adap;//i2c_adapter
+
+#ifdef CONFIG_CPU_FREQ
+struct notifier_block   freq_transition;
+#endif
+};
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;初始化i2c控制器函数s3c24xx&lt;em&gt;i2c&lt;/em&gt;init()如下&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-&quot; data-lang=&quot;&quot;&gt; static int s3c24xx_i2c_init(struct s3c24xx_i2c *i2c)
+ {
+ unsigned long iicon = S3C2410_IICCON_IRQEN | S3C2410_IICCON_ACKEN;//中断使能，ACK使能
+ struct s3c2410_platform_i2c *pdata;
+ unsigned int freq;
+
+ /* get the plafrom data */
+
+ pdata = i2c-&amp;gt;dev-&amp;gt;platform_data;//获取平台数据
+
+ /* inititalise the gpio */
+
+ if (pdata-&amp;gt;cfg_gpio)//初始化gpio ，流程（1）
+     pdata-&amp;gt;cfg_gpio(to_platform_device(i2c-&amp;gt;dev));
+
+ /* write slave address */
+
+ writeb(pdata-&amp;gt;slave_addr, i2c-&amp;gt;regs + S3C2410_IICADD);//写从设备地址
+
+ dev_dbg(i2c-&amp;gt;dev, &quot;slave address 0x%02x\n&quot;, pdata-&amp;gt;slave_addr);
+
+ writel(iicon, i2c-&amp;gt;regs + S3C2410_IICCON);//写控制寄存器，也就是使能中断和使能ACK，流程（2）
+
+ /* we need to work out the divisors for the clock... */
+
+ if (s3c24xx_i2c_clockrate(i2c, &amp;amp;freq) != 0) {//计算时钟分频
+     writel(0, i2c-&amp;gt;regs + S3C2410_IICCON);
+     dev_err(i2c-&amp;gt;dev, &quot;cannot meet bus frequency required\n&quot;);
+     return -EINVAL;
+ }
+
+ /* todo - check that the i2c lines aren't being dragged anywhere */
+
+ dev_dbg(i2c-&amp;gt;dev, &quot;bus frequency set to %d KHz\n&quot;, freq);
+ dev_dbg(i2c-&amp;gt;dev, &quot;S3C2410_IICCON=0x%02lx\n&quot;, iicon);
+
+ dev_dbg(i2c-&amp;gt;dev, &quot;S3C2440_IICLC=%08x\n&quot;, pdata-&amp;gt;sda_delay);
+ writel(pdata-&amp;gt;sda_delay, i2c-&amp;gt;regs + S3C2440_IICLC);
+
+ return 0;
+ }
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;s3c24xx&lt;em&gt;i2c&lt;/em&gt;init()中完成了前面所说的通过i2c总线写eeprom流程的（1）（2）两步。&lt;/p&gt;
+
+&lt;hr&gt;
+
+&lt;p&gt;在浅谈LinuxI2C驱动架构这一小节中提到了，i2c总线驱动是对I2C硬件体系结构中适配器端的实现，主要是实现了两个结构i2c&lt;em&gt;adapter和i2c&lt;/em&gt;algorithm，从而控制i2c适配器产生通讯信号。&lt;/p&gt;
+
+&lt;p&gt;在i2c24xx&lt;em&gt;i2c&lt;/em&gt;probe()中就填充了i2c&lt;em&gt;adapter，并且通过i2c-&amp;gt;adap.algo = &amp;amp;s3c24xx&lt;/em&gt;i2c&lt;em&gt;algorithm给i2c&lt;/em&gt;adapter绑定了i2c_algorithm。&lt;/p&gt;
+
+&lt;p&gt;其中s3c24xx&lt;em&gt;i2c&lt;/em&gt;algorithm为 &lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-&quot; data-lang=&quot;&quot;&gt;static const struct i2c_algorithm s3c24xx_i2c_algorithm = { 
+    .master_xfer = s3c24xx_i2c_xfer, 
+    .functionality = s3c24xx_i2c_func, 
+}; 
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;其中s3c24xx&lt;em&gt;i2c&lt;/em&gt;xfer()用来启动i2c传输，s3c24xx&lt;em&gt;i2c&lt;/em&gt;func()返回所支持的通讯协议。&lt;/p&gt;
+
+&lt;p&gt;所以说，i2c设备通过i2c&lt;em&gt;transfer()进行实际传输，在i2c核心中我们已经看到，i2c&lt;/em&gt;transfer实际是调用了i2c&lt;em&gt;adapter对应的master&lt;/em&gt;xfer()，此处，在i2c总线驱动中，把master&lt;em&gt;xfer()指定为了s3c24xx&lt;/em&gt;i2c&lt;em&gt;xfer()，所以说此时，传输任务交给了s3c24xx&lt;/em&gt;i2c_xfer()。&lt;/p&gt;
+
+&lt;p&gt;通过后面分析我们会看到，s3c24xx&lt;em&gt;i2c&lt;/em&gt;xfer()只是启动了i2c传输，把i2c传输这个任务进行推进并且完成还需要靠我们在probe中注册的中断来完成，对应的中断处理函数是s3c24xx&lt;em&gt;i2c&lt;/em&gt;irq()，后面都会详细分析。&lt;/p&gt;
+
+&lt;h3 id=&quot;7.4&quot;&gt;7.4 启动i2c传输&lt;/h3&gt;
+
+&lt;p&gt;接下来就是分析负责启动i2c传输任务的s3c24xx&lt;em&gt;i2c&lt;/em&gt;xfer()。&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-&quot; data-lang=&quot;&quot;&gt; static int s3c24xx_i2c_xfer(struct i2c_adapter *adap,
+         struct i2c_msg *msgs, int num)
+ {
+ struct s3c24xx_i2c *i2c = (struct s3c24xx_i2c *)adap-&amp;gt;algo_data;//获得i2c适配器私有数据结构
+ int retry;
+ int ret;
+
+ clk_enable(i2c-&amp;gt;clk);//使能时钟
+
+ for (retry = 0; retry &amp;lt; adap-&amp;gt;retries; retry++) {//传输不成功，则重试，retries为重试次数。
+
+     ret = s3c24xx_i2c_doxfer(i2c, msgs, num);//启动一次i2c传输
+
+     if (ret != -EAGAIN)
+         goto out;
+
+     dev_dbg(i2c-&amp;gt;dev, &quot;Retrying transmission (%d)\n&quot;, retry);
+
+     udelay(100);
+ }
+ ret = -EREMOTEIO;
+ out:
+    clk_disable(i2c-&amp;gt;clk);
+
+ return ret;
+ }
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;可以看到s3c24xx&lt;em&gt;i2c&lt;/em&gt;xfer()是调用了s3c24xx&lt;em&gt;i2c&lt;/em&gt;doxfer()来启动传输的。&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-&quot; data-lang=&quot;&quot;&gt;static int s3c24xx_i2c_doxfer(struct s3c24xx_i2c *i2c,
+               struct i2c_msg *msgs, int num)
+{
+ unsigned long timeout;
+ int ret;
+
+ if (i2c-&amp;gt;suspended)
+     return -EIO;
+
+ ret = s3c24xx_i2c_set_master(i2c);//检查i2c总线状态，总线不忙返回0
+ if (ret != 0) {
+     dev_err(i2c-&amp;gt;dev, &quot;cannot get bus (error %d)\n&quot;, ret);
+     ret = -EAGAIN;
+     goto out;
+ }
+
+ spin_lock_irq(&amp;amp;i2c-&amp;gt;lock);
+
+ //把消息写入i2c适配器的私有数据结构体中
+ i2c-&amp;gt;msg     = msgs;//i2c消息
+ i2c-&amp;gt;msg_num = num;//消息数量
+ i2c-&amp;gt;msg_ptr = 0;//消息指针，指向当前消息未发送部分的开始
+ i2c-&amp;gt;msg_idx = 0;//消息索引
+ i2c-&amp;gt;state   = STATE_START;//将状态改为STATE_START
+
+ s3c24xx_i2c_enable_irq(i2c);//使能中断
+ s3c24xx_i2c_message_start(i2c, msgs);//发送第一个byte，获得ACK后触发中断。
+ spin_unlock_irq(&amp;amp;i2c-&amp;gt;lock);
+
+ timeout = wait_event_timeout(i2c-&amp;gt;wait, i2c-&amp;gt;msg_num == 0, HZ * 5);//等待消息传输完成，否则超时
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;s3c24xx&lt;em&gt;i2c&lt;/em&gt;doxfer()首先调用s3c24xx&lt;em&gt;i2c&lt;/em&gt;set&lt;em&gt;master()来检查总线状态，s3c24xx&lt;/em&gt;i2c&lt;em&gt;set&lt;/em&gt;master()的实现如下&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-&quot; data-lang=&quot;&quot;&gt; static int s3c24xx_i2c_set_master(struct s3c24xx_i2c *i2c)
+ {
+ unsigned long iicstat;
+ int timeout = 400;
+
+ while (timeout-- &amp;gt; 0) {
+     iicstat = readl(i2c-&amp;gt;regs + S3C2410_IICSTAT);//读i2c状态寄存器
+
+     if (!(iicstat &amp;amp; S3C2410_IICSTAT_BUSBUSY))//总线不忙，则返回0；否则直到超时
+         return 0;
+
+     msleep(1);
+ }
+
+ writel(iicstat &amp;amp; ~S3C2410_IICSTAT_TXRXEN, i2c-&amp;gt;regs + S3C2410_IICSTAT);
+ if (!(readl(i2c-&amp;gt;regs + S3C2410_IICSTAT) &amp;amp; S3C2410_IICSTAT_BUSBUSY))
+     return 0;
+
+ return -ETIMEDOUT;
+ }
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;在获知总线不忙后，把要消息写入i2c适配器私有数据结构，并且把状态改为STATE&lt;em&gt;START。 
+然后使能中断，通过s3c24xx&lt;/em&gt;i2c&lt;em&gt;message&lt;/em&gt;start()发送第一个byte，这样在获取ACK后就会触发中断来推进i2c的传输。&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-&quot; data-lang=&quot;&quot;&gt;static void s3c24xx_i2c_message_start(struct s3c24xx_i2c *i2c,
+                   struct i2c_msg *msg)
+{
+ unsigned int addr = (msg-&amp;gt;addr &amp;amp; 0x7f) &amp;lt;&amp;lt; 1;//从设备地址，7位地址，最低位用来表示读或者写，1为读，0为写。
+ unsigned long stat;
+ unsigned long iiccon;
+
+ stat = 0;
+ stat |=  S3C2410_IICSTAT_TXRXEN;//使能RxTx
+
+ if (msg-&amp;gt;flags &amp;amp; I2C_M_RD) {//从i2c消息判断，如果是读
+     stat |= S3C2410_IICSTAT_MASTER_RX;//把状态设为主模式读
+     addr |= 1;//别且设置第一byte最低位为1，表示读
+ } else//否则是写
+     stat |= S3C2410_IICSTAT_MASTER_TX;//把状态设为主模式写
+
+ if (msg-&amp;gt;flags &amp;amp; I2C_M_REV_DIR_ADDR)//如果是读写反转
+     addr ^= 1;//读写交换
+
+ /* todo - check for wether ack wanted or not */
+ s3c24xx_i2c_enable_ack(i2c);//使能ACK
+
+ iiccon = readl(i2c-&amp;gt;regs + S3C2410_IICCON);
+ writel(stat, i2c-&amp;gt;regs + S3C2410_IICSTAT);//根据前面的设置来配置控制寄存器，流程（3）
+
+ dev_dbg(i2c-&amp;gt;dev, &quot;START: %08lx to IICSTAT, %02x to DS\n&quot;, stat, addr);
+ writeb(addr, i2c-&amp;gt;regs + S3C2410_IICDS);//把第一个byte写入i2c收发数据移位寄存器，流程（3）
+ /* delay here to ensure the data byte has gotten onto the bus
+  * before the transaction is started */
+
+ ndelay(i2c-&amp;gt;tx_setup);
+
+ dev_dbg(i2c-&amp;gt;dev, &quot;iiccon, %08lx\n&quot;, iiccon);
+ writel(iiccon, i2c-&amp;gt;regs + S3C2410_IICCON);
+
+ stat |= S3C2410_IICSTAT_START;
+ writel(stat, i2c-&amp;gt;regs + S3C2410_IICSTAT);//修改状态，流程（3）
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;s3c24xx&lt;em&gt;i2c&lt;/em&gt;message_start()在i2c总线上发送了一个开始信号，即完成了通过i2c总线写eeprom中的流程（3）的工作，设备地址赋给IICDS ，并设置IICSTAT，启动IIC发送设备地址出去，当从设备收到此数据并且回复ACK后，i2c适配器收到ACK后就会触发中断来推进i2c的传输。&lt;/p&gt;
+
+&lt;h3 id=&quot;7.5&quot;&gt;7.5 通过中断来推进i2c的传输&lt;/h3&gt;
+
+&lt;p&gt;发送完第一个byte，收到ACK信号后就会进入中断，并且以后只要收到ACK信号就都会进入中断。中断在probe中已经注册，它的实现 
+如下 &lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-&quot; data-lang=&quot;&quot;&gt;static irqreturn_t s3c24xx_i2c_irq(int irqno, void *dev_id)
+{
+ struct s3c24xx_i2c *i2c = dev_id;
+ unsigned long status;
+ unsigned long tmp;
+
+ status = readl(i2c-&amp;gt;regs + S3C2410_IICSTAT);//获得i2c状态寄存器的值
+
+ if (status &amp;amp; S3C2410_IICSTAT_ARBITR) {//需要仲裁
+     /* deal with arbitration loss */
+     dev_err(i2c-&amp;gt;dev, &quot;deal with arbitration loss\n&quot;);
+ }
+
+ if (i2c-&amp;gt;state == STATE_IDLE) {//空闲状态
+     dev_dbg(i2c-&amp;gt;dev, &quot;IRQ: error i2c-&amp;gt;state == IDLE\n&quot;);
+
+     tmp = readl(i2c-&amp;gt;regs + S3C2410_IICCON);
+     tmp &amp;amp;= ~S3C2410_IICCON_IRQPEND;
+     writel(tmp, i2c-&amp;gt;regs +  S3C2410_IICCON);
+     goto out;
+ }
+
+ /* pretty much this leaves us with the fact that we've
+  * transmitted or received whatever byte we last sent */
+
+ i2c_s3c_irq_nextbyte(i2c, status);//推进传输，传输下一个byte
+ out:
+ return IRQ_HANDLED;
+}  
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;i2c总线驱动的中断处理函数s3c24xx&lt;em&gt;i2c&lt;/em&gt;irq()是调用i2c&lt;em&gt;s3c&lt;/em&gt;irq_nextbyte()来推进i2c的传输的。&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-&quot; data-lang=&quot;&quot;&gt;static int i2c_s3c_irq_nextbyte(struct s3c24xx_i2c *i2c, unsigned long iicstat
+{
+unsigned long tmp;
+unsigned char byte;
+int ret = 0;
+
+switch (i2c-&amp;gt;state) {//根据i2c的状态选择
+
+case STATE_IDLE://空闲
+    dev_err(i2c-&amp;gt;dev, &quot;%s: called in STATE_IDLE\n&quot;, __func__);
+    goto out;
+    break;
+
+case STATE_STOP://停止
+    dev_err(i2c-&amp;gt;dev, &quot;%s: called in STATE_STOP\n&quot;, __func__);
+    s3c24xx_i2c_disable_irq(i2c);//禁止中断
+    goto out_ack;
+
+case STATE_START://开始
+    /* last thing we did was send a start condition on the
+     * bus, or started a new i2c message
+     */
+    //切换为开始状态之前，刚发送了第一个byte，也就是设备地址
+
+    //首先检查下state时候与硬件寄存器的状态一致
+    if (iicstat &amp;amp; S3C2410_IICSTAT_LASTBIT &amp;amp;&amp;amp;
+        !(i2c-&amp;gt;msg-&amp;gt;flags &amp;amp; I2C_M_IGNORE_NAK)) {
+        /* ack was not received... */
+
+        dev_dbg(i2c-&amp;gt;dev, &quot;ack was not received\n&quot;);
+        s3c24xx_i2c_stop(i2c, -ENXIO);//停止i2c传输
+        goto out_ack;
+    }
+
+    if (i2c-&amp;gt;msg-&amp;gt;flags &amp;amp; I2C_M_RD)//如果当前i2c消息的标志为i2c读
+        i2c-&amp;gt;state = STATE_READ;//则修改状态为i2c读
+    else
+        i2c-&amp;gt;state = STATE_WRITE;//否则修改为i2c写
+
+    /* terminate the transfer if there is nothing to do
+     * as this is used by the i2c probe to find devices. */
+
+    if (is_lastmsg(i2c) &amp;amp;&amp;amp; i2c-&amp;gt;msg-&amp;gt;len == 0) {//如果是最后一条消息则停止i2c传输。
+        s3c24xx_i2c_stop(i2c, 0);
+        goto out_ack;
+    }
+
+    if (i2c-&amp;gt;state == STATE_READ)//如果i2c状态为读，就跳到读，否则，，就会跳到写，，，因为没有break
+        goto prepare_read;
+
+    /* fall through to the write state, as we will need to
+     * send a byte as well */
+
+case STATE_WRITE://第一次开始写i2c
+    /* we are writing data to the device... check for the
+     * end of the message, and if so, work out what to do
+     */
+
+    if (!(i2c-&amp;gt;msg-&amp;gt;flags &amp;amp; I2C_M_IGNORE_NAK)) {
+        if (iicstat &amp;amp; S3C2410_IICSTAT_LASTBIT) {
+            dev_dbg(i2c-&amp;gt;dev, &quot;WRITE: No Ack\n&quot;);
+
+            s3c24xx_i2c_stop(i2c, -ECONNREFUSED);
+            goto out_ack;
+        }
+    }
+retry_write://继续写
+
+    if (!is_msgend(i2c)) {//不是一条消息的最后1Byte
+        byte = i2c-&amp;gt;msg-&amp;gt;buf[i2c-&amp;gt;msg_ptr++];//取出此消息的下一个byte
+        writeb(byte, i2c-&amp;gt;regs + S3C2410_IICDS);//写入收发数据移位寄存器。
+
+        /* delay after writing the byte to allow the
+         * data setup time on the bus, as writing the
+         * data to the register causes the first bit
+         * to appear on SDA, and SCL will change as
+         * soon as the interrupt is acknowledged */
+
+        ndelay(i2c-&amp;gt;tx_setup);//延迟，等待数据发送
+
+    } else if (!is_lastmsg(i2c)) {//是一条消息的最后一个byte，不是最后一条消息
+        /* we need to go to the next i2c message */
+
+        dev_dbg(i2c-&amp;gt;dev, &quot;WRITE: Next Message\n&quot;);
+
+        i2c-&amp;gt;msg_ptr = 0;//当前消息未发数据开始指针复位
+        i2c-&amp;gt;msg_idx++;//消息索引++
+        i2c-&amp;gt;msg++;//下一条消息
+
+        /* check to see if we need to do another message */
+        if (i2c-&amp;gt;msg-&amp;gt;flags &amp;amp; I2C_M_NOSTART) {//在发送下个消息之前，检查是否需要一个新的开始信号，如果不需要
+
+            if (i2c-&amp;gt;msg-&amp;gt;flags &amp;amp; I2C_M_RD) {//如果是读
+                /* cannot do this, the controller
+                 * forces us to send a new START
+                 * when we change direction */
+
+                s3c24xx_i2c_stop(i2c, -EINVAL);//错误，返回
+            }
+
+            goto retry_write;//继续写
+        } else {//如果需要一个新的开始信号
+            /* send the new start */
+            s3c24xx_i2c_message_start(i2c, i2c-&amp;gt;msg);//发送一个新的开始信号
+            i2c-&amp;gt;state = STATE_START;//并且修改状态
+        }
+
+    } else {//是一条消息的最后
+        /* send stop */
+
+        s3c24xx_i2c_stop(i2c, 0);//停止发送
+    }
+    break;
+
+case STATE_READ://开始读
+    /* we have a byte of data in the data register, do
+     * something with it, and then work out wether we are
+     * going to do any more read/write
+     */
+
+    byte = readb(i2c-&amp;gt;regs + S3C2410_IICDS);//先获取读到的消息，后面再决定时候有用
+    i2c-&amp;gt;msg-&amp;gt;buf[i2c-&amp;gt;msg_ptr++] = byte;//把消息存入读缓冲
+
+prepare_read://如果第一个byte是读，则跳到此处。
+    if (is_msglast(i2c)) {//是当前消息的最后一byte，也就是当前消息只剩1Byte的空余
+        /* last byte of buffer */
+
+        if (is_lastmsg(i2c))//如果也是最后一条消息
+            s3c24xx_i2c_disable_ack(i2c);//那么就禁止ACK
+
+    } else if (is_msgend(i2c)) {//否则如果是当前消息已经用完读缓冲
+        /* ok, we've read the entire buffer, see if there
+         * is anything else we need to do */
+
+        if (is_lastmsg(i2c)) {//如果是最后一条消息了
+            /* last message, send stop and complete */
+            dev_dbg(i2c-&amp;gt;dev, &quot;READ: Send Stop\n&quot;);
+
+            s3c24xx_i2c_stop(i2c, 0);//停止i2c传输
+        } else {//否则进入下一条i2c传输
+            /* go to the next transfer */
+            dev_dbg(i2c-&amp;gt;dev, &quot;READ: Next Transfer\n&quot;);
+
+            i2c-&amp;gt;msg_ptr = 0;
+            i2c-&amp;gt;msg_idx++;
+            i2c-&amp;gt;msg++;//下一条i2c消息
+        }
+    }
+
+    break;
+}
+
+/* acknowlegde the IRQ and get back on with the work */
+out_ack:
+    tmp = readl(i2c-&amp;gt;regs + S3C2410_IICCON);
+    tmp &amp;amp;= ~S3C2410_IICCON_IRQPEND;//清中断标志位
+    writel(tmp, i2c-&amp;gt;regs + S3C2410_IICCON);
+out:
+return ret;
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;i2c&lt;em&gt;s3c&lt;/em&gt;irq_nextbyte()推进了i2c的传输，以写eeprom为例，第一个Byte的设备地址发送后，从EEPROM得到ACK信号，此信号触发中断，在中断处理函数中把第二个Byte（设备内地址）发送出去；发送之后，接收到ACK又触发中断，中断处理函数把第三个Byte（真正的数据）发送到设备中，发送之后同样接收到ACK并触发中断，中断处理函数判断，发现数据传送完毕，就发送IIC Stop信号，关IIC中断，置位各寄存器。这样就把通过i2c总线写eeprom的整个流程都实现了。&lt;/p&gt;
+
+&lt;h3 id=&quot;7.6&quot;&gt;7.6 总结&lt;/h3&gt;
+
+&lt;p&gt;i2c总线驱动控制i2c适配器产生通信信号，通过master_xfer()启动一个i2c传输，然后通过中断推进i2c传输。&lt;/p&gt;
+</description>
+      </item>
+    
+      <item>
+        <title>0xBenchmark中垃圾回收测试模块的分析及改进</title>
+        <link>http://hello2mao.github.io/2015/11/30/0xBenchmark.html</link>
+        <guid isPermaLink="true">http://hello2mao.github.io/2015/11/30/0xBenchmark.html</guid>
+        <pubDate>Mon, 30 Nov 2015 00:00:00 +0800</pubDate>
+        <description>&lt;p&gt;&lt;strong&gt;&lt;em&gt;版权声明：本文为博主原创文章，未经博主允许不得转载。&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;h3&gt;1. 0xBenchmark介绍&lt;/h3&gt;
+
+&lt;p&gt;0xBenchmark是google官方的测试程序，0xlab给0xBenchmark集成了17个benchmark，包括2个计算性能，1个JavaScript基准测试，7个2D图形渲染，4个3D图形渲染，1个垃圾回收性能测试，2个本地benchmark用来测试系统性能。测试结果 供详细精确的数据,可以为性能优化供指导和比对。它包含的测试项目如下。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;计算性能&lt;/strong&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Linpack 测试Java的浮点性能&lt;/li&gt;
+&lt;li&gt;Scimark2 测试常用数学运算性能如快速Fourier变换、矩阵运算等性能&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;JavaScript&lt;/strong&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;SunSpider JavaScript基准测试&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;2D图形渲染&lt;/strong&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Canvas Redraw 测试Canvas绘图性能&lt;/li&gt;
+&lt;li&gt;Draw Circle 一个简单的2D动画程序，测试刷新率&lt;/li&gt;
+&lt;li&gt;DrawRect 在画布上随机添加矩形&lt;/li&gt;
+&lt;li&gt;DrawCircle2 在画布上随机渲染圆圈&lt;/li&gt;
+&lt;li&gt;DrawArc 简单的2D动画&lt;/li&gt;
+&lt;li&gt;DrawText 计算文本渲染速度&lt;/li&gt;
+&lt;li&gt;DrawImage 计算图片渲染速度&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;3D图形渲染&lt;/strong&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;GL Cube 用OpenGL ES去渲染一个旋转的魔方&lt;/li&gt;
+&lt;li&gt;GL Teapot 用OpenGL ES去渲染一个旋转的茶壶模型&lt;/li&gt;
+&lt;li&gt;NeHe Lesson08 测试贴图着色混合性能&lt;/li&gt;
+&lt;li&gt;NeHe Lesson16 测试雾化效果性能&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;垃圾回收性能&lt;/strong&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Garbage Collection 测试垃圾回收性能&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;本地测试程序&lt;/strong&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;LibMicro 测试系统调用和库调用的性能&lt;/li&gt;
+&lt;li&gt;BYTE UnixBench 为Unix类的系统提供了一些基本的性能指标&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3&gt;2. 详解垃圾回收测试模块&lt;/h3&gt;
+
+&lt;p&gt;垃圾回收机制，最早出现于世界上第二元老语言Lisp，Jean E. Sammet曾经说过，Lisp语言最长久的共享之一是一个非语言特征，即代表了系统自动处理内存的方法的术语及其技术----垃圾收集（GC，Garbage Collection）。&lt;/p&gt;
+
+&lt;p&gt;0xBenchmark中就有专门测试android虚拟机的垃圾回收性能的模块。此测试程序的代码移植于由John Ellis和Pete Kovac写的一个基准测试程序。测试的算法是递归自顶向下和递归自底向上创建完全二叉树,以及创建大的浮点数组,对于内存块的创建还分为长生命周期对象和临时对象,长生命周期对象的引用要在测试函数运行完毕时才会丢失,而临时对象在创建完毕后即被丢失,测试的基准为创建对象所需要的时间。&lt;/p&gt;
+
+&lt;p&gt;每个二叉树节点的数据结构如下：&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-&quot; data-lang=&quot;&quot;&gt;class Node {
+    Node left, right;
+    int i, j;
+    Node(Node l, Node r) { left = l; right = r; }
+    Node() { }
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;递归自顶向下创建完全二叉树的代码如下：&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-&quot; data-lang=&quot;&quot;&gt;static void Populate(int iDepth, Node thisNode) {
+    if (iDepth&amp;lt;=0) {//递归结束条件
+        return;
+    } else {
+        iDepth--;//树深度减一
+        thisNode.left  = new Node();
+        thisNode.right = new Node();
+        Populate (iDepth, thisNode.left);//递归创建左子树
+        Populate (iDepth, thisNode.right);//递归创建右子树
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;递归自底向上创建完全二叉树的代码如下：&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-&quot; data-lang=&quot;&quot;&gt;static Node MakeTree(int iDepth) {
+    if (iDepth&amp;lt;=0) {//递归结束条件
+        return new Node();
+    } else {
+        return new Node(MakeTree(iDepth-1),//自底向上递归调用
+                MakeTree(iDepth-1));
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;在测试程序一开始运行的时候就创建长生命周期对象，并在测试结束前检查长生命周期的对象是否被回收了，如果回收了则测试失败。并且长生命周期对象分为两类，第一类是完全二叉树，第二类是浮点数组。&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-&quot; data-lang=&quot;&quot;&gt;longLivedTree = new Node();
+Populate(kLongLivedTreeDepth, longLivedTree);//完全二叉树
+
+double array[] = new double[kArraySize];//浮点数组
+for (int i = 0; i &amp;lt; kArraySize/2; ++i) {//把数组的一半初始化
+    array[i] = 1.0/i;
+}
+....
+if (longLivedTree == null || array[1000] != 1.0/1000)
+        update(&quot;Failed&quot;);//测试结束，检查是否还存活。
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;测试程序最主要的测试部分是递归创建不同深度的完全二叉树，同一深度又有自顶向下和自底向上两种，同时需要记录创建完成所需的时间：&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-&quot; data-lang=&quot;&quot;&gt;static void TimeConstruction(int depth) {
+    ....
+    tStart = System.currentTimeMillis();//记录开始创建时间
+    for (int i = 0; i &amp;lt; iNumIters; ++i) {
+        tempTree = new Node();
+        Populate(depth, tempTree);//自顶向下创建完全二叉树
+        tempTree = null;
+    }
+    tFinish = System.currentTimeMillis();//记录完成时间
+    ....
+    tStart = System.currentTimeMillis();
+    for (int i = 0; i &amp;lt; iNumIters; ++i) {
+        tempTree = MakeTree(depth);//自底向上创建完全二叉树
+        tempTree = null;
+    }
+    tFinish = System.currentTimeMillis();
+    ....
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;上面测试程序中，二叉树的创建深度以及数组的大小由以下常数决定：&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-&quot; data-lang=&quot;&quot;&gt;public static final int kStretchTreeDepth    = 16;    // about 8Mb
+public static final int kLongLivedTreeDepth  = 14;  // about 2Mb
+public static final int kArraySize  = 125000;  // about 2Mb
+public static final int kMinTreeDepth = 2;
+public static final int kMaxTreeDepth = 8;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;可以看到无论是二叉树的深度还是浮点数组的大小，对象系统内存的占用都不是很大，这是因为以前android设备的硬件配置都比较低，内存也比较少，而现在android设备的硬件配置普遍比较高，无论是CPU主频还是内存容量都有了很大的提高。导致的结果就是现在android设备运行这个benchmark测出来的垃圾回收性能的差异很难观察到。这也是本文想对此benchmark进行改进的原因，改进后使其能测试当前主流android设备的垃圾回收性能。&lt;/p&gt;
+
+&lt;h3&gt;3. 改进及测试结果分析&lt;/h3&gt;
+
+&lt;p&gt;根据上节分析，准备根据真实硬件的配置相应修改二叉树的创建深度以及数组的大小，并在android设备上测试。选用的开发板是Tiny4412，是Samsung ARM Cortex-A9四核Exynos4412 Quad-core处理器，运行主频是1.5GHz，内存是DDR3 RAM，大小为1G。运行的android版本是5.0.2，由于android5.0中得ART GC不会把所有GC log都打印出来，为了更加准确的获知GC的运行情况，需要修改android源码，屏蔽过滤GC log的语句，重新编译并生成libart.so。&lt;/p&gt;
+
+&lt;p&gt;未经修改的0xBenchmark的垃圾回收性能测试结果如下：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/public/img/technology/gc_6.png&quot; alt=&quot;1&quot;&gt;&lt;/p&gt;
+
+&lt;p&gt;程序测试过程中内存的变化情况如下所示：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/public/img/technology/gc_1.png&quot; alt=&quot;2&quot;&gt;&lt;/p&gt;
+
+&lt;p&gt;测试过程中共发生15次GC：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/public/img/technology/gc_3.png&quot; alt=&quot;3&quot;&gt;&lt;/p&gt;
+
+&lt;p&gt;由上面的测试结果可以看出，由于原始的测试程序设置的二叉树深度和数组的大小都相对较小，所以测试所需求的内存也比较少，基本都在8M左右，完成整个垃圾回收测试所需要的时间只有847ms，其中GC只触发了15次。&lt;/p&gt;
+
+&lt;p&gt;为了使0xBenchmark能更好的适配现在主流的android硬件设备，能更加好的使测试结果能表征android虚拟机的垃圾回收性能，调整二叉树的创建深度及数组大小如下：&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-&quot; data-lang=&quot;&quot;&gt;public static final int kStretchTreeDepth    = 19;
+public static final int kLongLivedTreeDepth  = 18;
+public static final int kArraySize  = 125000*8;
+public static final int kMinTreeDepth = 2;
+public static final int kMaxTreeDepth = 12;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;经过改进后的垃圾回收测试结果如下：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/public/img/technology/gc_5.png&quot; alt=&quot;4&quot;&gt;&lt;/p&gt;
+
+&lt;p&gt;测试过程中内存的变化情况如下所示：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/public/img/technology/gc_2.png&quot; alt=&quot;5&quot;&gt;&lt;/p&gt;
+
+&lt;p&gt;测试过程中共发生86次GC，部分截图如下：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/public/img/technology/gc_4.png&quot; alt=&quot;6&quot;&gt;&lt;/p&gt;
+
+&lt;p&gt;可以看到，完成整个测试所需的时间变为了9162ms，在测试过程中也发成了较多的GC，共86次，更加能够表征GC对于对象分配的影响，同时，测试过程中java堆的大小在32M左右，由android启动参数dalvik.vm.heapgrowthlimit=64m可知，每个app的堆得增长上限是64M，测试程序更好的模拟了正常应用的内存消耗行为。&lt;/p&gt;
+</description>
+      </item>
+    
+  </channel>
+</rss>
