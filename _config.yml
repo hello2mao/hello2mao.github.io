@@ -39,7 +39,13 @@ active: tags
 # 首页除了最新文章外显示分类
 cates: 
   - Android
+  - Java
+  - Network
+  - APM
   - Linux
+  - C++
+  - Machine Learning
+  - Other
 
 # 中文本地化
 locals:
