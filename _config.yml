@@ -1,0 +1,49 @@
+permalink: /:year/:month/:day/:title.html
+paginate: 10
+markdown: redcarpet
+gems: [jekyll-paginate]
+
+# 作者信息
+author: 
+  name: Billy Mao
+  email: hello2mao@outlook.com
+  link: http://hello2mao.github.io
+  weibo: http://weibo.com/hello2maohongbin
+  github: http://github.com/hello2mao
+  linkedin: https://cn.linkedin.com/in/maohongbin
+  qq: 1183764339
+  wechat: MHB_SEU
+
+# 站点信息设置
+title: 毛宏斌的博客
+description: My personal blog
+url: http://hello2mao.github.io
+rss_url: /pages/atom.xml
+
+# gavatar头像及Favicon
+gavatar: /public/img/mhb-logo.png
+favicon: /public/img/mhb-logo.png
+
+# google analytics 设置
+# ga:
+#  id: UA-54262064-1 
+#  url: hello2mao.github.io
+
+# disqus 设置
+#disqus:
+#  shortname: hello2mao
+
+# 主题设置，自动激活某个标签
+active: tags
+
+# 首页除了最新文章外显示分类
+cates: 
+  - Android
+  - Linux
+
+# 中文本地化
+locals:
+  tags: 分类
+  about: 关于
+  newest: 最新文章
+  archive: 归档
