@@ -6,8 +6,10 @@ tags: Android
 keywords: android,GC
 description:
 ---
-***版权声明：本文为博主原创文章，转载请注明来自https://hello2mao.github.io***
 
+***版权声明：本文为博主原创文章，转载请注明来自 https://hello2mao.github.io***
+
+---
 
 为了研究Android虚拟机中的内存管理机制，前期进行了初步调研，下面列出Android 5.0 ART 中GC的更新概要以供参考，资料来源于网络以及对源码的初步阅读。  
 

@@ -6,7 +6,10 @@ tags: Android
 keywords: android,GC
 description:
 ---
-***版权声明：本文为博主原创文章，转载请注明来自https://hello2mao.github.io***
+
+***版权声明：本文为博主原创文章，转载请注明来自 https://hello2mao.github.io***
+
+---
 
 ###1. 0xBenchmark介绍
 0xBenchmark是google官方的测试程序，0xlab给0xBenchmark集成了17个benchmark，包括2个计算性能，1个JavaScript基准测试，7个2D图形渲染，4个3D图形渲染，1个垃圾回收性能测试，2个本地benchmark用来测试系统性能。测试结果 供详细精确的数据,可以为性能优化供指导和比对。它包含的测试项目如下。

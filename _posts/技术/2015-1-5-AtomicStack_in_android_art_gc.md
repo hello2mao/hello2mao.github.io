@@ -6,7 +6,9 @@ tags: Android
 keywords: android,GC
 description:
 ---
+
 ***版权声明：本文为博主原创文章，转载请注明来自 https://hello2mao.github.io。***
+
 ---
 
 在android ART GC 中类AtomicStack用来实现对象的栈，如下：

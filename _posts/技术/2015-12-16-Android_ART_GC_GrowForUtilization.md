@@ -6,8 +6,10 @@ tags: Android
 keywords: android,GC
 description:
 ---
-***版权声明：本文为博主原创文章，转载请注明来自https://hello2mao.github.io***
 
+***版权声明：本文为博主原创文章，转载请注明来自 https://hello2mao.github.io***
+
+---
 
 Android运行过程中有多种情况会触发垃圾回收（GC，garbage collection），以android 5.0为例，可以发现，在应用运行过程中最常见的触发GC的方式如下图所示：
 

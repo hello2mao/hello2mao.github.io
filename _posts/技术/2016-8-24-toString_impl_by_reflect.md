@@ -6,7 +6,10 @@ tags: Android
 keywords: android,GC
 description:
 ---
-***版权声明：本文为博主原创文章，转载请注明来自https://hello2mao.github.io***
+
+***版权声明：本文为博主原创文章，转载请注明来自 https://hello2mao.github.io***
+
+---
 
 在android ART GC 中类AtomicStack用来实现对象的栈，如下：
 ```
@@ -16,7 +19,7 @@ ObjectStack用来实现android ART GC中三个最重要的栈，即mark_stack_,a
 ```
 Android ART GC --mark_stack_,allocation_stack_,live_stack_
 ```
-			 在模板类AtomicStack中实现了栈的一些基本操作，包括入栈、出栈等。同时，也利用C++11的原子操作实现了无锁栈（lock-free stack），提高了栈的性能。
+在模板类AtomicStack中实现了栈的一些基本操作，包括入栈、出栈等。同时，也利用C++11的原子操作实现了无锁栈（lock-free stack），提高了栈的性能。
 
 模板类AtomicStack的定义如下（art/runtime/gc/accounting/atomic_stack.h）：
 ```
