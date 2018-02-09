@@ -1,12 +1,12 @@
 ---
 layout: post
-title: Android ART GC之GrowForUtilization的分析 
+title: Android ART GC之GrowForUtilization的分析
 category: 技术
 tags: Android
 keywords: android,GC
-description: 
+description:
 ---
-***版权声明：本文为博主原创文章，未经博主允许不得转载。***
+***版权声明：本文为博主原创文章，转载请注明来自https://hello2mao.github.io***
 
 
 Android运行过程中有多种情况会触发垃圾回收（GC，garbage collection），以android 5.0为例，可以发现，在应用运行过程中最常见的触发GC的方式如下图所示：
@@ -128,5 +128,3 @@ T = max(t2,x + db)
 ![gc_sohu.png](/public/img/technology/gc_sohu.png)
 
 从代码里也可以看出，如果本次GC不是sticky gc，那么下次gc就一定是sticky gc。而如果本次gc是sticky gc，那么会根据gc的吞吐量来决定下次是sticky gc还是partial gc或者full gc。
-
-
