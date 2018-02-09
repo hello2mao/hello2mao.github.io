@@ -4,13 +4,13 @@ title: Android 5.0 ART GC 对比 Android 4.x Dalvik GC
 category: 技术
 tags: Android
 keywords: android,GC
-description: 
+description:
 ---
-***版权声明：本文为博主原创文章，未经博主允许不得转载。***
+***版权声明：本文为博主原创文章，转载请注明来自https://hello2mao.github.io***
 
 
 为了研究Android虚拟机中的内存管理机制，前期进行了初步调研，下面列出Android 5.0 ART 中GC的更新概要以供参考，资料来源于网络以及对源码的初步阅读。  
-        
+
 谷歌在2014年6月26日的I/O 2014开发者大会上正式推出了Android L,有以下几个方面值得重点关注：
 
 1. 全新的UI/UE设计风格和框架Material Design以及和通知（Notification）栏有关的UI/UE变化
@@ -18,7 +18,7 @@ description:
 3. 致力于改善功耗的Project Volta。
 
 其中第二点中得ART是Android Runtime的缩写，它是Google用于替代饱受诟病的Dalvik虚拟机的替代品。其实，ART早在Android KitKat（版本号为4.4）就已经推出，不过当时它还很不完善，所以被放到设置程序中的“开发者选项”里供一些供感兴趣的开发者使用。
-        
+
 ART究竟有什么神奇之处呢？根据相关资料，总结如下：  
 （1）采用AOT（Ahead-Of-Time，预编译）编译技术，它能将Java字节码直接转换成目标机器的机器码。  
 （2）更为高效和细粒度的垃圾回收机制（GC）。  
@@ -55,11 +55,11 @@ ART为了解决堆空间内存碎片化的问题，近期提出了“Moving GC�
 （五）GC调度策略的多样性  
 经过比较Dalvik和ART的源码后，发现ART中GC调度策略发生了很大的变动。  
 具体来说分为以下几个方面  
-    
+
     （a）GC触发方式  
     （b）GC的种类  
     （c）垃圾回收算法的多样性  
-  
+
 （a）GC触发方式  
 （1）Dalvik  
   GC触发方式主要有GC_FOR_MALLOC;GC_CONCURRENT;GC_EXPLICIT;GC_BEFORE_OOM这四种。  
@@ -82,9 +82,9 @@ ART为了解决堆空间内存碎片化的问题，近期提出了“Moving GC�
 	  // Not a real GC cause, used when we trim the heap.  
 	  kGcCauseTrim,  
 	  // GC triggered for background transition when both foreground and background 	collector are CMS.  
-	  kGcCauseHomogeneousSpaceCompact, 
+	  kGcCauseHomogeneousSpaceCompact,
 	};  
-	
+
 （b）GC的种类  
 （1）Dalvik  
 就一种GC(并发、非并发)  
@@ -99,12 +99,12 @@ ART为了解决堆空间内存碎片化的问题，近期提出了“Moving GC�
 	  kGcTypeSticky,  
 	  // Partial GC that marks the application heap but not the Zygote.
 	  kGcTypePartial,  
-	  // Full GC that marks and frees in both the application and Zygote heap. 
+	  // Full GC that marks and frees in both the application and Zygote heap.
 	  kGcTypeFull,  
 	  // Number of different GC types.  
-	  kGcTypeMax, 
+	  kGcTypeMax,
 	};  
-	
+
 （c）垃圾回收算法的多样性  
 （1）Dalvik  
 两种：串行Mark-Sweep算法、并行Mark-Sweep算法  

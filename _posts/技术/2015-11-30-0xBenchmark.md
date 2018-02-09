@@ -4,9 +4,9 @@ title: 0xBenchmark中垃圾回收测试模块的分析及改进
 category: 技术
 tags: Android
 keywords: android,GC
-description: 
+description:
 ---
-***版权声明：本文为博主原创文章，未经博主允许不得转载。***
+***版权声明：本文为博主原创文章，转载请注明来自https://hello2mao.github.io***
 
 ###1. 0xBenchmark介绍
 0xBenchmark是google官方的测试程序，0xlab给0xBenchmark集成了17个benchmark，包括2个计算性能，1个JavaScript基准测试，7个2D图形渲染，4个3D图形渲染，1个垃圾回收性能测试，2个本地benchmark用来测试系统性能。测试结果 供详细精确的数据,可以为性能优化供指导和比对。它包含的测试项目如下。
@@ -73,7 +73,7 @@ description:
         }
     }
 在测试程序一开始运行的时候就创建长生命周期对象，并在测试结束前检查长生命周期的对象是否被回收了，如果回收了则测试失败。并且长生命周期对象分为两类，第一类是完全二叉树，第二类是浮点数组。
-	
+
 	longLivedTree = new Node();
     Populate(kLongLivedTreeDepth, longLivedTree);//完全二叉树
 
@@ -85,7 +85,7 @@ description:
     if (longLivedTree == null || array[1000] != 1.0/1000)
             update("Failed");//测试结束，检查是否还存活。
 测试程序最主要的测试部分是递归创建不同深度的完全二叉树，同一深度又有自顶向下和自底向上两种，同时需要记录创建完成所需的时间：
-    
+
     static void TimeConstruction(int depth) {
         ....
         tStart = System.currentTimeMillis();//记录开始创建时间
@@ -105,7 +105,7 @@ description:
         ....
     }
 上面测试程序中，二叉树的创建深度以及数组的大小由以下常数决定：
-    
+
     public static final int kStretchTreeDepth    = 16;    // about 8Mb
     public static final int kLongLivedTreeDepth  = 14;  // about 2Mb
     public static final int kArraySize  = 125000;  // about 2Mb
@@ -149,4 +149,3 @@ description:
 ![6](/public/img/technology/gc_4.png)
 
 可以看到，完成整个测试所需的时间变为了9162ms，在测试过程中也发成了较多的GC，共86次，更加能够表征GC对于对象分配的影响，同时，测试过程中java堆的大小在32M左右，由android启动参数dalvik.vm.heapgrowthlimit=64m可知，每个app的堆得增长上限是64M，测试程序更好的模拟了正常应用的内存消耗行为。
-
