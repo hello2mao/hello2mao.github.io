@@ -1,55 +1,72 @@
-permalink: /:year/:month/:day/:title.html
-paginate: 10
-markdown: kramdown
+# Site settings
+title: 毛宏斌's Blog
+SEOTitle: 毛宏斌's Blog
+header-img: img/home-bg.jpg
+email: hello2mao@gmail.com
+description: "Hi, I'm hello2mao"
+keywords: "Kubernetes Docker etc..."
+github-source: https://github.com/hello2mao/hello2mao.github.io
+url: http://hello2mao.github.io
+baseurl: ""                             # for example, '/blog' if your blog hosted on 'host/blog'
+
+# CDN Accelerate
+cdnurl: http://7xppt1.com1.z0.glb.clouddn.com
+#cdnurl: ""
+#debug: true
+
+# Build settings
+permalink: pretty
+paginate: 20
+exclude: ["less","node_modules","Gruntfile.js","package.json","decaywood.github.io.iml", "_posts/2017-01-02-copy-me.markdown"]
+post-img-count: 70
+timezone: CN
 gems: [jekyll-paginate]
 
-# 作者信息
-author: 
-  name: hello2mao
-  email: hello2mao@outlook.com
-  link: http://hello2mao.github.io
-  weibo: http://weibo.com/hello2maohongbin
-  github: http://github.com/hello2mao
-  linkedin: https://cn.linkedin.com/in/maohongbin
-  qq: 1183764339
-  wechat: MHB_SEU
+# Markdown settings
+# replace redcarpet to kramdown,
+# although redcarpet can auto highlight code, the lack of header-id make the catalog impossible, so I switch to kramdown
+# document: http://jekyllrb.com/docs/configuration/#kramdown
 
-# 站点信息设置
-title: 毛宏斌的博客
-description: My personal blog
-url: http://hello2mao.github.io
-rss_url: /pages/atom.xml
+kramdown:
+  input: GFM                            # use Github Flavored Markdown !important
 
-# gavatar头像及Favicon
-gavatar: /public/img/mhb-logo.png
-favicon: /public/img/mhb-logo.png
 
-# google analytics 设置
-# ga:
-#  id: UA-54262064-1 
-#  url: hello2mao.github.io
+# social settings
+# Disqus settings
+# disqus_username: _your_disqus_short_name_
+# Duoshuo settings
+duoshuo_username: hello2mao
+# Share component is depend on Comment so we can NOT use share only.
+duoshuo_share: true                     # set to false if you want to use Comment without Sharing
 
-# disqus 设置
-#disqus:
-#  shortname: hello2mao
+# SNS settings
+RSS: true
+#weibo_username:     decaywood
+#zhihu_username:     decaywood
+github_username:    hello2mao
+#lofter_username:    decaywood
+#v2ex_username:      decaywood
+#twitter_username:  decaywood
+#facebook_username:  decaywood
 
-# 主题设置，自动激活某个标签
-active: tags
 
-# 首页除了最新文章外显示分类
-cates: 
-  - Android
-  - Java
-  - Network
-  - APM
-  - Linux
-  - C++
-  - Machine Learning
-  - Other
 
-# 中文本地化
-locals:
-  tags: 分类
-  about: 关于
-  newest: 最新文章
-  archive: 归档
+
+# Analytics settings
+# Baidu Analytics
+# ba_track_id: 8cfd62dcadd7b6214b39961e11bb6981
+# Google Analytics
+#ga_track_id:  # Format: UA-xxxxxx-xx
+#ga_domain: # decaywood.github.io
+# 51la_track_id: 18749763
+
+# Sidebar settings
+sidebar: true                           # whether or not using Sidebar.
+sidebar-about-description: coding... refactoring... sharing...
+sidebar-avatar: img/avatar-decaywood.jpg      # use absolute URL, seeing it's used in both `/` and `/about/`
+
+
+
+# Featured Tags
+featured-tags: true                     # whether or not using Feature-Tags
+featured-condition-size: 0             # A tag will be featured if the size of it is more than this condition value
