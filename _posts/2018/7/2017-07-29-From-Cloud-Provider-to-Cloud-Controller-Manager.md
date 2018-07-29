@@ -2,6 +2,7 @@
 layout:     post
 random-img: true
 title:      Kubernetes：从Cloud Provider到Cloud Controller Mananger全解析
+subtitle:   From Cloud Provider to Cloud Controller Mananger
 date:       2018-07-29 19:32:42
 author:     hello2mao
 description: Kubernetes Cloud Controller Mananger相关
@@ -11,7 +12,9 @@ tags:
 ---
 
 #一、背景
+
 ##1.1 基于Kubernetes的容器云
+
 容器云最主要的功能帮助用户把应用以容器的形式在集群中跑起来。目前很多的容器云平台通过Docker及Kubernetes等技术提供应用运行平台，从而实现运维自动化、快速部署应用、弹性伸缩和动态调整应用环境资源，提高研发运营效率。
 ##1.2 Cloud Provider与云厂商
 为了更好的让Kubernetes在公有云平台上运行，提供容器云服务，云厂商需要实现自己的Cloud Provider，即实现cloudprovider.Interface（https://github.com/kubernetes/kubernetes/blob/master/pkg/cloudprovider/cloud.go）。
