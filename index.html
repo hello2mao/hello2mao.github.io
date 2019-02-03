@@ -1,21 +1,14 @@
 ---
 layout: page
-random-img: true
-description: "「 世界上有10种人，一种懂2进制，一种不懂2进制。 」"
+description: "Boilerplate of Hux Blog"
 ---
 
 {% for post in paginator.posts %}
 <div class="post-preview">
     <a href="{{ post.url | prepend: site.baseurl }}">
-        {% if post.hot %}
-        <h2 id="hot" class="post-title">
-            {{ post.title }}
-        </h2>
-        {% else %}
         <h2 class="post-title">
             {{ post.title }}
         </h2>
-        {% endif %}
         {% if post.subtitle %}
         <h3 class="post-subtitle">
             {{ post.subtitle }}

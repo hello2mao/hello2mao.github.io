@@ -1,72 +1,100 @@
 # Site settings
-title: 毛宏斌's Blog
-SEOTitle: 毛宏斌's Blog
+title: Your Blog
+SEOTitle: 你的博客 | Your Blog
 header-img: img/home-bg.jpg
-email: hello2mao@gmail.com
-description: "Hi, I'm hello2mao"
-keywords: "Kubernetes Docker etc..."
-github-source: https://github.com/hello2mao/hello2mao.github.io
-url: http://hello2mao.github.io
-baseurl: ""                             # for example, '/blog' if your blog hosted on 'host/blog'
+email: huxpro@gmail.com
+description: ""
+keyword: ""
+url: "http://huangxuan.me"              # your host, for absolute URL
+baseurl: "/huxblog-boilerplate"         # for example, '/blog' if your blog hosted on 'host/blog'
 
-# CDN Accelerate
-cdnurl: http://7xppt1.com1.z0.glb.clouddn.com
-#cdnurl: ""
-#debug: true
+
+
+# SNS settings
+RSS: false
+weibo_username:     huxpro
+zhihu_username:     huxpro
+github_username:    huxpro
+#twitter_username:  huxpro
+facebook_username:  huxpro
+
+
 
 # Build settings
+# from 2016, 'pygments' is unsupported on GitHub Pages. Use 'rouge' for highlighting instead.
+highlighter: rouge
 permalink: pretty
-paginate: 20
-exclude: ["less","node_modules","Gruntfile.js","package.json","decaywood.github.io.iml", "_posts/2017-01-02-copy-me.markdown"]
-post-img-count: 70
-timezone: CN
+paginate: 10
+exclude: ["less","node_modules","Gruntfile.js","package.json","README.md"]
+anchorjs: true                          # if you want to customize anchor. check out line:181 of `post.html`
+
+
+
+# Gems
+# from PR#40, to support local preview for Jekyll 3.0
 gems: [jekyll-paginate]
+
+
 
 # Markdown settings
 # replace redcarpet to kramdown,
 # although redcarpet can auto highlight code, the lack of header-id make the catalog impossible, so I switch to kramdown
 # document: http://jekyllrb.com/docs/configuration/#kramdown
-
+markdown: kramdown
 kramdown:
   input: GFM                            # use Github Flavored Markdown !important
 
 
-# social settings
+
 # Disqus settings
-# disqus_username: _your_disqus_short_name_
+#disqus_username: _your_disqus_short_name_
+
 # Duoshuo settings
-duoshuo_username: hello2mao
+duoshuo_username: huxblog
 # Share component is depend on Comment so we can NOT use share only.
 duoshuo_share: true                     # set to false if you want to use Comment without Sharing
-
-# SNS settings
-RSS: true
-#weibo_username:     decaywood
-#zhihu_username:     decaywood
-github_username:    hello2mao
-#lofter_username:    decaywood
-#v2ex_username:      decaywood
-#twitter_username:  decaywood
-#facebook_username:  decaywood
 
 
 
 
 # Analytics settings
 # Baidu Analytics
-# ba_track_id: 8cfd62dcadd7b6214b39961e11bb6981
+ba_track_id: 4cc1f2d8f3067386cc5cdb626a202900
 # Google Analytics
-#ga_track_id:  # Format: UA-xxxxxx-xx
-#ga_domain: # decaywood.github.io
-# 51la_track_id: 18749763
+ga_track_id: 'UA-49627206-1'            # Format: UA-xxxxxx-xx
+ga_domain: huangxuan.me
+
+
 
 # Sidebar settings
 sidebar: true                           # whether or not using Sidebar.
-sidebar-about-description: coding... refactoring... sharing...
-sidebar-avatar: img/avatar-decaywood.jpg      # use absolute URL, seeing it's used in both `/` and `/about/`
+sidebar-about-description: "写写代码，做做设计，看看产品。世界那么大，多玩玩看看。"
+sidebar-avatar: /img/avatar-hux.jpg      # use absolute URL, seeing it's used in both `/` and `/about/`
 
 
 
 # Featured Tags
 featured-tags: true                     # whether or not using Feature-Tags
-featured-condition-size: 0             # A tag will be featured if the size of it is more than this condition value
+featured-condition-size: 1              # A tag will be featured if the size of it is more than this condition value
+
+
+
+# Friends
+friends: [
+    {
+        title: "Hux Blog",
+        href: "http://huangxuan.me"
+    },{
+        title: "Foo",
+        href: "#"
+    },{
+        title: "Bar",
+        href: "#"
+    },{
+        title: "Example Friends",
+        href: "#"
+    },{
+        title: "It helps SEO",
+        href: "#"
+    }
+]

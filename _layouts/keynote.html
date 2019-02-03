@@ -2,10 +2,14 @@
 layout: default
 ---
 
+<!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="{{ site.baseurl }}/{% if page.header-img %}{{ page.header-img }}{% else %}{{ site.header-img }}{% endif %}" width="0" height="0"> -->
 
 <!-- Post Header -->
 <style type="text/css">
     header.intro-header{
+        /*background-image: url('{{ site.baseurl }}/{% if page.header-img %}{{ page.header-img }}{% else %}{{ site.header-img }}{% endif %}')*/
         height: 500px;
         overflow: hidden;
     }
@@ -28,12 +32,12 @@ layout: default
                         </div>
                         <h1>{{ page.title }}</h1>
                         {% comment %}
-                            always create a h2 for keeping the margin , decaywood
+                            always create a h2 for keeping the margin , Hux
                         {% endcomment %}
                         {% comment %} if page.subtitle {% endcomment %}
                         <h2 class="subheading">{{ page.subtitle }}</h2>
                         {% comment %} endif {% endcomment %}
-                        <span class="meta">Posted by {% if page.author %}{{ page.author }}{% else %}{{ site.title }}{% endif %} on {{ page.date | date: "%Y-%m-%d" }}</span>
+                        <span class="meta">Posted by {% if page.author %}{{ page.author }}{% else %}{{ site.title }}{% endif %} on {{ page.date | date: "%B %-d, %Y" }}</span>
                     </div>
                 </div>
             </div>
@@ -42,7 +46,7 @@ layout: default
 </header>
 
 <!-- Post Content -->
-<div>
+<article>
     <div class="container">
         <div class="row">
 
@@ -57,12 +61,12 @@ layout: default
 
                 {% if site.duoshuo_share && site.duoshuo_username %}
                 <!-- 多说 Share start -->
-
+                </style>
                 <div class="ds-share"
                     style="text-align: right"
                     data-thread-key="{{page.id}}" data-title="{{page.title}}"
-                    data-images="{{ site.cdnurl }}/{{ site.sidebar-avatar }}"
-                    data-content="{{ content | strip_html | truncate:80 }} | decaywood's Blog，@decaywood黄玄 的个人博客"
+                    data-images="{{ site.url }}{{site.baseurl}}/{% if page.header-img %}{{ page.header-img }}{% else %}{{ site.header-img }}{% endif %}"
+                    data-content="{{ content | strip_html | truncate:80 }} | Hux Blog，@Hux黄玄 的个人博客"
                     data-url="{{site.url}}{{site.baseurl}}{{page.url}}">
                     <div class="ds-share-inline">
                       <ul  class="ds-share-icons-16">
@@ -76,25 +80,19 @@ layout: default
                     </div>
                 <hr>
                 </div>
-                <!-- 多说 Share end-->
+                <!-- 多少 Share end-->
                 {% endif %}
 
 
                 <ul class="pager">
                     {% if page.previous.url %}
                     <li class="previous">
-                        <a href="{{ page.previous.url | prepend: site.baseurl | replace: '//', '/' }}" data-toggle="tooltip" data-placement="top" title="{{page.previous.title}}">
-                            Previous<br>
-                            <span>{{page.previous.title}}</span>
-                        </a>
+                        <a href="{{ page.previous.url | prepend: site.baseurl | replace: '//', '/' }}" data-toggle="tooltip" data-placement="top" title="{{page.previous.title}}">&larr; Previous Post</a>
                     </li>
                     {% endif %}
                     {% if page.next.url %}
                     <li class="next">
-                        <a href="{{ page.next.url | prepend: site.baseurl | replace: '//', '/' }}" data-toggle="tooltip" data-placement="top" title="{{page.next.title}}">
-                            Next<br>
-                            <span>{{page.next.title}}</span>
-                        </a>
+                        <a href="{{ page.next.url | prepend: site.baseurl | replace: '//', '/' }}" data-toggle="tooltip" data-placement="top" title="{{page.next.title}}">Next Post &rarr;</a>
                     </li>
                     {% endif %}
                 </ul>
@@ -137,7 +135,7 @@ layout: default
                     <div class="tags">
                         {% for tag in site.tags %}
                             {% if tag[1].size > {{site.featured-condition-size}} %}
-                                <a href="/tags/#{{ tag[0] }}" title="{{ tag[0] }}" rel="{{ tag[1].size }}">
+                                <a href="{{ site.baseurl }}/tags/#{{ tag[0] }}" title="{{ tag[0] }}" rel="{{ tag[1].size }}">
                                     {{ tag[0] }}
                                 </a>
                             {% endif %}
@@ -146,20 +144,20 @@ layout: default
                 </section>
                 {% endif %}
 
-                <!-- Other Blog -->
-                {% if site.data.members %}
+                <!-- Friends Blog -->
+                {% if site.friends %}
                 <hr>
-                <h5>See Also</h5>
+                <h5>FRIENDS</h5>
                 <ul class="list-inline">
-                    {% for member in site.data.members %}
-                        <li><a href="{{member.href}}">{{member.title}}</a></li>
+                    {% for friend in site.friends %}
+                        <li><a href="{{friend.href}}">{{friend.title}}</a></li>
                     {% endfor %}
                 </ul>
                 {% endif %}
             </div>
         </div>
     </div>
-</div>
+</article>
 
 <!-- resize header to fullscreen keynotes -->
 <script>
@@ -187,7 +185,7 @@ layout: default
 {% if site.duoshuo_username %}
 <!-- 多说公共JS代码 start (一个网页只需插入一次) -->
 <script type="text/javascript">
-    // dynamic User by decaywood
+    // dynamic User by Hux
     var _user = '{{site.duoshuo_username}}';
 
     // duoshuo comment query.
@@ -237,7 +235,7 @@ layout: default
 </script>
 <!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
 <script>
-    async("//cdn.bootcss.com/anchor-js/1.1.1/anchor.min.js",function(){
+    async("http://cdn.bootcss.com/anchor-js/1.1.1/anchor.min.js",function(){
         anchors.options = {
           visible: 'always',
           placement: 'right',
