@@ -1,8 +1,8 @@
 {
-    "name": "hello2mao-blog",
+    "name": "hello2mao Blog",
     "title": "Hongbin Mao's Blog",
     "version": "1.0.0",
-    "homepage": "http://hello2mao.github.io",
+    "homepage": "httpx://hello2mao.github.io",
     "author": "hello2mao",
     "devDependencies": {
         "grunt": "~0.4.5",
