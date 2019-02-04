@@ -4,7 +4,6 @@ title:      "Kubernetes：从Cloud Provider到Cloud Controller Mananger全解析
 subtitle:   "Concepts Underlying the Cloud Controller Manager "
 date:       2018-08-08 21:54:25
 author:     "hello2mao"
-header-img: "https://user-images.githubusercontent.com/8265961/52194835-6cf66700-2890-11e9-9874-4c4630450c65.png"
 tags:
     - kubernetes
 ---
@@ -49,6 +48,7 @@ kubelet中的Node Status使用Cloud Provider来获得node的信息。包括：
  - nodename：运行kubelet的节点名字
  - InstanceID, ProviderID, ExternalID, Zone Info：初始化kubelet的时候需要
  - 周期性的同步node的IP
+
 ### 2.1.3 kube-apiserver依赖Cloud Provider相关部分
 kube-apiserver使用Cloud Provider来给所有node派发SSH Keys。
 ## 2.2 Cloud Provider的设计
@@ -118,6 +118,7 @@ kube-controller-manager中有四个controller与Cloud Provider相关，相应的
 		 - CIDR的管理
 		 - 监控节点的状态
 		 - 节点Pod的驱逐策略
+
 ## 3.2 kube-apiserver的重构策略
 对于kube-apiserver使用Cloud Provider的两个功能：
 
@@ -125,6 +126,7 @@ kube-controller-manager中有四个controller与Cloud Provider相关，相应的
 	 - 移入CCM
  - 对于PV的Admission Controller
 	 - 在kubelet中实现
+	 
 ## 3.3 kubelet的重构策略
 kubelet需要增加一个新功能：在CCM还未初始化kubelet所在节点时，需标记此节点类似“NotReady”的状态，防止scheduler调度pod到此节点时产生一系列错误。此功能通过给节点加上如下Taints并在CCM初始化后删去此Taints实现：
 ```
