@@ -53,7 +53,7 @@ kubelet中的Node Status使用Cloud Provider来获得node的信息。包括：
 kube-apiserver使用Cloud Provider来给所有node派发SSH Keys。
 ## 2.2 Cloud Provider的设计
 云厂商在实现自己的Cloud Provider时只需要实现cloudprovider.Interface即可，如下：
-```golang
+```
 type Interface interface {
 	// 初始化一个k8s client，用于和kube-apiserver通讯
 	Initialize(clientBuilder controller.ControllerClientBuilder)
@@ -76,7 +76,7 @@ type Interface interface {
 重点讲下两个比较重要的接口LoadBalancer()与Routes()。
 ### 2.2.1 LoadBalancer()的接口设计
 LoadBalancer()接口用来为kube-controller-manager的Service Controller服务，接口说明如下：
-```golang
+```
 type LoadBalancer interface {
 	// 根据clusterName和service返回是否存LoadBalancer，若存在则返回此LoadBalancer的状态信息，状态信息里包含此LoadBalancer的对外IP和一个可选的HostName
 	GetLoadBalancer(ctx context.Context, clusterName string, service *v1.Service) (status *v1.LoadBalancerStatus, exists bool, err error)
@@ -90,7 +90,7 @@ type LoadBalancer interface {
 ```
 ### 2.2.2 Routes()的接口设计
 Routes()接口用来为kube-controller-manager的Route Controller服务，接口说明如下：
-```golang
+```
 type Routes interface {
 	// 列举集群的路由规则
 	ListRoutes(ctx context.Context, clusterName string) ([]*Route, error)
@@ -126,7 +126,7 @@ kube-controller-manager中有四个controller与Cloud Provider相关，相应的
 	 - 移入CCM
  - 对于PV的Admission Controller
 	 - 在kubelet中实现
-	 
+
 ## 3.3 kubelet的重构策略
 kubelet需要增加一个新功能：在CCM还未初始化kubelet所在节点时，需标记此节点类似“NotReady”的状态，防止scheduler调度pod到此节点时产生一系列错误。此功能通过给节点加上如下Taints并在CCM初始化后删去此Taints实现：
 ```
@@ -142,7 +142,7 @@ CCM组件内各小模块的功能与原先Cloud Provider的差不多，见第二
 （2）实现自己的Cloud Controller Manager，并在部署k8s时，把CCM按要求部署在集群内，部署时的注意事项及部署参考实践见第五节。
 ## 4.2 Cloud Controller Manager实现举例
 实现自己的CCM也比较简单，举例如下：
-```golang
+```
 package main
 
 import (
