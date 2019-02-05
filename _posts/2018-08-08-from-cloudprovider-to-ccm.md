@@ -205,7 +205,7 @@ import (
 	"k8s.io/kubernetes/cmd/cloud-controller-manager/app"
 	"k8s.io/kubernetes/cmd/cloud-controller-manager/app/options"
 
-    // （1）初始化原来Cloud Provider的相关逻辑，读取cloud配置、初始化云厂商的Clod SDK。
+	// （1）初始化原来Cloud Provider的相关逻辑，读取cloud配置、初始化云厂商的Clod SDK。
 	_ "k8s.io/cloud-provider-baiducloud/pkg/cloud-provider"
 )
 
