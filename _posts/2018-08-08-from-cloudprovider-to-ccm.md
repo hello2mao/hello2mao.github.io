@@ -47,8 +47,8 @@ tags:
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-> Finished: 2018-08-08
->Published: https://mp.weixin.qq.com/s/a_540yJ1EGVroJ9TpvYtPw 
+> Finished: 2018-08-08  
+> Published: https://mp.weixin.qq.com/s/a_540yJ1EGVroJ9TpvYtPw 
 
 # 一、背景
 ## 1.1 基于Kubernetes的容器云
@@ -97,7 +97,8 @@ kubelet中的Node Status使用Cloud Provider来获得node的信息。包括：
 ### 2.1.3 kube-apiserver依赖Cloud Provider相关部分
 kube-apiserver使用Cloud Provider来给所有node派发SSH Keys。
 ## 2.2 Cloud Provider的设计
-云厂商在实现自己的Cloud Provider时只需要实现cloudprovider.Interface即可，如下：
+云厂商在实现自己的Cloud Provider时只需要实现cloudprovider.Interface即可，如下：  
+
 ```go
 type Interface interface {
 	// 初始化一个k8s client，用于和kube-apiserver通讯
@@ -118,9 +119,11 @@ type Interface interface {
 	HasClusterID() bool
 }
 ```
+
 重点讲下两个比较重要的接口LoadBalancer()与Routes()。
 ### 2.2.1 LoadBalancer()的接口设计
-LoadBalancer()接口用来为kube-controller-manager的Service Controller服务，接口说明如下：
+LoadBalancer()接口用来为kube-controller-manager的Service Controller服务，接口说明如下：  
+
 ```go
 type LoadBalancer interface {
 	// 根据clusterName和service返回是否存LoadBalancer，若存在则返回此LoadBalancer的状态信息，状态信息里包含此LoadBalancer的对外IP和一个可选的HostName
@@ -133,8 +136,10 @@ type LoadBalancer interface {
 	EnsureLoadBalancerDeleted(ctx context.Context, clusterName string, service *v1.Service) error
 }
 ```
+
 ### 2.2.2 Routes()的接口设计
-Routes()接口用来为kube-controller-manager的Route Controller服务，接口说明如下：
+Routes()接口用来为kube-controller-manager的Route Controller服务，接口说明如下：  
+
 ```go
 type Routes interface {
 	// 列举集群的路由规则
@@ -189,7 +194,8 @@ CCM组件内各小模块的功能与原先Cloud Provider的差不多，见第二
 （1）实现cloudprovider.Interface接口的功能，这部分在Cloud Provider中已经都实现，直接迁移就行。  
 （2）实现自己的Cloud Controller Manager，并在部署k8s时，把CCM按要求部署在集群内，部署时的注意事项及部署参考实践见第五节。  
 ## 4.2 Cloud Controller Manager实现举例
-实现自己的CCM也比较简单，举例如下：
+实现自己的CCM也比较简单，举例如下：  
+
 ```go
 package main
 
