@@ -197,7 +197,7 @@ CCM组件内各小模块的功能与原先Cloud Provider的差不多，见第二
 ## 4.2 Cloud Controller Manager实现举例
 实现自己的CCM也比较简单，举例如下：  
 
-```go
+```
 package main
 
 import (
