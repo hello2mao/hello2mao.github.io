@@ -1,7 +1,15 @@
+---
+layout:     post
+title:      "Kubernetes：从Cloud Provider到Cloud Controller Mananger全解析"
+subtitle:   "Concepts Underlying the Cloud Controller Manager "
+date:       2018-08-08 21:54:25
+author:     "hello2mao"
+tags:
+    - kubernetes
+---
+
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
-
 - [一、背景](#%E4%B8%80%E8%83%8C%E6%99%AF)
   - [1.1 基于Kubernetes的容器云](#11-%E5%9F%BA%E4%BA%8Ekubernetes%E7%9A%84%E5%AE%B9%E5%99%A8%E4%BA%91)
   - [1.2 Cloud Provider与云厂商](#12-cloud-provider%E4%B8%8E%E4%BA%91%E5%8E%82%E5%95%86)
@@ -38,16 +46,6 @@
 - [六、参考](#%E5%85%AD%E5%8F%82%E8%80%83)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
----
-layout:     post
-title:      "Kubernetes：从Cloud Provider到Cloud Controller Mananger全解析"
-subtitle:   "Concepts Underlying the Cloud Controller Manager "
-date:       2018-08-08 21:54:25
-author:     "hello2mao"
-tags:
-    - kubernetes
----
 
 > Finished: 2018-08-08
 >Published: https://mp.weixin.qq.com/s/a_540yJ1EGVroJ9TpvYtPw 
