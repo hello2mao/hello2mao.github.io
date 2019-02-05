@@ -99,7 +99,7 @@ kube-apiserver使用Cloud Provider来给所有node派发SSH Keys。
 ## 2.2 Cloud Provider的设计
 云厂商在实现自己的Cloud Provider时只需要实现cloudprovider.Interface即可，如下：
 
-```go
+```
 type Interface interface {
 	// 初始化一个k8s client，用于和kube-apiserver通讯
 	Initialize(clientBuilder controller.ControllerClientBuilder)
@@ -125,7 +125,7 @@ type Interface interface {
 ### 2.2.1 LoadBalancer()的接口设计
 LoadBalancer()接口用来为kube-controller-manager的Service Controller服务，接口说明如下：  
 
-```go
+```
 type LoadBalancer interface {
 	// 根据clusterName和service返回是否存LoadBalancer，若存在则返回此LoadBalancer的状态信息，状态信息里包含此LoadBalancer的对外IP和一个可选的HostName
 	GetLoadBalancer(ctx context.Context, clusterName string, service *v1.Service) (status *v1.LoadBalancerStatus, exists bool, err error)
@@ -141,7 +141,7 @@ type LoadBalancer interface {
 ### 2.2.2 Routes()的接口设计
 Routes()接口用来为kube-controller-manager的Route Controller服务，接口说明如下：  
 
-```go
+```
 type Routes interface {
 	// 列举集群的路由规则
 	ListRoutes(ctx context.Context, clusterName string) ([]*Route, error)
@@ -197,7 +197,7 @@ CCM组件内各小模块的功能与原先Cloud Provider的差不多，见第二
 ## 4.2 Cloud Controller Manager实现举例
 实现自己的CCM也比较简单，举例如下：  
 
-```go
+```
 package main
 
 import (
