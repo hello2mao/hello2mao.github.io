@@ -197,7 +197,7 @@ CCM组件内各小模块的功能与原先Cloud Provider的差不多，见第二
 ## 4.2 Cloud Controller Manager实现举例
 实现自己的CCM也比较简单，举例如下：  
 
-```
+```go
 package main
 
 import (
@@ -220,14 +220,18 @@ func main() {
 	cmd := &cobra.Command{
 		Use: "cloud-controller-manager",
 		Long: `The Cloud controller manager is a daemon that embeds the cloud specific control loops shipped with Kubernetes.`,
-		Run: func(cmd *cobra.Command, args []string) {
+		Run: func(cmd *cobra.Command, args []string) {  
 			c, err := s.Config()
-			if err != nil {
+			if err != nil {  
 				fmt.Fprintf(os.Stderr, "%v\n", err)
 				os.Exit(1)
 			}
-			// (4) Run里会运行相关controller loops：CloudNode Controller、PersistentVolumeLabel Controller、Service Controller、Route Controller
-			if err := app.Run(c.Complete()); err != nil {
+			// (4) Run里会运行相关controller loops：
+			// CloudNode Controller
+			// PersistentVolumeLabel Controller
+			// Service Controller
+			// Route Controller
+			if err := app.Run(c.Complete()); err != nil {  
 				fmt.Fprintf(os.Stderr, "%v\n", err)
 				os.Exit(1)
 			}
@@ -238,7 +242,7 @@ func main() {
 	pflag.CommandLine.AddGoFlagSet(goflag.CommandLine)
 	logs.InitLogs()
 	defer logs.FlushLogs()
-	if err := c.Execute(); err != nil {
+	if err := c.Execute(); err != nil {  
 		fmt.Fprintf(os.Stderr, "%v\n", err)
 		os.Exit(1)
 	}
