@@ -97,7 +97,7 @@ kubelet中的Node Status使用Cloud Provider来获得node的信息。包括：
 ### 2.1.3 kube-apiserver依赖Cloud Provider相关部分
 kube-apiserver使用Cloud Provider来给所有node派发SSH Keys。
 ## 2.2 Cloud Provider的设计
-云厂商在实现自己的Cloud Provider时只需要实现cloudprovider.Interface即可，如下：  
+云厂商在实现自己的Cloud Provider时只需要实现cloudprovider.Interface即可，如下：
 
 ```go
 type Interface interface {
@@ -121,6 +121,7 @@ type Interface interface {
 ```
 
 重点讲下两个比较重要的接口LoadBalancer()与Routes()。
+
 ### 2.2.1 LoadBalancer()的接口设计
 LoadBalancer()接口用来为kube-controller-manager的Service Controller服务，接口说明如下：  
 
