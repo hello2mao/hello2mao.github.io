@@ -201,10 +201,9 @@ CCM组件内各小模块的功能与原先Cloud Provider的差不多，见第二
 package main
 
 import (
-	...
 	"k8s.io/kubernetes/cmd/cloud-controller-manager/app"
 	"k8s.io/kubernetes/cmd/cloud-controller-manager/app/options"
-
+	
 	// （1）初始化原来Cloud Provider的相关逻辑，读取cloud配置、初始化云厂商的Clod SDK。
 	_ "k8s.io/cloud-provider-baiducloud/pkg/cloud-provider"
 )
@@ -220,9 +219,9 @@ func main() {
 	cmd := &cobra.Command{
 		Use: "cloud-controller-manager",
 		Long: `The Cloud controller manager is a daemon that embeds the cloud specific control loops shipped with Kubernetes.`,
-		Run: func(cmd *cobra.Command, args []string) {  
+		Run: func(cmd *cobra.Command, args []string) {
 			c, err := s.Config()
-			if err != nil {  
+			if err != nil {
 				fmt.Fprintf(os.Stderr, "%v\n", err)
 				os.Exit(1)
 			}
@@ -231,7 +230,7 @@ func main() {
 			// PersistentVolumeLabel Controller
 			// Service Controller
 			// Route Controller
-			if err := app.Run(c.Complete()); err != nil {  
+			if err := app.Run(c.Complete()); err != nil {
 				fmt.Fprintf(os.Stderr, "%v\n", err)
 				os.Exit(1)
 			}
@@ -242,7 +241,7 @@ func main() {
 	pflag.CommandLine.AddGoFlagSet(goflag.CommandLine)
 	logs.InitLogs()
 	defer logs.FlushLogs()
-	if err := c.Execute(); err != nil {  
+	if err := c.Execute(); err != nil {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
 		os.Exit(1)
 	}
