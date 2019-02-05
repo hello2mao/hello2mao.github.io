@@ -54,7 +54,7 @@ tags:
 ## 1.1 基于Kubernetes的容器云
 容器云最主要的功能帮助用户把应用以容器的形式在集群中跑起来。目前很多的容器云平台通过Docker及Kubernetes等技术提供应用运行平台，从而实现运维自动化、快速部署应用、弹性伸缩和动态调整应用环境资源，提高研发运营效率。
 ## 1.2 Cloud Provider与云厂商
-为了更好的让Kubernetes在公有云平台上运行，提供容器云服务，云厂商需要实现自己的Cloud Provider，即实现cloudprovider.Interface（https://github.com/kubernetes/kubernetes/blob/master/staging/src/k8s.io/cloud-provider/cloud.go）。
+为了更好的让Kubernetes在公有云平台上运行，提供容器云服务，云厂商需要实现自己的Cloud Provider，即实现[cloudprovider.Interface](https://github.com/kubernetes/kubernetes/blob/master/staging/src/k8s.io/cloud-provider/cloud.go)。
 它是Kubernetes中开放给云厂商的通用接口，便于Kubernetes自动管理和利用云服务商提供的资源，这些资源包括虚拟机资源、负载均衡服务、弹性公网IP、存储服务等。
 如下图所示，Kubernetes核心库内置了很多主流云厂商的实现，包括aws、gce、azure：
 ![image](https://user-images.githubusercontent.com/8265961/52250858-c44e1300-2934-11e9-9448-51e60cdbffc7.png)
@@ -64,6 +64,7 @@ tags:
 随着Kubernetes成为在私有云、公有云和混合云环境中大规模部署容器化应用的事实标准，越来越多的云厂商加入了进来，Cloud Provider的实现也越来越多，作为在Kubernetes核心库中的代码，这必将影响其快速的更新和迭代。
 所以产生了把Cloud Provider移出Kubernetes核心库并进行重构的提案（[Refactor Cloud Provider out of Kubernetes Core](https://github.com/kubernetes/community/blob/master/contributors/design-proposals/cloud-provider/cloud-provider-refactoring.md)）。
 在k8s v1.6，引入了Cloud Controller Manager（CCM），目的就是最终替代Cloud Provider。截止到最新的k8s v1.11，还是处于beta阶段。
+
 # 二、Cloud Provider解析
 ## 2.1 Cloud Provider的作用
 在k8s中有三个组件对Cloud Provider有依赖，分别是：
@@ -92,11 +93,12 @@ kubelet中的Node Status使用Cloud Provider来获得node的信息。包括：
  - nodename：运行kubelet的节点名字
  - InstanceID, ProviderID, ExternalID, Zone Info：初始化kubelet的时候需要
  - 周期性的同步node的IP
+
 ### 2.1.3 kube-apiserver依赖Cloud Provider相关部分
 kube-apiserver使用Cloud Provider来给所有node派发SSH Keys。
 ## 2.2 Cloud Provider的设计
 云厂商在实现自己的Cloud Provider时只需要实现cloudprovider.Interface即可，如下：
-```golang
+```go
 type Interface interface {
 	// 初始化一个k8s client，用于和kube-apiserver通讯
 	Initialize(clientBuilder controller.ControllerClientBuilder)
@@ -119,7 +121,7 @@ type Interface interface {
 重点讲下两个比较重要的接口LoadBalancer()与Routes()。
 ### 2.2.1 LoadBalancer()的接口设计
 LoadBalancer()接口用来为kube-controller-manager的Service Controller服务，接口说明如下：
-```golang
+```go
 type LoadBalancer interface {
 	// 根据clusterName和service返回是否存LoadBalancer，若存在则返回此LoadBalancer的状态信息，状态信息里包含此LoadBalancer的对外IP和一个可选的HostName
 	GetLoadBalancer(ctx context.Context, clusterName string, service *v1.Service) (status *v1.LoadBalancerStatus, exists bool, err error)
@@ -133,7 +135,7 @@ type LoadBalancer interface {
 ```
 ### 2.2.2 Routes()的接口设计
 Routes()接口用来为kube-controller-manager的Route Controller服务，接口说明如下：
-```golang
+```go
 type Routes interface {
 	// 列举集群的路由规则
 	ListRoutes(ctx context.Context, clusterName string) ([]*Route, error)
@@ -143,6 +145,7 @@ type Routes interface {
 	DeleteRoute(ctx context.Context, clusterName string, route *Route) error
 }
 ```
+
 # 三、从Cloud Provider到Cloud Controller Manager
 从k8s v1.6开始，k8s的编译产物中多了一个二进制：cloud-controller manager，它就是用来替代Cloud Provider的。
 因为原先的Cloud Provider与mater中的组件kube-controller-manager、kube-apiserver以及node中的组件kubelet耦合很紧密，所以这三个组件也需要相应的进行重构。
@@ -161,6 +164,7 @@ kube-controller-manager中有四个controller与Cloud Provider相关，相应的
 		 - CIDR的管理
 		 - 监控节点的状态
 		 - 节点Pod的驱逐策略
+
 ## 3.2 kube-apiserver的重构策略
 对于kube-apiserver使用Cloud Provider的两个功能：
 
@@ -168,23 +172,25 @@ kube-controller-manager中有四个controller与Cloud Provider相关，相应的
 	 - 移入CCM
  - 对于PV的Admission Controller
 	 - 在kubelet中实现
+
 ## 3.3 kubelet的重构策略
 kubelet需要增加一个新功能：在CCM还未初始化kubelet所在节点时，需标记此节点类似“NotReady”的状态，防止scheduler调度pod到此节点时产生一系列错误。此功能通过给节点加上如下Taints并在CCM初始化后删去此Taints实现：
 ```
 node.cloudprovider.kubernetes.io/uninitialized=true:NoSchedule
 ```
+
 # 四、Cloud Controller Manager解析
 ## 4.1 Cloud Controller Manager架构
 按照第三节所述进行重构后，新的模块Cloud Controller Manager将作为一个新的组件直接部署在集群内，如下图所示：
 ![image](https://user-images.githubusercontent.com/8265961/52255325-0e42f300-294d-11e9-8465-200594797af2.png)
 
 CCM组件内各小模块的功能与原先Cloud Provider的差不多，见第二节对Cloud Provider的解析。
-对于云厂商来说，需要：
-（1）实现cloudprovider.Interface接口的功能，这部分在Cloud Provider中已经都实现，直接迁移就行。
-（2）实现自己的Cloud Controller Manager，并在部署k8s时，把CCM按要求部署在集群内，部署时的注意事项及部署参考实践见第五节。
+对于云厂商来说，需要：  
+（1）实现cloudprovider.Interface接口的功能，这部分在Cloud Provider中已经都实现，直接迁移就行。  
+（2）实现自己的Cloud Controller Manager，并在部署k8s时，把CCM按要求部署在集群内，部署时的注意事项及部署参考实践见第五节。  
 ## 4.2 Cloud Controller Manager实现举例
 实现自己的CCM也比较简单，举例如下：
-```golang
+```go
 package main
 
 import (
@@ -231,6 +237,7 @@ func main() {
 	}
 }
 ```
+
 # 五、部署使用Cloud Controller Manager实践
 ## 5.1 总体要求
 
@@ -243,17 +250,17 @@ func main() {
 ### 5.2.1 kube-controller-manager启动配置变化
 不指定cloud-provider。
 ### 5.2.2 kube-apiserver启动配置变化
-（1）不指定cloud-provider
-（2）admission-control中删去PersistentVolumeLabel，因为CCM将接手PersistentVolumeLabel
-（3）admission-control中增加Initializers
-（4）runtime-config中增加admissionregistration.k8s.io/v1alpha1
+（1）不指定cloud-provider  
+（2）admission-control中删去PersistentVolumeLabel，因为CCM将接手PersistentVolumeLabel  
+（3）admission-control中增加Initializers  
+（4）runtime-config中增加admissionregistration.k8s.io/v1alpha1  
 ### 5.2.3 kubelet启动配置变化
 指定cloud-provider=external，告诉kubelet，在它开始调度工作前，需要被CCM初始化。（node会被打上   Taints:node.cloudprovider.kubernetes.io/uninitialized=true:NoSchedule）
 ## 5.3 启动CCM举例
 ### 5.3.1 启用initializers并添加InitializerConifguration
-CCM为了给PV打标签需要：
-（1）启用initializers（https://kubernetes.io/docs/reference/access-authn-authz/extensible-admission-controllers/#enable-initializers-alpha-feature）
-（2）添加InitializerConifguration：persistent-volume-label-initializer-config.yaml如下：
+CCM为了给PV打标签需要：  
+（1）启用initializers（https://kubernetes.io/docs/reference/access-authn-authz/extensible-admission-controllers/#enable-initializers-alpha-feature）  
+（2）添加InitializerConifguration：persistent-volume-label-initializer-config.yaml如下：    
 ```yaml
 admin/cloud/pvl-initializer-config.yaml  
 kind: InitializerConfiguration
@@ -394,7 +401,7 @@ subjects:
   namespace: kube-system
 ```
 ### 5.3.3 启动CCM
-可以通过DaemonSet或者Deployment的方式启动CCM：
+可以通过DaemonSet或者Deployment的方式启动CCM：  
 ```yaml
 ---
 apiVersion: v1
@@ -454,6 +461,7 @@ spec:
           hostPath:
             path: /etc/kubernetes
 ```
+
 # 六、参考
  - [Kubernetes Cloud Controller Manager](https://kubernetes.io/docs/tasks/administer-cluster/running-cloud-controller/)
  - [Refactor Cloud Provider out of Kubernetes Core](https://github.com/kubernetes/community/blob/master/contributors/design-proposals/cloud-provider/cloud-provider-refactoring.md)
