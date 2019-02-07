@@ -88,11 +88,8 @@ func accountCreate(ctx *cli.Context) error {
     }
   }
   utils.SetNodeConfig(ctx, &cfg.Node)
-  scryptN, scryptP, keydir, err := cfg.Node.AccountConfig()
+  scryptN, scryptP, keydir, _ := cfg.Node.AccountConfig()
 
-  if err != nil {
-    utils.Fatalf("Failed to read configuration: %v", err)
-  }
   // （2）解析用户密码
   password := getPassPhrase("Your new account is locked with a password. Please give a password. Do not forget this password.", true, 0, utils.MakePasswordList(ctx))
   // （3）生成地址
