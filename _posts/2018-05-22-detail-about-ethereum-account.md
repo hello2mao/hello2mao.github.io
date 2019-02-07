@@ -23,6 +23,7 @@ Passphrase:
 Repeat passphrase:
 Address: {07a78fc0fb8c175d8e09e942086985d2835b6849}
 ```
+
 地址**0x07a78fc0fb8c175d8e09e942086985d2835b6849**就是新生成的以太坊地址。
 
 # 二、地址生成解析
@@ -43,7 +44,9 @@ func init() {
   ...
 }
 ```
+
 账户相关的命令在cmd/geth/accountcmd.go里，新建账户命令为new:  
+
 ```go
 var (
   accountCommand = cli.Command{
@@ -70,8 +73,10 @@ var (
   }
 )
 ```
+
 但new一个新账户的时候，会调用accountCreate：  
-```
+
+```text
 // accountCreate creates a new account into the keystore defined by the CLI flags.
 func accountCreate(ctx *cli.Context) error {
     // （1）获取配置
@@ -100,6 +105,7 @@ func accountCreate(ctx *cli.Context) error {
   return nil
 }
 ```
+
 分为三步：
 
  1. 获取配置
@@ -107,6 +113,7 @@ func accountCreate(ctx *cli.Context) error {
  3. 生成地址
  
 第三步生成地址调用的keystore.StoreKey（accounts/keystore/keystore_passphrase.go）：
+
 ```go
 // StoreKey generates a key, encrypts with 'auth' and stores in the given directory
 func StoreKey(dir, auth string, scryptN, scryptP int) (common.Address, error) {
@@ -114,7 +121,9 @@ func StoreKey(dir, auth string, scryptN, scryptP int) (common.Address, error) {
   return a.Address, err
 }
 ```
-这边直接调用了storeNewKey（accounts/keystore/key.go）创建新账户：
+
+这边直接调用了storeNewKey（accounts/keystore/key.go）创建新账户：  
+
 ```go
 func storeNewKey(ks keyStore, rand io.Reader, auth string) (*Key, accounts.Account, error) {
     // 创建一个新的账户
@@ -140,13 +149,15 @@ func newKey(rand io.Reader) (*Key, error) {
   return newKeyFromECDSA(privateKeyECDSA), nil
 }
 ```
-可以看到，newKey创建新账户时，
+
+可以看到，newKey创建新账户时，  
 
  1. 由secp256k1曲线生成私钥，是由随机的256bit组成
  2. 采用椭圆曲线数字签名算法（ECDSA）将私钥映射成公钥，一个私钥只能映射出一个公钥。
  3. 然后由公钥算出地址并构建一个自定义的Key
  
 第三步的代码如下：
+
 ```go
 func newKeyFromECDSA(privateKeyECDSA *ecdsa.PrivateKey) *Key {
   id := uuid.NewRandom()
@@ -158,7 +169,9 @@ func newKeyFromECDSA(privateKeyECDSA *ecdsa.PrivateKey) *Key {
   return key
 }
 ```
+
 由公钥算出地址是由crypto.PubkeyToAddress（crypto/crypto.go）完成的：
+
 ```go
 func PubkeyToAddress(p ecdsa.PublicKey) common.Address {
   pubBytes := FromECDSAPub(&p)
@@ -174,6 +187,7 @@ func Keccak256(data ...[]byte) []byte {
   return d.Sum(nil)
 }
 ```
+
 可以看到公钥经过Keccak-256单向散列函数变成了256bit，然后取160bit作为地址。本质上是从256bit的私钥映射到160bit的公共地址。这意味着一个账户可以有不止一个私钥。
 
 # 三、总结
