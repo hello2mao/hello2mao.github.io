@@ -71,7 +71,7 @@ var (
 )
 ```
 但new一个新账户的时候，会调用accountCreate：  
-```go
+```
 // accountCreate creates a new account into the keystore defined by the CLI flags.
 func accountCreate(ctx *cli.Context) error {
     // （1）获取配置
