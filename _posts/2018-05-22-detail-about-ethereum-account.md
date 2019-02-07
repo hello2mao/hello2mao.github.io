@@ -12,6 +12,8 @@ tags:
 - [二、地址生成解析](#%E4%BA%8C%E5%9C%B0%E5%9D%80%E7%94%9F%E6%88%90%E8%A7%A3%E6%9E%90)
 - [三、总结](#%E4%B8%89%E6%80%BB%E7%BB%93)
 
+> **More:** [https://github.com/hello2mao/Xnotes/issues/25](https://github.com/hello2mao/Xnotes/issues/25)
+
 # 一、获得一个以太坊钱包地址
 通过以太坊命令行客户端geth可以很简单的获得一个以太坊地址，如下：
 

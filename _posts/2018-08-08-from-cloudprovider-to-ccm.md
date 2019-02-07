@@ -47,8 +47,8 @@ tags:
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-> Finished: 2018-08-08  
-> Published: [https://mp.weixin.qq.com/s/a_540yJ1EGVroJ9TpvYtPw](https://mp.weixin.qq.com/s/a_540yJ1EGVroJ9TpvYtPw) 
+> **More:** [https://github.com/hello2mao/Xnotes/issues/23](https://github.com/hello2mao/Xnotes/issues/23)
+> **Published:** [https://mp.weixin.qq.com/s/a_540yJ1EGVroJ9TpvYtPw](https://mp.weixin.qq.com/s/a_540yJ1EGVroJ9TpvYtPw) 
 
 # 一、背景
 ## 1.1 基于Kubernetes的容器云
