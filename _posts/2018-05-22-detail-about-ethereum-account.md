@@ -30,7 +30,7 @@ Address: {07a78fc0fb8c175d8e09e942086985d2835b6849}
 下面跟踪geth的源码：https://github.com/ethereum/go-ethereum 来分析其地址生成过程。
 geth是用https://github.com/urfave/cli 来做命令行解析的，运行geth account new时的入口在cmd/geth/main.go：
 
-```go
+```
 func init() {
   // Initialize the CLI app and start Geth
   app.Action = geth
@@ -47,7 +47,7 @@ func init() {
 
 账户相关的命令在cmd/geth/accountcmd.go里，新建账户命令为new:  
 
-```go
+```
 var (
   accountCommand = cli.Command{
     Name:     "account",
@@ -76,7 +76,7 @@ var (
 
 但new一个新账户的时候，会调用accountCreate：  
 
-```text
+```
 // accountCreate creates a new account into the keystore defined by the CLI flags.
 func accountCreate(ctx *cli.Context) error {
     // （1）获取配置
@@ -111,7 +111,7 @@ func accountCreate(ctx *cli.Context) error {
  
 第三步生成地址调用的keystore.StoreKey（accounts/keystore/keystore_passphrase.go）：
 
-```go
+```
 // StoreKey generates a key, encrypts with 'auth' and stores in the given directory
 func StoreKey(dir, auth string, scryptN, scryptP int) (common.Address, error) {
   _, a, err := storeNewKey(&keyStorePassphrase{dir, scryptN, scryptP}, crand.Reader, auth)
@@ -121,7 +121,7 @@ func StoreKey(dir, auth string, scryptN, scryptP int) (common.Address, error) {
 
 这边直接调用了storeNewKey（accounts/keystore/key.go）创建新账户：  
 
-```go
+```
 func storeNewKey(ks keyStore, rand io.Reader, auth string) (*Key, accounts.Account, error) {
     // 创建一个新的账户
   key, err := newKey(rand)
@@ -155,7 +155,7 @@ func newKey(rand io.Reader) (*Key, error) {
  
 第三步的代码如下：
 
-```go
+```
 func newKeyFromECDSA(privateKeyECDSA *ecdsa.PrivateKey) *Key {
   id := uuid.NewRandom()
   key := &Key{
@@ -169,7 +169,7 @@ func newKeyFromECDSA(privateKeyECDSA *ecdsa.PrivateKey) *Key {
 
 由公钥算出地址是由crypto.PubkeyToAddress（crypto/crypto.go）完成的：
 
-```go
+```
 func PubkeyToAddress(p ecdsa.PublicKey) common.Address {
   pubBytes := FromECDSAPub(&p)
   return common.BytesToAddress(Keccak256(pubBytes[1:])[12:])
