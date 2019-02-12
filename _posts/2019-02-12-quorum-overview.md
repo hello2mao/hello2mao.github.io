@@ -94,7 +94,7 @@ var simple = simpleContract.new(42, {from:web3.eth.accounts[0], data: bytecode, 
 TODO
 
 ## 宏观案例
-七个节点的例子：[7nodes](https://github.com/jpmorganchase/quorum-examples/tree/master/examples/7nodes)
+七个节点的例子：[7nodes](https://github.com/jpmorganchase/quorum-examples/tree/master/examples/7nodes)  
 （1）使用docker-compose部署好区块链：  
 ```
 $git clone https://github.com/jpmorganchase/quorum-examples
@@ -199,11 +199,11 @@ contract simplestorage {
 1.  A机构发出一笔私有交易AB到Quorum节点，指定交易的有效负载，并为A机构和B机构设定privateFor参数，形成其公钥；
 2. A机构的Quorum节点发送交易到与之配对的事务管理器，为其请求保存交易的有效负载；
 3. A机构的事务管理器向与之相关的Enclave发出请求，验证发送者并加密有效负载；
-4. A机构的Enclave检验A机构的私钥，一旦验证通过，就会进行交易对话。这就需要：
-  i. 生成系统密钥和随机数；
-  ii. 对交易有效负载和来自i）项中的系统密钥进行加密；
-  iii. 计算ii）项中已加密有效负载的SHA3-512哈希值；
-  iv. 遍历交易参与方列表（本例中为A机构和B机构），加密i）项中的系统密钥和参与者的公钥（PGP加密）；
+4. A机构的Enclave检验A机构的私钥，一旦验证通过，就会进行交易对话。这就需要：  
+  i. 生成系统密钥和随机数；  
+  ii. 对交易有效负载和来自i）项中的系统密钥进行加密；  
+  iii. 计算ii）项中已加密有效负载的SHA3-512哈希值；  
+  iv. 遍历交易参与方列表（本例中为A机构和B机构），加密i）项中的系统密钥和参与者的公钥（PGP加密）；  
   v. 向事务管理器返回ii）项中的已加密有效负载、iii）项中的哈希值，iv）项中每个参与者的加密密钥。
 5. 然后，A机构的事务管理器使用哈希作为索引，保存已加密有效负载（使用系统密钥加密）和已加密系统密钥，再将哈希值、已加密有效负载和与B机构公钥加密而成的已加密系统密钥等安全地发送给事务管理器。B机构的事务管理器使用Ack/Nack进行响应。需要注意的是，如果A机构并未从B机构处收到响应或Nack，那么交易将不会传播到整个网络。它是参与者保存通讯有效负载的前提条件。
 6. 一旦数据成功传到B机构的事务管理器，A机构的事务管理器向Quorum节点返回哈希值，该节点就使用哈希值替换交易的初始负载，修改交易的V值为37或38，这将对其他节点进行提示，该哈希值表示一个与已加密有效负载相关的私有交易；相反，则提示一个无意义字节码相关的公开交易；
