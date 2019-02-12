@@ -10,7 +10,6 @@ tags:
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-
 - [概述](#%E6%A6%82%E8%BF%B0)
 - [架构](#%E6%9E%B6%E6%9E%84)
 - [隐私性](#%E9%9A%90%E7%A7%81%E6%80%A7)
@@ -20,12 +19,17 @@ tags:
   - [微观案例](#%E5%BE%AE%E8%A7%82%E6%A1%88%E4%BE%8B)
 - [共识算法](#%E5%85%B1%E8%AF%86%E7%AE%97%E6%B3%95)
   - [Raft](#raft)
+    - [Lifecycle of a Transaction](#lifecycle-of-a-transaction)
+    - [Block Race](#block-race)
+    - [Speculative Minting](#speculative-minting)
   - [IBFT](#ibft)
 - [节点的许可管理](#%E8%8A%82%E7%82%B9%E7%9A%84%E8%AE%B8%E5%8F%AF%E7%AE%A1%E7%90%86)
 - [更高的性能](#%E6%9B%B4%E9%AB%98%E7%9A%84%E6%80%A7%E8%83%BD)
+  - [TPS测试](#tps%E6%B5%8B%E8%AF%95)
 - [参考](#%E5%8F%82%E8%80%83)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 
 # 概述
 Quorum是基于以太坊的Golang实现[go-ethereum](https://github.com/ethereum/go-ethereum)开发而来。  详细的可参考如下链接：  
@@ -216,18 +220,182 @@ contract simplestorage {
 
 # 共识算法
 ## Raft
-TODO
+Quorum采用了基于Raft的共识机制（使用etcd的Raft实现），而不是以太坊默认的PoW方案。这对于不需要拜占庭容错并且需要更快出块时间（以毫秒而非秒为单位）和事务结束（不存在分支）的封闭式成员资格/联盟设置非常有效。
+
+在以太坊中，任意节点都可以作为区块的打包者，只要其在一轮 pow 中胜出。我们知道 Quorum 的节点沿用了以太坊的设计和代码。所以为了连接以太坊节点和 Raft 共识，Quorum 采用了网络节点和 Raft 节点一对一的方式来实现 Raft-based 共识。当一笔 TX 诞生后，TX 会在以太坊的 P2P 网络中传输。同时，Raft 的 leader 竞选一直在同步进行。当前 leader 节点对应的以太坊节点收到 TX 时，以太坊节点就会将 TX 打包成区块并将区块通过 Raft 节点发送给 Raft 网络上的 follower。follower 节点收到区块后将区块交给对应的以太坊节点。然后以太坊节点将区块记录到链上。
+
+与以太坊不同的是，当一个节点收到区块后并不会马上记录到链上。而是等 Raft 网络中的 leader 收到所有 follower 的确认回执后，广播一个执行的消息。然后所有收到执行消息的 follower 才会将区块记录在本地的链上。
+
+### Lifecycle of a Transaction
+
+- 客户端发起一笔 TX 并通过 RPC 来呼叫节点。
+- 节点通过以太坊的 P2P 协议将节点广播给网络。
+- 当前的 Raft leader 对应的以太坊节点收到了 TX 后将 TX 打包成区块。
+- 区块被 RLP 编码后传递给对应的 Raft leader。
+- leader 收到区块后通过 Raft 算法将区块传递给 follower。这包括如下步骤： 
+  - leader 发送 AppendEntries 指令给 follower。
+  - follower 收到这个包含区块信息的指令后，返回确认回执给 leader。
+  - leader 收到不少于指定数量的确认回执后，发送确认 append 的指令给 follower。
+  - follower 收到确认 append 的指令后将区块信息记录到本地的 Raft log 上。
+- Raft 节点将区块传递给对应的 Quorum 节点。Quorum 节点校验区块的合法性，如果合法则记录到本地链上。
+
+### Block Race
+通常情况下，每一个被传至 Raft 的区块最终都会被添加到链上。但是也会有意外出现。比如因为一些网络的原因，某个 leader 无法与大部分的 follower 进行交互了。这时其他 follower 就会推选出新的 leader。在这期间，旧的 leader 还会产生新的区块。但是因为没有收到足量的 follower 回执，所以它产生的区块都不会最终写到链上。与之相对的，新的 leader 这边则会正常进行区块同步。一旦旧 leader 这边恢复通信，它会将自己产生的 AppendEntries 指令广播出去。由于其发出的指令已经过时了，所以大部分的 follower 不会给予这些指令正确的回执。
+
+具体流程如下：
+
+- Node1 作为 leader 产生一个新的区块：[0x002, parent: 0x001]。这个区块的父块是编号为 0x001 的区块。Node1 通过 Raft 将这个区块进行共识。
+- 0X002 区块共识成功后网络出现了问题，Node1 无法与大部分的 follower 进行通信。
+- 网络问题并没有影响 Node1 的产块。一个新的区块被产出：[0x003, parent: 0x002]。为了共识这个新的区块，Node1 向 Raft 网络发送 AppendEntries 指令（指令中包含新区块的信息），并等待 follower 的确认回执。因为网络问题，Node1 一直没有收到足够数量的 follower 回执。
+- 于此同时，那些无法与 Node1 通信的 follower 因为长时间没收到 leader 的心跳，所以推选出了新的 leader：Node2。
+- Node2 产生区块[0x004, parent: 0x002] 后将含此区块信息的 AppendEntries 指令发送给 follower。follower 确认这个指令后返回确认回执。最终这个指令被执行并记录在 Raft log中。
+- 0x004 区块共识完成后网络状态得到恢复。此时第三步中的来自 Node1 的 AppendEntries 指令终于被传递给大部分的 follower。但是此时 follower 的链上的最终块已经是第五步中的 0x004，所以区块 [0x003, parent: 0x002] 无法被执行，因为其 parent 是 0x002 不满足当前链的状态。这条不执行的动作也会被记录到 Raft log 中去。
+- Node2 继续生成区块 [0x005, parent: 0x004]。
+- 最后整个流程下来，follower 的 Raft log 内容大致会长这样：
+```
+得到区块[0x002, parent: 0x001, sender: Node1] - 执行     
+得到区块[0x004, parent: 0x002, sender: Node2] - 执行     
+得到区块[0x003, parent: 0x002, sender: Node1] - 不执行     
+得到区块[0x005, parent: 0x004, sender: Node2] - 执行   
+```
+
+需要注意的是，整个共识过程中，Raft 层面只负责记录自己节点的 Raft log。真正执行 log 内容的是 Quorum 节点。Quorum 节点根据其节点对应的 Raft log 来做具体的操作。
+
+### Speculative Minting
+一个区块从被创建，到经过 Raft 同步，到最后记录到链上多多少少会经历一段时间（尽管非常短）。如果等上一个区块写入到链上以后下一个区块才能生成，那么就会使得 TX 的确认时间增长。为了解决这个问题，同时为了能更有效率的处理区块生成，Quorum 推出了 speculative minting 机制。在这种机制下，新区块可以在其父区块没有完全上链的情况下被创建。如果这个场景重复出现，那么就会出现一串未被上链的区块，这些区块都会有指向其父区块的索引，我们将这类区块串称为 speculative chain。
+
+在维护 speculative chain 的同时，系统还会维护一份被称作 proposedTxes 的数组。这份数组包含了所有 speculative chain 中的 TX。主要是为了记录已经被传输到 Raft 中但是还没被正式上链的交易。防止同一条交易被重复打包。
+
 ## IBFT
-TODO
+详见：https://github.com/ethereum/EIPs/issues/650
 
 # 节点的许可管理
-TODO
+节点的授权，是用来控制哪些节点可以连接到指定节点、以及可以从哪些指定节点拨出的功能。目前，当启动节点时，通过--permissioned参数在节点级别处进行管理。
+
+如果设置了--permissioned参数，节点将查找名为/permissioned-nodes.json的文件。此文件包含此节点可以连接并接受来自其连接的enodes白名单。因此，启用权限后，只有permissioned-nodes.json文件中列出的节点成为网络的一部分。 如果指定了--permissioned参数，但没有节点添加到permissioned-nodes.json文件，则该节点既不能连接到任何节点也不能接受任何接入的连接。
+
+permissioned-nodes.json文件的格式如下所示
+```
+[ 
+    "enode://remoteky1@ip1:port1",
+    "enode://remoteky1@ip2:port2",
+    "enode://remoteky1@ip3:port3"
+]
+```
+
+在geth建立p2p连接的时候，如果启用了节点的许可管理，则会调用isNodePermissioned方法去检查目标节点是否被授权，如下所示：
+
+```
+func (srv *Server) setupConn(c *conn, flags connFlag, dialDest *discover.Node) error {
+        ...
+
+  //START - QUORUM Permissioning
+  currentNode := srv.NodeInfo().ID
+  cnodeName := srv.NodeInfo().Name
+  clog.Trace("Quorum permissioning",
+    "EnableNodePermission", srv.EnableNodePermission,
+    "DataDir", srv.DataDir,
+    "Current Node ID", currentNode,
+    "Node Name", cnodeName,
+    "Dialed Dest", dialDest,
+    "Connection ID", c.id,
+    "Connection String", c.id.String())
+
+  if srv.EnableNodePermission {
+    clog.Trace("Node Permissioning is Enabled.")
+    node := c.id.String()
+    direction := "INCOMING"
+    if dialDest != nil {
+      node = dialDest.ID.String()
+      direction = "OUTGOING"
+      log.Trace("Node Permissioning", "Connection Direction", direction)
+    }
+
+    if !isNodePermissioned(node, currentNode, srv.DataDir, direction) {
+      return nil
+    }
+  } else {
+    clog.Trace("Node Permissioning is Disabled.")
+  }
+
+  //END - QUORUM Permissioning
+        ...
+}
+```
+在isNodePermissioned中则会遍历目标节点是否在permissioned-nodes.json的节点列表内，如下：
+
+```
+// check if a given node is permissioned to connect to the change
+func isNodePermissioned(nodename string, currentNode string, datadir string, direction string) bool {
+
+  var permissionedList []string
+  nodes := parsePermissionedNodes(datadir)
+  for _, v := range nodes {
+    permissionedList = append(permissionedList, v.ID.String())
+  }
+
+  log.Debug("isNodePermissioned", "permissionedList", permissionedList)
+  for _, v := range permissionedList {
+    if v == nodename {
+      log.Debug("isNodePermissioned", "connection", direction, "nodename", nodename[:NODE_NAME_LENGTH], "ALLOWED-BY", currentNode[:NODE_NAME_LENGTH])
+      return true
+    }
+  }
+  log.Debug("isNodePermissioned", "connection", direction, "nodename", nodename[:NODE_NAME_LENGTH], "DENIED-BY", currentNode[:NODE_NAME_LENGTH])
+  return false
+}
+```
 
 # 更高的性能
-TODO
+## TPS测试
+benchmark: https://github.com/drandreaskrueger/chainhammer
+对比结果:
+
+| hardware    | node type       | #nodes  | config  | peak TPS_av   | final TPS_av  |
+|-----------  |-----------      |-------- |-------- |-------------  |-------------- |
+| t2.micro      | parity aura     | 4       | (D)     | 45.5          |  44.3        |
+| t2.large      | parity aura     | 4       | (D)     | 53.5          |  52.9        |
+| t2.xlarge   | parity aura     | 4       | (J)     | 57.1          |  56.4        |
+| t2.2xlarge  | parity aura     | 4       | (D)     | 57.6          |  57.6        |
+|               |                   |           |         |               |              |
+| t2.micro      | parity instantseal | 1        | (G)     | 42.3          |  42.3        |
+| t2.xlarge     | parity instantseal | 1        | (J)     | 48.1          |  48.1        |
+|               |                   |           |         |               |              |
+| t2.2xlarge  | geth clique       | 3+1 +2    | (B)     | 421.6         | 400.0        |
+| t2.xlarge   | geth clique       | 3+1 +2    | (B)     | 386.1         | 321.5        |
+| t2.xlarge   | geth clique       | 3+1       | (K)     | 372.6         | 325.3        |
+| t2.large      | geth clique       | 3+1 +2    | (B)     | 170.7         | 169.4        |
+| t2.small      | geth clique       | 3+1 +2    | (B)     |  96.8         |  96.5        |
+| t2.micro      | geth clique       | 3+1       | (H)     | 124.3         | 122.4        |
+|               |                   |           |         |               |              |
+| t2.micro SWAP | quorum crux IBFT  | 4         | (I) SWAP! |  98.1         |  98.1        |
+|               |                   |           |         |               |              |
+| t2.micro      | quorum crux IBFT  | 4         | (F)       | lack of RAM   |              |
+| t2.large      | quorum crux IBFT  | 4         | (F)     | 207.7       | 199.9        |
+| t2.xlarge   | quorum crux IBFT  | 4         | (F)     | 439.5       | 395.7        |
+| t2.xlarge   | quorum crux IBFT  | 4         | (L)     | 389.1       | 338.9        |
+| t2.2xlarge  | quorum crux IBFT  | 4         | (F)     | 435.4       | 423.1        |
+| c5.4xlarge  | quorum crux IBFT  | 4         | (F)     | 536.4       | 524.3        |
+
+（1）Raft
+- 1000 transactions 
+- multi-threaded with 23 workers
+- average TPS around 160 TPS
+- 20 raft blocks per second) 
+
+![image](https://user-images.githubusercontent.com/8265961/52631182-0d840100-2ef9-11e9-94e4-80425211919e.png)
+
+（2）IBFT
+- 20 millions gasLimit
+- 1 second istanbul.blockperiod
+- 20000 transactions 
+- multi-threaded with 23 workers
+-  Initial average >400 TPS then drops to below 300 TPS
+
+![image](https://user-images.githubusercontent.com/8265961/52631225-34423780-2ef9-11e9-8e06-021882c21122.png)
+
 
 # 参考
 - [初探摩根大通的企业级区块链解决方案—Quorum](http://rdc.hundsun.com/portal/article/892.html)
 - [基于以太坊的联盟链？Quorum机制初探（下）](https://blog.csdn.net/about_blockchain/article/details/78814873)
 - [Exploring How Private Transaction Works in Quorum](https://medium.com/@kctheservant/exploring-how-private-transaction-works-in-quorum-53612a9e7206)
-
