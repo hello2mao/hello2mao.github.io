@@ -14,9 +14,11 @@ tags:
 - [架构](#%E6%9E%B6%E6%9E%84)
 - [隐私性](#%E9%9A%90%E7%A7%81%E6%80%A7)
   - [方案概述](#%E6%96%B9%E6%A1%88%E6%A6%82%E8%BF%B0)
+  - [案例一](#%E6%A1%88%E4%BE%8B%E4%B8%80)
+  - [案例二](#%E6%A1%88%E4%BE%8B%E4%BA%8C)
   - [实现细节](#%E5%AE%9E%E7%8E%B0%E7%BB%86%E8%8A%82)
-  - [宏观案例](#%E5%AE%8F%E8%A7%82%E6%A1%88%E4%BE%8B)
-  - [微观案例](#%E5%BE%AE%E8%A7%82%E6%A1%88%E4%BE%8B)
+    - [Quorum组件](#quorum%E7%BB%84%E4%BB%B6)
+    - [Tessera组件](#tessera%E7%BB%84%E4%BB%B6)
 - [共识算法](#%E5%85%B1%E8%AF%86%E7%AE%97%E6%B3%95)
   - [Raft](#raft)
     - [Lifecycle of a Transaction](#lifecycle-of-a-transaction)
@@ -29,7 +31,6 @@ tags:
 - [参考](#%E5%8F%82%E8%80%83)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 
 # 概述
 Quorum是基于以太坊的Golang实现[go-ethereum](https://github.com/ethereum/go-ethereum)开发而来。  详细的可参考如下链接：  
@@ -46,7 +47,7 @@ Quorum是基于以太坊的Golang实现[go-ethereum](https://github.com/ethereum
 # 架构
 Quorum有两个组件：  
 - [Quorum](https://github.com/jpmorganchase/quorum)节点
-- [Tessera](https://github.com/jpmorganchase/tessera)或者[Constellation](https://github.com/jpmorganchase/constellation)节点，注：建议使用Tessera，Constellation感觉要被废弃
+- [Tessera](https://github.com/jpmorganchase/tessera)(Java)或者[Constellation](https://github.com/jpmorganchase/constellation)(Haskell)节点，注：建议使用Tessera，Constellation感觉要被废弃
 
 整体架构如下：  
 ![image](https://user-images.githubusercontent.com/8265961/52621270-d1917180-2ee1-11e9-9944-00f693fa8867.png)
@@ -94,10 +95,7 @@ var simple = simpleContract.new(42, {from:web3.eth.accounts[0], data: bytecode, 
 }
 ```
 
-## 实现细节
-TODO
-
-## 宏观案例
+## 案例一
 七个节点的例子：[7nodes](https://github.com/jpmorganchase/quorum-examples/tree/master/examples/7nodes)  
 （1）使用docker-compose部署好区块链：  
 ```
@@ -196,7 +194,7 @@ contract simplestorage {
 
 
 
-## 微观案例
+## 案例二
 在这个案例中，A机构和B机构构成了私有交易AB的交易双方，而C机构不参与该交易。  
 ![Quorum Tessera Privacy Flow](https://raw.githubusercontent.com/jpmorganchase/quorum-docs/master/images/QuorumTransactionProcessing.JPG)
 
@@ -217,6 +215,232 @@ contract simplestorage {
 10. 由于C机构并未同意这笔交易，它将收到一条NotARecipient的消息，并将忽略该交易——它将不会升级其私有状态数据库。A机构和B机构将会在他们本地的事务管理器中查找哈希值，识别他们的确赞成该交易，然后每位参与者与其对应的Enclave进行通讯，发送已加密有效负载、已加密系统密钥和签名；
 11. Enclave验证签名，然后使用Enclave中该机构的私钥来解密系统密钥，使用刚刚显示的系统密钥解密交易有效负载，并向事务管理器返回已加密有效负载；
 12. 机构A和B的事务管理器，通过执行合约代码，向EVM发送已解密有效负载。这次执行将会升级仅在Quorum节点的私有状态数据库的状态。注意：代码一旦运行即会无效，所以没有上述流程它将无法阅读。
+
+## 实现细节
+注：以Tessera为例分析
+![image](https://user-images.githubusercontent.com/8265961/52684786-60ee6180-2f82-11e9-9f8e-a4a606d8161e.png)
+
+### Quorum组件
+Quorum组件基于go-ethereum修改：
+* 共识算法，增加Raft和IBFT共识
+* P2P网络层，改成只有授权节点才能连入或连出网络
+* 区块生成逻辑，由检查“全局状态根”改为检查“全局公开状态根”
+* 区块验证逻辑，在区块头，将“全局状态根”替换成“全局公开状态根”
+* 状态树，分成公开状态树和私有状态树
+* 区块链验证逻辑，改成处理“私有事务”
+* 创建事务，改成允许交易数据被加密哈希替代，以维护必需的隐私数据
+* 删除以太坊中Gas的定价，尽管保留Gas本身
+
+当发送私有交易时，即添加privateFor参数时，Quorum节点会检测到这个是一个私有交易，如下：
+
+```
+// SendTransaction will create a transaction from the given arguments and
+// tries to sign it with the key associated with args.To. If the given passwd isn't
+// able to decrypt the key it fails.
+func (s *PrivateAccountAPI) SendTransaction(ctx context.Context, args SendTxArgs, passwd string) (common.Hash, error) {
+  // Look up the wallet containing the requested signer
+  account := accounts.Account{Address: args.From}
+
+  wallet, err := s.am.Find(account)
+  if err != nil {
+    return common.Hash{}, err
+  }
+
+  if args.Nonce == nil {
+    // Hold the addresse's mutex around signing to prevent concurrent assignment of
+    // the same nonce to multiple accounts.
+    s.nonceLock.LockAddr(args.From)
+    defer s.nonceLock.UnlockAddr(args.From)
+  }
+
+  isPrivate := args.PrivateFor != nil
+
+  if isPrivate { // Quorum节点会检测到这个是一个私有交易
+    data := []byte(*args.Data)
+    if len(data) > 0 {
+      log.Info("sending private tx", "data", fmt.Sprintf("%x", data), "privatefrom", args.PrivateFrom, "privatefor", args.PrivateFor)
+                         // 向Tessera组件发送交易数据，Tessera组件返回加密后的交易数据的hash值
+      data, err := private.P.Send(data, args.PrivateFrom, args.PrivateFor)
+      log.Info("sent private tx", "data", fmt.Sprintf("%x", data), "privatefrom", args.PrivateFrom, "privatefor", args.PrivateFor)
+      if err != nil {
+        return common.Hash{}, err
+      }
+    }
+    // zekun: HACK
+    d := hexutil.Bytes(data)
+    args.Data = &d
+  }
+
+  // Set some sanity defaults and terminate on failure
+  if err := args.setDefaults(ctx, s.b); err != nil {
+    return common.Hash{}, err
+  }
+  // Assemble the transaction and sign with the wallet
+  tx := args.toTransaction()
+
+  var chainID *big.Int
+  if config := s.b.ChainConfig(); config.IsEIP155(s.b.CurrentBlock().Number()) && !isPrivate {
+    chainID = config.ChainID
+  }
+  signed, err := wallet.SignTxWithPassphrase(account, passwd, tx, chainID)
+  if err != nil {
+    return common.Hash{}, err
+  }
+  return submitTransaction(ctx, s.b, signed, isPrivate)
+}
+```
+Quorum节点就会向Tessera组件发送交易数据，Tessera组件返回加密后的交易数据的hash值。
+
+```
+func (g *Constellation) Send(data []byte, from string, to []string) (out []byte, err error) {
+  if g.isConstellationNotInUse {
+    return nil, ErrConstellationIsntInit
+  }
+  out, err = g.node.SendPayload(data, from, to)
+  if err != nil {
+    return nil, err
+  }
+  g.c.Set(string(out), data, cache.DefaultExpiration)
+  return out, nil
+}
+```
+Quorum节点与Tessera的通讯是使用的[基于Unix Domain Socket的Private API](https://github.com/jpmorganchase/tessera/wiki/Interface-&-API#unix-domain-socket-private-api)
+
+```
+func (c *Client) SendPayload(pl []byte, b64From string, b64To []string) ([]byte, error) {
+  buf := bytes.NewBuffer(pl)
+  req, err := http.NewRequest("POST", "http+unix://c/sendraw", buf)
+  if err != nil {
+    return nil, err
+  }
+  if b64From != "" {
+    req.Header.Set("c11n-from", b64From)
+  }
+  req.Header.Set("c11n-to", strings.Join(b64To, ","))
+  req.Header.Set("Content-Type", "application/octet-stream")
+  res, err := c.httpClient.Do(req)
+
+  if res != nil {
+    defer res.Body.Close()
+  }
+  if err != nil {
+    return nil, err
+  }
+  if res.StatusCode != 200 {
+    return nil, fmt.Errorf("Non-200 status code: %+v", res)
+  }
+
+  return ioutil.ReadAll(base64.NewDecoder(base64.StdEncoding, res.Body))
+}
+```
+这样以后，在Quorum链上存储的就是加密后的私有交易的hash值，而实际的交易内容则被Tessera安全的存储在DB内。
+
+当出块时，在**CommitTransactions**阶段会进行交易的执行，如下：
+
+![miner-worker](https://user-images.githubusercontent.com/8265961/52096073-736eaf80-2600-11e9-92f9-aa0058062260.png)
+
+其中tx的执行在**TransitionDb**中：
+
+```
+// TransitionDb will transition the state by applying the current message and
+// returning the result including the the used gas. It returns an error if it
+// failed. An error indicates a consensus issue.
+func (st *StateTransition) TransitionDb() (ret []byte, usedGas uint64, failed bool, err error) {
+  if err = st.preCheck(); err != nil {
+    return
+  }
+  msg := st.msg
+  sender := vm.AccountRef(msg.From())
+  homestead := st.evm.ChainConfig().IsHomestead(st.evm.BlockNumber)
+  contractCreation := msg.To() == nil
+  isQuorum := st.evm.ChainConfig().IsQuorum
+
+  var data []byte
+  isPrivate := false
+  publicState := st.state
+        // 私有交易
+  if msg, ok := msg.(PrivateMessage); ok && isQuorum && msg.IsPrivate() {
+    isPrivate = true
+                // 向Tessera发起请求获取解密后的交易数据
+    data, err = private.P.Receive(st.data)
+    // Increment the public account nonce if:
+    // 1. Tx is private and *not* a participant of the group and either call or create
+    // 2. Tx is private we are part of the group and is a call
+    if err != nil || !contractCreation {
+      publicState.SetNonce(sender.Address(), publicState.GetNonce(sender.Address())+1)
+    }
+
+    if err != nil {
+      return nil, 0, false, nil
+    }
+  } else {
+    data = st.data
+  }
+
+  // Pay intrinsic gas
+  gas, err := IntrinsicGas(st.data, contractCreation, homestead)
+  if err != nil {
+    return nil, 0, false, err
+  }
+  if err = st.useGas(gas); err != nil {
+    return nil, 0, false, err
+  }
+
+  var (
+    evm = st.evm
+    // vm errors do not effect consensus and are therefor
+    // not assigned to err, except for insufficient balance
+    // error.
+    vmerr error
+  )
+  if contractCreation {
+    ret, _, st.gas, vmerr = evm.Create(sender, data, st.gas, st.value)
+  } else {
+    // Increment the account nonce only if the transaction isn't private.
+    // If the transaction is private it has already been incremented on
+    // the public state.
+    if !isPrivate {
+      publicState.SetNonce(msg.From(), publicState.GetNonce(sender.Address())+1)
+    }
+    var to common.Address
+    if isQuorum {
+      to = *st.msg.To()
+    } else {
+      to = st.to()
+    }
+    //if input is empty for the smart contract call, return
+    if len(data) == 0 && isPrivate {
+      return nil, 0, false, nil
+    }
+
+    ret, st.gas, vmerr = evm.Call(sender, to, data, st.gas, st.value)
+  }
+  if vmerr != nil {
+    log.Info("VM returned with error", "err", vmerr)
+    // The only possible consensus-error would be if there wasn't
+    // sufficient balance to make the transfer happen. The first
+    // balance transfer may never fail.
+    if vmerr == vm.ErrInsufficientBalance {
+      return nil, 0, false, vmerr
+    }
+  }
+  st.refundGas()
+  st.state.AddBalance(st.evm.Coinbase, new(big.Int).Mul(new(big.Int).SetUint64(st.gasUsed()), st.gasPrice))
+
+  if isPrivate {
+    return ret, 0, vmerr != nil, err
+  }
+  return ret, st.gasUsed(), vmerr != nil, err
+}
+```
+如果是私有交易，Quorum节点则会向Tessera发起请求，以Quorum链上存储的data为key，即之前加密后的交易数据的hash值，获取解密后的交易的实际数据，然后在evm中执行交易。
+
+### Tessera组件
+Tessera组件是Transaction Manager的java实现，详见：https://github.com/jpmorganchase/tessera/wiki
+
+由两个部分组成：
+- Transaction Manager：负责事务隐私，存储并允许访问加密的交易数据，与其他参与方的事务管理器交换加密的有效载荷，但没有访问任何敏感私钥的权限。它用Enclave来加密
+- Enclave：分布式账本协议，通常利用密码技术来保证事务真实性、参与者身份验证和历史数据存储（即通过加密哈希数据链）。为了实现相关事务的隔离，同时通过特定加密的并行操作来提供性能优化，包括系统密钥生成和数据加解密的大量密码学工作，会委托给Enclave。
 
 # 共识算法
 ## Raft
