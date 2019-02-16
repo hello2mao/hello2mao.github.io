@@ -9,7 +9,7 @@ tags:
 ---
 
 # 一、摘要
-CA（ cluster-autoscaler，https://github.com/kubernetes/autoscaler）是用来弹性伸缩kubernetes集群的。我们在使用kubernetes集群经常问到的一个问题是，我应该保持多大的节点规模来满足应用需求呢？ cluster-autoscaler的出现解决了这个问题，它可以自动的根据部署的应用所请求的资源量来动态的伸缩集群。
+CA（ [cluster-autoscaler](https://github.com/kubernetes/autoscaler)）是用来弹性伸缩kubernetes集群的。我们在使用kubernetes集群经常问到的一个问题是，我应该保持多大的节点规模来满足应用需求呢？ cluster-autoscaler的出现解决了这个问题，它可以自动的根据部署的应用所请求的资源量来动态的伸缩集群。
 
 CA组件虽然是Kubernetes社区的开源组件，但并不是部署在集群内就可以正常工作的，因为涉及到节点的增删、节点信息的查询等，这些每个云厂商的实现都不一样，在此之前，官方只支持谷歌、微软、亚马逊和阿里的云平台，本次加入对百度云容器引擎CCE的支持，使百度云成为国内唯二的得到Kubernetes autoscaler官方支持的云厂商。
 
@@ -38,7 +38,7 @@ CA由以下几个模块组成：
 - Simulator：负责模拟调度，计算缩容节点
 - CA Cloud-Provider：与云交互进行节点的增删操作。
 
-其中CA Cloud-Provider部分每个云厂商的实现都不一样，基于百度云的实现在这笔PR（https://github.com/kubernetes/autoscaler/pull/1536） 中被合入了Kubernetes autoscaler开源库。
+其中CA Cloud-Provider部分每个云厂商的实现都不一样，基于百度云的实现在这笔PR（ https://github.com/kubernetes/autoscaler/pull/1536 ） 中被合入了Kubernetes autoscaler开源库。
 
 ![image](https://user-images.githubusercontent.com/8265961/52893897-4d3e3780-31dc-11e9-9f78-c343d8e8284b.png)
 
