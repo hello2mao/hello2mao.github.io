@@ -9,26 +9,19 @@ header-img: "img/about-bg.jpg"
     <p>
         毛宏斌，软件工程师，目前就职于百度，从事容器及区块链相关研发工作。
     </p>
-    <hr>
 </div>
 
 <!-- Include the library. -->
-<script
-  src="/js/github-calendar.min.js"
-></script>
-
+<script src="/js/github-calendar.min.js"></script>
 <!-- Optionally, include the theme (if you don't want to struggle to write the CSS) -->
-<link
-   rel="stylesheet" href="/js/github-calendar-responsive.css"
-/>
+<link rel="stylesheet" href="/js/github-calendar-responsive.css"/>
 <!-- Prepare a container for your calendar. -->
 <div class="calendar">
     <!-- Loading stuff -->
     Loading the Github activity of hello2mao...
 </div>
-
 <script>
-    GitHubCalendar(".calendar", "hello2mao", { global_stats: true, responsive: true });
+    GitHubCalendar(".calendar", "hello2mao", { responsive: true });
 </script>
 
 {% if site.disqus_username %}
