@@ -27,8 +27,6 @@ tags:
   - [5.4 对战](#54-%E5%AF%B9%E6%88%98)
   - [5.5 升级](#55-%E5%8D%87%E7%BA%A7)
 
-> **More:** [https://github.com/hello2mao/Xnotes/issues/24](https://github.com/hello2mao/Xnotes/issues/24)
-
 # 一、概述
 设计一个基于以太坊ERC721合约的DAPP游戏。
 源码：https://github.com/hello2mao/CryptoKitties
