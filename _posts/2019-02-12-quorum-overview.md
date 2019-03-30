@@ -1,6 +1,6 @@
 ---
 layout:     post
-title:      "解析Quorum -- 摩根大通的企业级区块链解决方案 （一）"
+title:      "解析Quorum -- 摩根大通的企业级区块链解决方案"
 subtitle:   "Quorum overview"
 date:       2019-02-12 18:28:25
 author:     "hello2mao"

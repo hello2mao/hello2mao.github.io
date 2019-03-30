@@ -64,6 +64,7 @@ ART为了解决堆空间内存碎片化的问题，近期提出了“Moving GC�
   GC触发方式主要有GC_FOR_MALLOC;GC_CONCURRENT;GC_EXPLICIT;GC_BEFORE_OOM这四种。  
 （2）ART
 
+```
   enum GcCause {  
     // GC triggered by a failed allocation. Thread doing allocation is blocked waiting for GC before  
     // retrying allocation.  
@@ -83,6 +84,7 @@ ART为了解决堆空间内存碎片化的问题，近期提出了“Moving GC�
     // GC triggered for background transition when both foreground and background   collector are CMS.  
     kGcCauseHomogeneousSpaceCompact,
   };  
+```
 
 （b）GC的种类  
 （1）Dalvik  
@@ -90,7 +92,7 @@ ART为了解决堆空间内存碎片化的问题，近期提出了“Moving GC�
 （2）ART  
 三种GC(并发、非并发)：快速GC策略Sticky GC；局部GC策略Partial GC；全局GC策略Full GC。
 
-
+```
   enum GcType {  
     // Placeholder for when no GC has been performed.  
     kGcTypeNone,  
@@ -103,12 +105,14 @@ ART为了解决堆空间内存碎片化的问题，近期提出了“Moving GC�
     // Number of different GC types.  
     kGcTypeMax,
   };  
+```
 
 （c）垃圾回收算法的多样性  
 （1）Dalvik  
 两种：串行Mark-Sweep算法、并行Mark-Sweep算法  
 （2）ART  
 
+```
   enum CollectorType {  
   // No collector selected.  
   kCollectorTypeNone,  
@@ -130,6 +134,8 @@ ART为了解决堆空间内存碎片化的问题，近期提出了“Moving GC�
   // when both foreground and background collector are CMS.  
   kCollectorTypeHomogeneousSpaceCompact,  
   };  
+```
+  
 可以看到，除了标记清楚算法，基于半空间（semi-space）的拷贝算法也实现了，其中GSS（分代半空间拷贝算法）的实现具有很大的研究性。
 
 上面只是初步的认识，很多地方得详细研究后才能确定。
