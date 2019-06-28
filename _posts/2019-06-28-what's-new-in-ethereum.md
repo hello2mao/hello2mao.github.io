@@ -33,7 +33,7 @@ Phase 0 的Spec会在6月30日定稿，详见报道[Code For Ethereum’s Proof-
 
 #### Phase 2：虚拟机，即执行层
 - 有了两个初步的提案：
-    - [Phase One and Done: eth2 as a data availability engine](https://ethresear.ch/t/phase-one-and-done-eth2-as-a-data-availability-engine/5269?u=benjaminion) -a-data-availability-engine/5269?u=benjaminion) 
+    - [Phase One and Done: eth2 as a data availability engine](https://ethresear.ch/t/phase-one-and-done-eth2-as-a-data-availability-engine/5269?u=benjaminion) 
     - [Phase 2 Proposal 1](https://notes.ethereum.org/s/HylpjAWsE#)
 - Phase 2初步方案：
     - 有很多类型的EVM，称之为EE（execution environment），每个EE能够运行eWASM合约
