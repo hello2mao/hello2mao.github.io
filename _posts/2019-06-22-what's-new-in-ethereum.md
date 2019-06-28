@@ -33,7 +33,7 @@ Starkware和0x发布了一个使用STARKs技术的POC [demo](https://www.starkde
 此demo目前运行在Ropsten测试网络上，使用STARKs技术后，TPS可以达到550，且每笔交易只需大约6000gas，节省了200倍的gas消耗。
 STARKs（可扩容的透明知识论证）是创建一种证明的技术，这项证明中f(x)=y，其中f可能要花很长的时间来进行计算，但是这个证明可以被很快验证。STARK是“双重扩容”：对于一个需要t步骤的计算，这会花费大约O(t * log(t))步骤才能完成这个证明，这可能是最优的情况，而且这需要通过~O(log2(t))个步骤才能验证，对于中等大小的T值，它比原始计算快得多。
 
-##[Work to natively integrate Eth1 into Eth2](https://ethresear.ch/t/work-to-natively-integrate-eth1-into-eth2/5573)
+## [Work to natively integrate Eth1 into Eth2](https://ethresear.ch/t/work-to-natively-integrate-eth1-into-eth2/5573)
 此文概括了把ETH1的共识以及世界状态集成进ETH2分片内的可能工作量。
 一共列举了23个点，包括：BLS VS ECDSA；Keccak256 vs SHA256；SSZ vs RLP；轻客户端中使用POS的信标链代替POW；移除难度炸弹；使用libp2p代替devp2p；移除ETH1的gasLimit等。
 
@@ -45,4 +45,5 @@ STARKs（可扩容的透明知识论证）是创建一种证明的技术，这�
 本文是对ETH 2.0存款合约的形式化验证。
 
 在ETH 2.0的信标链上，验证者是动态加入和退出的，他们只需向存款合约发起一笔交易存入一定数量的ETH就可以成为验证者，然后在退出验证者角色时，存款合约会把抵押退还。因为验证者的列表存在默克尔树上，在动态更新验证者时，默克尔树都需要重构，当验证者数量巨大时，这将非常耗时以及消耗内存空间。
-为了减少时间和空间的消耗，同时节省gas，存款合约实现了一种增量默克尔树算法，详见：https://github.com/ethereum/research/blob/master/beacon_chain_impl/progressive_merkle_tree.py。在重构一棵高度是h的默克尔树时，增量默克尔树算法具有O(h)的时间和空间复杂度。
+为了减少时间和空间的消耗，同时节省gas，存款合约实现了一种增量默克尔树算法，详见：https://github.com/ethereum/research/blob/master/beacon_chain_impl/progressive_merkle_tree.py。
+在重构一棵高度是h的默克尔树时，增量默克尔树算法具有O(h)的时间和空间复杂度。
