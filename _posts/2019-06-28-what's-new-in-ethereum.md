@@ -8,11 +8,11 @@ tags:
     - ethereum
 ---
 
-## [What's New in Eth2 - 21 June 2019](https://notes.ethereum.org/c/Sk8Zs--CQ/https%3A%2F%2Fbenjaminion.xyz%2Fnewineth2%2F20190621.html)
+## [What's New in Eth2](https://notes.ethereum.org/c/Sk8Zs--CQ/https%3A%2F%2Fbenjaminion.xyz%2Fnewineth2%2F20190621.html)
 本文是对最近几个月Ethereum 2.0进度的综述。
 
 #### Phase 0：信标链
-Phase 0 的Spec会在6月30日定稿，详见报道[Code For Ethereum’s Proof-of-Stake Blockchain to Be Finalized Next Month](https://www.coindesk.com/code-for-ethereums-proof-of-stake-blockchain-to-be-finalized-next-month)
+Phase 0 的Spec会在6月30日定稿，详见报道：[Code For Ethereum’s Proof-of-Stake Blockchain to Be Finalized Next Month](https://www.coindesk.com/code-for-ethereums-proof-of-stake-blockchain-to-be-finalized-next-month)
 
 - 互用性
     - 当前有八个团队分别实现了ETH2客户端
@@ -38,7 +38,15 @@ Phase 0 的Spec会在6月30日定稿，详见报道[Code For Ethereum’s Proof-
 - Phase 2初步方案：
     - 有很多类型的EVM，称之为EE（execution environment），每个EE能够运行eWASM合约
     - EE不存储状态，所有的数据都需要额外提供
-    - 支付一定费用户，用户可以部署他们自己的EE到主链上；ETH2分片只关注底层架构：交易排序和数据
+    - 支付一定费用，用户可以部署他们自己的EE到主链上；ETH2分片只关注底层架构：交易排序和数据
  
+ ## [V神最新演讲：以太坊2.0之跨分片交易](https://mp.weixin.qq.com/s/luxI17CINlpJCFwmHJ4_Lg)
+ 2019年6月29日，第二届以太坊技术及应用大会在京举行，以太坊创始人 Vitalik Buterin 分享了题为《以太坊2.0之跨分片交易》的主题演讲。
+ 讲述了ETH2.0设计：
+ - 1024个分片
+ - 信标链管理共识和跨分片通讯
+ - 每6分钟一次跨分片通讯  
+ - 更快的异步交易
+ - 猛拉（yank）机制
+ - 通过plasma的方式做同步交易
  
-       
