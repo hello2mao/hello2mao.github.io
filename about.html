@@ -11,6 +11,33 @@ header-img: "img/about-bg.jpg"
     </p>
 </div>
 
+<!-- AICoin Widget Begin -->
+<script type="text/javascript"
+        src="https://widget.aicoin.net.cn/chart/js/aicoin.js"
+></script>
+<script type="text/javascript">
+    new AICoin.markets({
+        "symbols": [
+            "huobiprobtcusdt",
+            "huobiproethusdt",
+            "huobiproeosusdt",
+            "huobiproltcusdt",
+            "huobiproxrpusdt",
+            "huobiprohtusdt"
+        ],
+        "columns": [
+            "degree",
+            "hight",
+            "low",
+            "vol"
+        ],
+        "style": "tr%7Bheight%3A34px%3B%7D",
+        "container": "markets_container",
+        "lang": "zh"
+    })
+</script>
+<!-- AICoin Widget End -->
+
 <!-- Include the library. -->
 <script src="/js/github-calendar.min.js"></script>
 <!-- Optionally, include the theme (if you don't want to struggle to write the CSS) -->
