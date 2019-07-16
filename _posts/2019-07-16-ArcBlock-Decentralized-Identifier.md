@@ -113,12 +113,12 @@ did:abt:z1muQ3xqHQK2uiACHyChikobsiY5kLqtShA
 Deep Link即用户认证DID的URL，当然也可以做成二维码，让用户扫码认证。关键是`appPk`和`appDid`这个两个参数，前者是DApp的公钥，用于加密用户DID，后者是DApp的DID，用于生成用户的DID。
 
 ### 4.2.2 Request DID Authentication
-使用DID认证登入的作用，主要是DApp为了获取用户的认证声明（verifiable claims ）。
-（1）使用DApp的`appDid`生成用户的DID，即`userDid `
-（2）使用DApp的`appPk`加密用户的DID
-（3）发送此DID到DApp的Auth Endpoint
-（4）获取Auth Response，包含`appPk`和`authInfo`，其中`authInfo`是签名过的JWT对象。
-（5）DID Wallet根据Auth Response进行响应，详见 4.2.3
+使用DID认证登入的作用，主要是DApp为了获取用户的认证声明（verifiable claims ）。  
+（1）使用DApp的`appDid`生成用户的DID，即`userDid `  
+（2）使用DApp的`appPk`加密用户的DID  
+（3）发送此DID到DApp的Auth Endpoint  
+（4）获取Auth Response，包含`appPk`和`authInfo`，其中`authInfo`是签名过的JWT对象。  
+（5）DID Wallet根据Auth Response进行响应，详见 4.2.3  
 
 ### 4.2.3 Response DID Authentication
 在Auth Response中，DApp会要求DID Wallet提供Claim，此时DID Wallet只需按照格式POST内容给DApp即可完成DID Auth，如下：
