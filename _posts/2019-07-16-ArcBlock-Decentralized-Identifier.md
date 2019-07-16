@@ -173,13 +173,13 @@ body：
 
 **注意到，上述两类claim（profile和agreement）都是直接把用户的隐私信息透露给DApp的**
 
-### 4.2.4 Verifiable Claims
+## 4.3 Verifiable Claims
 定义了3类claim：
 - profile：例如个人资料
 - agreement：例如某某协议
 - proofOfHolding：第三方签发的、拥有某token、资产的权威证明（TBD）
 
-### 4.2.5 使用场景
+## 4.4 使用场景
 - 用户注册
 - 用户登入
 - 签署文件
@@ -187,6 +187,7 @@ body：
 - 申请VISA
 - p2p信息交换
 
-# 参考
+# 五、参考
 - [ArcBlock DID](https://www.arcblock.io/zh/decentralized-identity)
 - [abt-did-spec](https://arcblock.github.io/abt-did-spec/)
+
