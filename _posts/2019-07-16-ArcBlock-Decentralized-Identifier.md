@@ -23,6 +23,12 @@ ArcBlock平台的核心部件和体系包括:
 ## 1.2 DID
 去中心化身份(DID)可取代电子邮件或用户名等传统 ID，无需在第三方服务器维护用户的数字身份。植根于区块链，DID 充分利用分布式账本技术来保护隐私、确保交易安全。
 ![image](https://user-images.githubusercontent.com/8265961/61199905-40cdf480-a712-11e9-8bf9-2a25d15aa150.png)
+万维网联盟（W3C）正在主持开发的去中心化标识符（Decentralized Identitfiers，DID）标准正在成为去中心化身份（DID）技术实现标准，目前有微软、ArcBlock、uPort、lifeID 等企业或项目提交了各自的 DID 协议方法。
+![image](https://user-images.githubusercontent.com/8265961/61279983-b35dd380-a7e9-11e9-9ed5-a19e058fad4d.png)
+DIDs 是身份主体相关、与该主体进行可信互动的 URL。DIDs 解析为 DID 文档 ——描述如何使用该 DID 的简单文档。每个 DID 文档可能至少包含三部分：证明目的、验证方法和服务端点。证明目的与验证方法相结合，以提供证明事物的机制。例如，DID 文档可以指定特定的验证方法，例如密码公钥或化名生物特征协议，可以用于验证为目的而创建的方法。服务端点支持与 DID 控制器的可信交互。
+![image](https://user-images.githubusercontent.com/8265961/61279999-bb1d7800-a7e9-11e9-9a23-2270f25f8dab.png)
+这一可验证、“自我主权”的数字身份新型标识能够让身份数据始终置于终端用户的控制之下，并且不把个人身份信息存储在区块链上（仅将签名的哈希值作为证据），让用户成为身份的唯一所有者，从而摆脱任何中心化注册服务、身份提供商或证书颁发机构的控制。为保护隐私，DID 通常使用零知识证明方法让声明信息的披露尽可能的少：比如国外超市酒吧禁止向未成年人卖酒，有了 DID，你只需要提供由相关部门签名认证的声明说你已经超过 18 岁，而不需要分享你的出生日期。
+![image](https://user-images.githubusercontent.com/8265961/61280062-d4bebf80-a7e9-11e9-8721-6384f67e1a1f.png)
 
 ## 1.3 ArcBlock DID
 ArcBlock 开发了一个符合 W3C 标准的去中心化身份协议([ABT:DID Protocol](https://github.com/ArcBlock/abt-did-spec))，这是一个基于 W3C DID 解决方案的开放协议。
@@ -190,4 +196,3 @@ body：
 # 五、参考
 - [ArcBlock DID](https://www.arcblock.io/zh/decentralized-identity)
 - [abt-did-spec](https://arcblock.github.io/abt-did-spec/)
-
