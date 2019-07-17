@@ -194,7 +194,7 @@ contract YoutubeViews is usingOraclize {
 }
 ```
 
-# 3.2 数据源
+## 3.2 数据源
 Orcalize的数据源有：
 
 - URL：互联网中的连接。
@@ -204,23 +204,23 @@ Orcalize的数据源有：
 - blockchain：blockchain数据源允许用户访问其他区块链的数据。可以提交给blockchain 数据源的查询包括bitcoin blockchain height、litecoinhashrate、bitcoin difficulty、1NPFRDJuEdyqEn2nmLNaWMfojNksFjbL4S balance等
 - WolframAlpha：WolframAlpha是开发计算数学应用软件的沃尔夫勒姆研究公司开发出的新一代的搜索引擎，能根据问题直接给出答案的网站，于 2009年5月15日晚7点（美国中部当地时间，北京时间5月16日上午8点）提前上线，用户在搜索框键入需要查询的问题后，该搜索引擎将直接向用户返回答案，而不是返回一大堆链接。
 
-# 3.3 收费
+## 3.3 收费
 ![image](https://user-images.githubusercontent.com/8265961/58679045-70a87f00-8394-11e9-96ce-ea90dffdaa59.png)
 
-# 3.4 真实性：
+## 3.4 真实性：
 Oraclize提供了的TLSNotary Proof来证明返回的结果是没有经过任何人修改的。TLS是一个网络传输协议，利用可信机构颁发的CA来保证传输正确。TLSNotary是TLS的改进，能够证明Oraclize提供给合约的数据就是某个特点时间点的正确数据。
 
 参见：https://github.com/Oraclize/proof-verification-tool
 
-# 3.5 解析助手
+## 3.5 解析助手
 HTTP请求返回的结果可以是HTML、JSON、XML或二进制等格式。在Solidity中，解析结果是很困难的，且代价很高。Oraclize提供了解析助手，在服务端上处理解析，最终得到的结果就是用户需要的那部分。
 
-# 3.6 加密查询
+## 3.6 加密查询
 为了满足一些场景：比如用户不想暴露自己的查询地址，参数等信息。Oraclize提供了一个加密查询的方法。
 
 参见：https://github.com/Oraclize/encrypted-queries
 
-# 3.7 原理
+## 3.7 原理
 Oraclize在以太坊上部署了一个名为usingOraclize的智能合约，如果需要其数据访问服务，只需要在自己的智能合约中引用该智能合约，然后根据API文档中描述的方法进行相关的调用即可。
 
 ![image](https://user-images.githubusercontent.com/8265961/58679064-8027c800-8394-11e9-9328-099555a2a11c.png)
