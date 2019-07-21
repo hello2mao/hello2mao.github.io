@@ -2,3 +2,4 @@
 _site/
 _drafts/
 .DS_Store
+/lazy_push.sh
