@@ -8,8 +8,7 @@ tags:
     - ethereum
 ---
 
-## [Solving Identity for the New Decentralized Economy
-](https://www.tokendaily.co/blog/solving-identity-for-the-new-decentralized-economy)
+## [Solving Identity for the New Decentralized Economy](https://www.tokendaily.co/blog/solving-identity-for-the-new-decentralized-economy)
 
 本文论述了去中心化经济时代如何解决身份问题。
 传统的身份识别方法现在已经陷入瓶颈，“自主身份” 的概念逐渐开始流行。
