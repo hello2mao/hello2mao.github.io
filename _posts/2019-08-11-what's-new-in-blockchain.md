@@ -1,11 +1,11 @@
 ---
 layout: post
-title: "以太坊最新进展-20190811"
-subtitle: "what's new in ethereum"
+title: "区块链技术追踪"
+subtitle: "what's new in blockchain"
 date: 2019-08-11 10:51:11
 author: "hello2mao"
 tags:
-  - ethereum
+  - blockchain
 ---
 
 ## [Dynamic Mediation Fees in Raiden Explained](https://medium.com/raiden-network/dynamic-mediation-fees-in-raiden-explained-dbc29f032e4b)
