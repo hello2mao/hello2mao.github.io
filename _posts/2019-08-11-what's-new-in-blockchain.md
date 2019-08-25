@@ -4,9 +4,26 @@ title: "区块链技术追踪"
 subtitle: "what's new in blockchain"
 date: 2019-08-11 10:51:11
 author: "hello2mao"
+header-img: "img/eye.png"
 tags:
   - blockchain
 ---
+
+## [Security Budget in the Long Run](http://www.truthcoin.info/blog/security-budget/)
+
+本文旨在探讨比特币抵御 51% 攻击的能力（即比特币的 “安全预算”）。矿工之间的激烈竞争使得系统无法从一个网络中征收足以维持安全预算的交易费用，因此我们应该从所有的支付市场中取得交易费。
+
+本文作者认为：
+
+- 抵御 51% 攻击需要比特币有高 “安全预算”。今时今日的交易费收入远远不够，我们必须确保未来交易费总额能提高到足以给付 “安全预算”。
+- 虽然提高价格（例如提高 聪/字节 的交易费率）一定程度可以提高收入，但很不幸由于诸多链之间的竞争，盲目提高交易费率只会遭到市场的反扑，适得其反。
+- 更好的方法是一口吞下整个支付市场，把所有的交易费收入收入囊中。利用合并侧链挖矿，可以在不损害去中心化的前提下达成这一目标。
+
+## [Rethinking Sharding and Smart Contracts For Maximizing Blockchain Throughput](https://medium.com/swlh/rethinking-sharding-and-smart-contracts-for-maximizing-blockchain-throughput-acb7f5d32063#_ftn3)
+
+本文作者认为，作为一种已经假定可用的分片共识算法，一个突出的问题在于如何使用这些技术。  
+智能合约天然地会将交易串行化，除非使用复杂的 SIMD 类型的解决方案，就只能通过使用多个隔离的智能合约来提供扩展性。即使使用这一方案，每个智能合约的吞吐量仍会受到单个分片的吞吐量限制。  
+通过重新让用户账户来包含状态信息，并使用 XBOM 模型，DataGrid 区块链提供了一种提升分片可扩展性的解决方案——根据账户的数量和账户之间的不相交交易来进行扩展。除了支持继承和实时代码重用以外，我们认为这是一个对于区块链扩展性问题的重要的解决方案。
 
 ## [Dynamic Mediation Fees in Raiden Explained](https://medium.com/raiden-network/dynamic-mediation-fees-in-raiden-explained-dbc29f032e4b)
 
