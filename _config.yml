@@ -6,7 +6,7 @@ email: hello2mao@gmail.com
 description: ""
 keyword: ""
 url: "https://hello2mao.github.io"
-baseurl: "/"
+baseurl: ""
 
 # SNS settings
 github_username: hello2mao
@@ -64,3 +64,9 @@ featured-condition-size: 0 # A tag will be featured if the size of it is more th
 #         href: "#"
 #     }
 # ]
+
+plugins:
+  - jekyll-paginate
+
+paginate: 5
+paginate_path: "page:num"

@@ -6,27 +6,27 @@ header-img: "img/about-bg.jpg"
 ---
 
 <div class="zh post-container">
-  <p>
-    毛宏斌，软件工程师，目前从事容器及区块链相关研发工作。
-  </p>
+    <p>
+        毛宏斌，软件工程师，目前从事容器及区块链相关研发工作。
+    </p>
 </div>
 
 <div>
-  <!-- AICoin Widget Begin -->
-  <script
-    type="text/javascript"
-    src="https://widget.aicoin.net.cn/chart/js/aicoin.js"
-  ></script>
-  <script type="text/javascript">
-    new AICoin.markets({
-      symbols: ["huobiprobtcusdt", "huobiproethusdt"],
-      columns: ["degree", "hight", "low", "vol"],
-      style: "tr%7Bheight%3A34px%3B%7D",
-      container: "markets_container",
-      lang: "zh"
-    });
-  </script>
-  <!-- AICoin Widget End -->
+    <!-- AICoin Widget Begin -->
+    <script
+        type="text/javascript"
+        src="https://widget.aicoin.net.cn/chart/js/aicoin.js"
+    ></script>
+    <script type="text/javascript">
+        new AICoin.markets({
+            symbols: ["huobiprobtcusdt", "huobiproethusdt"],
+            columns: ["degree", "hight", "low", "vol"],
+            style: "tr%7Bheight%3A34px%3B%7D",
+            container: "markets_container",
+            lang: "zh"
+        });
+    </script>
+    <!-- AICoin Widget End -->
 </div>
 
 <!-- Include the library. -->
@@ -35,36 +35,36 @@ header-img: "img/about-bg.jpg"
 <link rel="stylesheet" href="/js/github-calendar-responsive.css" />
 <!-- Prepare a container for your calendar. -->
 <div class="calendar">
-  <!-- Loading stuff -->
+    <!-- Loading stuff -->
 </div>
 <script>
-  GitHubCalendar(".calendar", "hello2mao", { responsive: true });
+    GitHubCalendar(".calendar", "hello2mao", { responsive: true });
 </script>
 
 {% if site.disqus_username %}
 <!-- disqus 评论框 start -->
 <div class="comment">
-  <div id="disqus_thread" class="disqus-thread"></div>
+    <div id="disqus_thread" class="disqus-thread"></div>
 </div>
 <!-- disqus 评论框 end -->
 
 <!-- disqus 公共JS代码 start (一个网页只需插入一次) -->
 <script type="text/javascript">
-  /* * * CONFIGURATION VARIABLES * * */
-  var disqus_shortname = "{{site.disqus_username}}";
-  var disqus_identifier = "{{site.disqus_username}}/{{page.url}}";
-  var disqus_url = "{{site.url}}{{page.url}}";
+    /* * * CONFIGURATION VARIABLES * * */
+    var disqus_shortname = "{{site.disqus_username}}";
+    var disqus_identifier = "{{site.disqus_username}}/{{page.url}}";
+    var disqus_url = "{{site.url}}{{page.url}}";
 
-  (function() {
-    var dsq = document.createElement("script");
-    dsq.type = "text/javascript";
-    dsq.async = true;
-    dsq.src = "//" + disqus_shortname + ".disqus.com/embed.js";
-    (
-      document.getElementsByTagName("head")[0] ||
-      document.getElementsByTagName("body")[0]
-    ).appendChild(dsq);
-  })();
+    (function() {
+        var dsq = document.createElement("script");
+        dsq.type = "text/javascript";
+        dsq.async = true;
+        dsq.src = "//" + disqus_shortname + ".disqus.com/embed.js";
+        (
+            document.getElementsByTagName("head")[0] ||
+            document.getElementsByTagName("body")[0]
+        ).appendChild(dsq);
+    })();
 </script>
 <!-- disqus 公共JS代码 end -->
 {% endif %}
