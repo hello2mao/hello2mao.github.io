@@ -4,6 +4,7 @@ title: "NEO（小蚁）Seraph ID调研"
 subtitle: "NEO Seraph ID Research"
 date: 2019-09-24 17:51:11
 author: "hello2mao"
+header-img: "img/posts/NEO-Seraph-ID.jpg"
 tags:
     - blockchain
 ---
@@ -16,3 +17,13 @@ tags:
 
 报道详见：https://cryptoinfos.eu/decentralized-digital-identity-solution-neo-swisscom-blockchain/  
 NEO DevCon 2019 视频介绍：https://www.youtube.com/watch?time_continue=17432&v=DjSSvE7OmOI
+
+# 解析
+
+这个 Seraph ID 实际是 NEO 的 DID 实现方案，遵循的是 W3C 的 DID 标准：https://w3c-ccg.github.io/did-spec/
+
+# 参考
+
+-   [Seraph ID: Introducing Swisscom Blockchain’s digital identity solution on NEO](https://neonewstoday.com/general/seraph-id-introducing-swisscom-blockchains-digital-identity-solution-on-neo/)
+-   [seraphid.io](https://www.seraphid.io/)
+-   [white_paper](https://www.seraphid.io/assets/files/white_paper.pdf)
