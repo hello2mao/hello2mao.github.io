@@ -11,15 +11,15 @@ tags:
 
 <!-- TOC -->
 
--   [概述](#概述)
--   [解析](#解析)
-    -   [工作流程](#工作流程)
-    -   [密码学相关](#密码学相关)
--   [参考](#参考)
+-   [1. 概述](#1-概述)
+-   [2. 解析](#2-解析)
+    -   [2.1. 工作流程](#21-工作流程)
+    -   [2.2. 密码学相关](#22-密码学相关)
+-   [3. 参考](#3-参考)
 
 <!-- /TOC -->
 
-# 概述
+# 1. 概述
 
 近日，据外媒报道，NEO 携手瑞士最大的电信运营商瑞士电信（Swisscom）的子公司 Swisscom Blockchain，合作推出 Seraph ID 新技术——一个基于 NEO 底层技术的自主身份（SSI）框架。
 
@@ -28,17 +28,17 @@ tags:
 报道详见：https://cryptoinfos.eu/decentralized-digital-identity-solution-neo-swisscom-blockchain/  
 NEO DevCon 2019 视频介绍：https://www.youtube.com/watch?time_continue=17432&v=DjSSvE7OmOI
 
-# 解析
+# 2. 解析
 
 这个 Seraph ID 实际是 NEO 的 DID 实现方案，遵循的是 W3C 的 DID 标准：https://w3c-ccg.github.io/did-spec/
 
-## 工作流程
+## 2.1. 工作流程
 
 以租房为例举例此 DID 的工作流程如下：
 
 ![](/img/posts/seraphid-demo-workflow.png)
 
-## 密码学相关
+## 2.2. 密码学相关
 
 使用了如下密码学相关：
 
@@ -52,7 +52,7 @@ NEO DevCon 2019 视频介绍：https://www.youtube.com/watch?time_continue=17432
    • Murmur3
    • Scrypt
 
-# 参考
+# 3. 参考
 
 -   [Seraph ID: Introducing Swisscom Blockchain’s digital identity solution on NEO](https://neonewstoday.com/general/seraph-id-introducing-swisscom-blockchains-digital-identity-solution-on-neo/)
 -   [seraphid.io](https://www.seraphid.io/)
