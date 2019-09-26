@@ -9,24 +9,59 @@ tags:
     - blockchain
 ---
 
+<!-- TOC -->
+
+- [Randomness in blockchain protocols](#randomness-in-blockchain-protocols)
+- [Getting the most out of CREATE2](#getting-the-most-out-of-create2)
+- [A tweet storm explaining the history and state of Ethereum’s Casper research](#a-tweet-storm-explaining-the-history-and-state-of-ethereums-casper-research)
+- [Versionless Ethereum Virtual Machine](#versionless-ethereum-virtual-machine)
+- [Security Budget in the Long Run](#security-budget-in-the-long-run)
+- [Rethinking Sharding and Smart Contracts For Maximizing Blockchain Throughput](#rethinking-sharding-and-smart-contracts-for-maximizing-blockchain-throughput)
+- [Dynamic Mediation Fees in Raiden Explained](#dynamic-mediation-fees-in-raiden-explained)
+- [It’s the settlement assurances, stupid](#its-the-settlement-assurances-stupid)
+- [Lightning Network Routing: Privacy and Efficiency in a Positive-Sum Game](#lightning-network-routing-privacy-and-efficiency-in-a-positive-sum-game)
+- [4 Eras of Blockchain Computing: Degrees of Composability](#4-eras-of-blockchain-computing-degrees-of-composability)
+- [Solving Identity for the New Decentralized Economy](#solving-identity-for-the-new-decentralized-economy)
+- [Web3.0 的宏观架构](#web30-%e7%9a%84%e5%ae%8f%e8%a7%82%e6%9e%b6%e6%9e%84)
+- [Overview of Layer 2 approaches: Plasma, State Channels, Side Chains, Roll Ups](#overview-of-layer-2-approaches-plasma-state-channels-side-chains-roll-ups)
+    - [Plasma](#plasma)
+    - [状态通道](#%e7%8a%b6%e6%80%81%e9%80%9a%e9%81%93)
+    - [侧链](#%e4%be%a7%e9%93%be)
+    - [Roll Up](#roll-up)
+- [Geth v1.9.0: Six months distilled](#geth-v190-six-months-distilled)
+- [Blockchain search engine — real-time data for decentralized applications (DApps)](#blockchain-search-engine--real-time-data-for-decentralized-applications-dapps)
+- [What's New in Eth2](#whats-new-in-eth2)
+    - [Phase 0：信标链](#phase-0%e4%bf%a1%e6%a0%87%e9%93%be)
+    - [Phase 1：分片](#phase-1%e5%88%86%e7%89%87)
+    - [Phase 2：虚拟机，即执行层](#phase-2%e8%99%9a%e6%8b%9f%e6%9c%ba%e5%8d%b3%e6%89%a7%e8%a1%8c%e5%b1%82)
+- [V 神最新演讲：以太坊 2.0 之跨分片交易](#v-%e7%a5%9e%e6%9c%80%e6%96%b0%e6%bc%94%e8%ae%b2%e4%bb%a5%e5%a4%aa%e5%9d%8a-20-%e4%b9%8b%e8%b7%a8%e5%88%86%e7%89%87%e4%ba%a4%e6%98%93)
+- [Anonymous Zether: Technical Report](#anonymous-zether-technical-report)
+- [A nearly-trivial-on-zero-inputs 32-bytes-long collision-resistant hash function](#a-nearly-trivial-on-zero-inputs-32-bytes-long-collision-resistant-hash-function)
+- [StarkDEX: Bringing STARKs to Ethereum](#starkdex-bringing-starks-to-ethereum)
+- [Work to natively integrate Eth1 into Eth2](#work-to-natively-integrate-eth1-into-eth2)
+- [Ethereum 2.0 Deposit Merkle Tree](#ethereum-20-deposit-merkle-tree)
+- [Formal Verification of Ethereum 2.0 Deposit Contract](#formal-verification-of-ethereum-20-deposit-contract)
+
+<!-- /TOC -->
+
 ## [Randomness in blockchain protocols](https://nearprotocol.com/blog/randomness-in-blockchain-protocols/)
 
-本文将介绍分布式随机信标的基础知识，说明为何朴素的技术方案无法达成效果，然后介绍 RANDAO、DFinity以及 NEAR 协议所采用的随机信标方案，并逐一剖析其优越性与不足之处。
+本文将介绍分布式随机信标的基础知识，说明为何朴素的技术方案无法达成效果，然后介绍 RANDAO、DFinity 以及 NEAR 协议所采用的随机信标方案，并逐一剖析其优越性与不足之处。
 
-- RANDAO：网络中的所有人首先各自私下选定某个随机数，然后向 RANDAO 提交该随机数的承诺，接着所有人根据一定的共识算法从所有的承诺中选定一组；在参与者揭示这组承诺背后的随机数之后，大家对该组随机数达成共识；最后这组随机数进行异或操作得到的结果就是一轮 RANDO 协议产生的随机数。
-- RANDAO + VDFs：替换掉最后的那个异或计算，将其改变为执行时间必定长于各方随机数揭露等待期的操作。
-- 门限签名：系统中参与者首先对某则他们未来会进行签名的信息达成一致（可以是 RANDAO 的输出，也可以是最近一个区块的哈希，只要是每次都不一样的值就可以了），然后就此产生一个聚合签名作为随机数。
-- RandShare：RandShare 是一个无偏见且不可预测的协议，支持 1/3 恶意节点容错。原理：略。
-- NEAR 方案：NEAR 能保证 2/3 恶意节点的容错。原理：略。当前 NEAR 协议架构已经应用了类似的纠删码思想，系统中区块生产者会在特定时期内创建一些分块，其中包含了对于某一特定分片的所有交易，然后将分块进行纠删码编码后的版本附带默尔克证明发送给其它区块生产者，以保证数据可用性。
+-   RANDAO：网络中的所有人首先各自私下选定某个随机数，然后向 RANDAO 提交该随机数的承诺，接着所有人根据一定的共识算法从所有的承诺中选定一组；在参与者揭示这组承诺背后的随机数之后，大家对该组随机数达成共识；最后这组随机数进行异或操作得到的结果就是一轮 RANDO 协议产生的随机数。
+-   RANDAO + VDFs：替换掉最后的那个异或计算，将其改变为执行时间必定长于各方随机数揭露等待期的操作。
+-   门限签名：系统中参与者首先对某则他们未来会进行签名的信息达成一致（可以是 RANDAO 的输出，也可以是最近一个区块的哈希，只要是每次都不一样的值就可以了），然后就此产生一个聚合签名作为随机数。
+-   RandShare：RandShare 是一个无偏见且不可预测的协议，支持 1/3 恶意节点容错。原理：略。
+-   NEAR 方案：NEAR 能保证 2/3 恶意节点的容错。原理：略。当前 NEAR 协议架构已经应用了类似的纠删码思想，系统中区块生产者会在特定时期内创建一些分块，其中包含了对于某一特定分片的所有交易，然后将分块进行纠删码编码后的版本附带默尔克证明发送给其它区块生产者，以保证数据可用性。
 
 ## [Getting the most out of CREATE2](https://blog.openzeppelin.com/getting-the-most-out-of-create2/)
 
 本文深入探讨 CREATE2 操作码及其在反事实实例化（counterfactual instantiation）以及用户引导中的应用，介绍了如何将 CREATE2 与初始化程序、代理以及元交易等不同的技术相结合并投入应用。这些技术为创建用户身份开辟了新的方法，甚至能让我们在创建身份之前快速迭代并修复漏洞。
 
-- 利用外部账户（EOA）或者使用原生 CREATE 操作的合约账户创建一个合约，很容易就能确定被创建合约的地址：合约地址 = hash (发送者地址, nonce )
-- 反事实实例化 是在广义状态通道的背景下逐渐流行起来的概念。它指的是创建一个还未部署上链，但满足有可能部署上链这一事实条件的合约。
-- CREATE2 是在君士坦丁堡硬分叉过程中引入的新操作码，用来替代原来的 CREATE 操作码。两种操作码的主要区别在于合约地址的计算方法。新的操作码不再依赖于账户的 nonce ，而是对以下参数进行哈希计算，得出新的地址：合约创建者的地址、作为参数的混淆值（salt）、合约创建代码。这些参数都不依赖于合约创建者的状态。这意味着你可以尽情创建合约而无需考虑 nonce，同时还可以在有需要的时候将这些合约部署到被保留的地址。
-- 在该操作码中添加代理可以降低我们的部署成本，同时还能将对身份合约所用的逻辑合约的选择推迟到实际需要之时。这可以让我们更加灵活地对身份合约的实现进行快速迭代，并确保用户无论在何时保留的身份合约地址，都会被直接引导至最新版本。
+-   利用外部账户（EOA）或者使用原生 CREATE 操作的合约账户创建一个合约，很容易就能确定被创建合约的地址：合约地址 = hash (发送者地址, nonce )
+-   反事实实例化 是在广义状态通道的背景下逐渐流行起来的概念。它指的是创建一个还未部署上链，但满足有可能部署上链这一事实条件的合约。
+-   CREATE2 是在君士坦丁堡硬分叉过程中引入的新操作码，用来替代原来的 CREATE 操作码。两种操作码的主要区别在于合约地址的计算方法。新的操作码不再依赖于账户的 nonce ，而是对以下参数进行哈希计算，得出新的地址：合约创建者的地址、作为参数的混淆值（salt）、合约创建代码。这些参数都不依赖于合约创建者的状态。这意味着你可以尽情创建合约而无需考虑 nonce，同时还可以在有需要的时候将这些合约部署到被保留的地址。
+-   在该操作码中添加代理可以降低我们的部署成本，同时还能将对身份合约所用的逻辑合约的选择推迟到实际需要之时。这可以让我们更加灵活地对身份合约的实现进行快速迭代，并确保用户无论在何时保留的身份合约地址，都会被直接引导至最新版本。
 
 ## [A tweet storm explaining the history and state of Ethereum’s Casper research](https://medium.com/taipei-ethereum-meetup/history-and-state-of-ethereums-casper-research-85e8fba26002)
 

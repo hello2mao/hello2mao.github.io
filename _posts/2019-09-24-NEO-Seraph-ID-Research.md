@@ -9,6 +9,14 @@ tags:
     - blockchain
 ---
 
+<!-- TOC -->
+
+-   [概述](#概述)
+-   [解析](#解析)
+-   [参考](#参考)
+
+<!-- /TOC -->
+
 # 概述
 
 近日，据外媒报道，NEO 携手瑞士最大的电信运营商瑞士电信（Swisscom）的子公司 Swisscom Blockchain，合作推出 Seraph ID 新技术——一个基于 NEO 底层技术的自主身份（SSI）框架。

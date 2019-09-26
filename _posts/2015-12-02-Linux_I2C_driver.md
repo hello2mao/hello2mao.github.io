@@ -1,84 +1,84 @@
 ---
-layout:     post
-title:      "详解Linux-I2C驱动"
-subtitle:   "Linux I2C driver"
-date:       2015-12-02 12:00:43
-author:     "hello2mao"
+layout: post
+title: "详解Linux-I2C驱动"
+subtitle: "Linux I2C driver"
+date: 2015-12-02 12:00:43
+author: "hello2mao"
 tags:
     - linux
 ---
 
 #目录
 
-* [一、LinuxI2C驱动--概述](#1)
-* [1.1 写在前面](#1.1)
-* [1.2 I2C](#1.2)
-* [1.3 硬件](#1.3)
-* [1.4 软件](#1.4)
-* [1.5 参考](#1.5)
-* [二、LinuxI2C驱动--I2C总线](#2)
-* [2.1 I2C总线物理结构](#2.1)
-* [2.2 I2C总线特性](#2.2)
-* [2.3 开始和停止条件](#2.3)
-* [2.4 数据传输格式](#2.4)
-* [2.5 响应](#2.5)
-* [2.6 总线仲裁](#2.6)
-* [三、LinuxI2C驱动--解析EEPROM的读写](#3)
-* [3.1 概述](#3.1)
-* [3.2 设备地址](#3.2)
-* [3.3 读eeprom](#3.3)
-* [3.4 写eeprom](#3.4)
-* [四、LinuxI2C驱动--从两个访问eeprom的例子开始](#4)
-* [4.1 通过sysfs文件系统访问I2C设备](#4.1)
-* [4.2 通过devfs访问I2C设备](#4.2)
-* [4.3 总结](#4.3)
-* [五、LinuxI2C驱动--浅谈LinuxI2C驱动架构](#5)
-* [5.1 I2C体系结构](#5.1)
-* [5.2 I2C重要数据结构](#5.2)
-* [六、LinuxI2C驱动--I2C设备驱动](#6)
-* [6.1 eeprom板级设备资源](#6.1)
-* [6.2 AT24C01A EEPROM 的I2C设备驱动](#6.2)
-* [6.2.1 at24_driver](#6.2.1)
-* [6.2.2 at24probe() / at24remove()](#6.2.2)
-* [6.2.3 at24binread()](#6.2.3)
-* [6.2.4 at24binwrite()](#6.2.4)
-* [6.3 总结](#6.3)
-* [七、LinuxI2C驱动--I2C总线驱动](#7)
-* [7.1 三星S5PV210 i2c适配器的硬件描述](#7.1)
-* [7.2 i2c总线驱动的加载/卸载](#7.2)
-* [7.3 i2c总线驱动的probe](#7.3)
-* [7.4 启动i2c传输](#7.4)
-* [7.5 通过中断来推进i2c的传输](#7.5)
-* [7.6 总结](#7.6)
+-   [一、LinuxI2C 驱动--概述](#1)
+-   [1.1 写在前面](#1.1)
+-   [1.2 I2C](#1.2)
+-   [1.3 硬件](#1.3)
+-   [1.4 软件](#1.4)
+-   [1.5 参考](#1.5)
+-   [二、LinuxI2C 驱动--I2C 总线](#2)
+-   [2.1 I2C 总线物理结构](#2.1)
+-   [2.2 I2C 总线特性](#2.2)
+-   [2.3 开始和停止条件](#2.3)
+-   [2.4 数据传输格式](#2.4)
+-   [2.5 响应](#2.5)
+-   [2.6 总线仲裁](#2.6)
+-   [三、LinuxI2C 驱动--解析 EEPROM 的读写](#3)
+-   [3.1 概述](#3.1)
+-   [3.2 设备地址](#3.2)
+-   [3.3 读 eeprom](#3.3)
+-   [3.4 写 eeprom](#3.4)
+-   [四、LinuxI2C 驱动--从两个访问 eeprom 的例子开始](#4)
+-   [4.1 通过 sysfs 文件系统访问 I2C 设备](#4.1)
+-   [4.2 通过 devfs 访问 I2C 设备](#4.2)
+-   [4.3 总结](#4.3)
+-   [五、LinuxI2C 驱动--浅谈 LinuxI2C 驱动架构](#5)
+-   [5.1 I2C 体系结构](#5.1)
+-   [5.2 I2C 重要数据结构](#5.2)
+-   [六、LinuxI2C 驱动--I2C 设备驱动](#6)
+-   [6.1 eeprom 板级设备资源](#6.1)
+-   [6.2 AT24C01A EEPROM 的 I2C 设备驱动](#6.2)
+-   [6.2.1 at24_driver](#6.2.1)
+-   [6.2.2 at24probe() / at24remove()](#6.2.2)
+-   [6.2.3 at24binread()](#6.2.3)
+-   [6.2.4 at24binwrite()](#6.2.4)
+-   [6.3 总结](#6.3)
+-   [七、LinuxI2C 驱动--I2C 总线驱动](#7)
+-   [7.1 三星 S5PV210 i2c 适配器的硬件描述](#7.1)
+-   [7.2 i2c 总线驱动的加载/卸载](#7.2)
+-   [7.3 i2c 总线驱动的 probe](#7.3)
+-   [7.4 启动 i2c 传输](#7.4)
+-   [7.5 通过中断来推进 i2c 的传输](#7.5)
+-   [7.6 总结](#7.6)
 
 <h2 id="1">一、LinuxI2C驱动--概述</h2>
 <h3 id="1.1">1.1 写在前面</h3>
 本人学生一枚，之前没有详细的接触过linux驱动，只是读过宋宝华的《Linux设备驱动开发详解》，这段时间想静下心来学习下linux i2c驱动，在网上找了很多资料，前辈们写的文章让我受益匪浅，但是一开始上手真的很痛苦，基本上大家都是从linux i2c体系结构的三大组成谈起：i2c核心，i2c总线驱动，i2c设备驱动，好抽象。所以我才想写这个文章，从一个新人的角度分享下我学习linux i2c驱动的心得，写的不对的地方欢迎大家批评指正。
 
-因为对Linux设备模型还不是很熟悉，所以我按照如何去实现一个i2c传输来讲述，对于平台总线、设备与总线如何去匹配等暂时忽略。
+因为对 Linux 设备模型还不是很熟悉，所以我按照如何去实现一个 i2c 传输来讲述，对于平台总线、设备与总线如何去匹配等暂时忽略。
 
 当然很多东西都是我从网上搜刮而来的，也请大家原谅。我会把一些有用的博文链接放在后面，希望对大家有用。
 
 <h3 id="1.2">1.2 I2C</h3>
 I2C总线是由Philips公司开发的两线式串行总线，这两根线为时钟线(SCL)和双向数据线(SDA)。由于I2C总线仅需要两根线，因此在电路板上占用的空间更少，带来的问题是带宽较窄。I2C在标准模式下传输速率最高100Kb/s，在快速模式下最高可达400kb/s。属于半双工。
 
-在嵌入式系统中，I2C应用非常广泛，大多数微控制器中集成了I2C总线，一般用于和RTC，EEPROM，智能电池电路，传感器，LCD以及其他类似设备之间的通信。
+在嵌入式系统中，I2C 应用非常广泛，大多数微控制器中集成了 I2C 总线，一般用于和 RTC，EEPROM，智能电池电路，传感器，LCD 以及其他类似设备之间的通信。
 
 <h3 id="1.3">1.3 硬件</h3>
 开发板：飞凌OK210
 
-CPU型号：Samsung S5PV210
+CPU 型号：Samsung S5PV210
 
-EEPROM型号：AT24C01A
+EEPROM 型号：AT24C01A
 
 ![linux-i2c-1.3.png](https://raw.githubusercontent.com/hello2mao/hello2mao.github.io/f68f7e805c54be0eeee638d9c194c6a650ae3a3c/public/img/technology/linux-i2c-1.3.png)
 
 <h3 id="1.4">1.4 软件</h3>
 linux版本：Linux 2.6.35.7
 
-I2C总线驱动：drivers/i2c/busses/i2c-s3c2410.c
+I2C 总线驱动：drivers/i2c/busses/i2c-s3c2410.c
 
-eeprom驱动：drivers/misc/eeprom/at24.c
+eeprom 驱动：drivers/misc/eeprom/at24.c
 
 <h3 id="1.5">1.5 参考</h3>
 * 《Linux设备驱动开发详解》 宋宝华
@@ -95,7 +95,7 @@ eeprom驱动：drivers/misc/eeprom/at24.c
 
 ![linux-i2c-2.1.png](https://raw.githubusercontent.com/hello2mao/hello2mao.github.io/f68f7e805c54be0eeee638d9c194c6a650ae3a3c/public/img/technology/linux-i2c-2.1.png)
 
-I2C总线在物理连接上非常简单，分别由SDA(串行数据线)和SCL(串行时钟线)及上拉电阻组成。通信原理是通过对SCL和SDA线高低电平时序的控制，来产生I2C总线协议所需要的信号进行数据的传递。在总线空闲状态时，这两根线一般被上面所接的上拉电阻拉高，保持着高电平。
+I2C 总线在物理连接上非常简单，分别由 SDA(串行数据线)和 SCL(串行时钟线)及上拉电阻组成。通信原理是通过对 SCL 和 SDA 线高低电平时序的控制，来产生 I2C 总线协议所需要的信号进行数据的传递。在总线空闲状态时，这两根线一般被上面所接的上拉电阻拉高，保持着高电平。
 
 <h3 id="2.2">2.2 I2C总线特性</h3>
 * 每个连接到总线的器件都可以通过唯一的地址和一直存在的简单的主机/从机关系来软件设定地址
@@ -121,14 +121,14 @@ I2C总线在物理连接上非常简单，分别由SDA(串行数据线)和SCL(�
 <h3 id="2.5">2.5 响应</h3>
 数据传输必须带响应，响应时钟脉冲由主机产生，在SCL的第9个时钟脉冲上，前8个时钟脉冲用来传输8位即1byte的数据。
 
-当发送端收到响应时钟脉冲的时候就会拉高SDA从而释放SDA线，而接收端通过拉低SDA先来表示收到数据，即SDA在响应期间保持低电平。
+当发送端收到响应时钟脉冲的时候就会拉高 SDA 从而释放 SDA 线，而接收端通过拉低 SDA 先来表示收到数据，即 SDA 在响应期间保持低电平。
 
 ![linux-i2c-2.5.png](https://raw.githubusercontent.com/hello2mao/hello2mao.github.io/f68f7e805c54be0eeee638d9c194c6a650ae3a3c/public/img/technology/linux-i2c-2.5.png)
 
 <h3 id="2.6">2.6 总线仲裁</h3>
 当两个主机在总线上产生竞争时就需要仲裁。
 
-SDA线低电平的优先级高于高电平。当一个主机首先产生低电平，而紧接着另一个主机产生高电平，但是由于低电平的优先级高于高电平，所以总线成低电平，也就是发低电平的主机占有总线而发高电平的主机不占有总线。如果两个主机都是发送低电平，那么继续比较下一个时钟周期的电平来决定谁占有总线，以此类推。
+SDA 线低电平的优先级高于高电平。当一个主机首先产生低电平，而紧接着另一个主机产生高电平，但是由于低电平的优先级高于高电平，所以总线成低电平，也就是发低电平的主机占有总线而发高电平的主机不占有总线。如果两个主机都是发送低电平，那么继续比较下一个时钟周期的电平来决定谁占有总线，以此类推。
 
 ![linux-i2c-2.6.png](https://raw.githubusercontent.com/hello2mao/hello2mao.github.io/f68f7e805c54be0eeee638d9c194c6a650ae3a3c/public/img/technology/linux-i2c-2.6.png)
 
@@ -143,19 +143,19 @@ AT24C01A的存储大小是1K，页大小是8个字节。
 <h3 id="3.2">3.2 设备地址</h3>
 ![linux-i2c-3.2.png](https://raw.githubusercontent.com/hello2mao/hello2mao.github.io/f68f7e805c54be0eeee638d9c194c6a650ae3a3c/public/img/technology/linux-i2c-3.2.png)
 
-7位地址，前四位是1010，后三位由芯片引脚决定，由原理图可知后三位是000，也就是设备地址为0x50，因为数据传输是8位的，最后一位决定是读还是写。
+7 位地址，前四位是 1010，后三位由芯片引脚决定，由原理图可知后三位是 000，也就是设备地址为 0x50，因为数据传输是 8 位的，最后一位决定是读还是写。
 
 <h3 id="3.3">3.3 读eeprom</h3>
 ![linux-i2c-3.3.png](https://raw.githubusercontent.com/hello2mao/hello2mao.github.io/f68f7e805c54be0eeee638d9c194c6a650ae3a3c/public/img/technology/linux-i2c-3.3.png)
 
-读任意地址eeprom的数据，首先第一个字节得先在SDA上发出eeprom的设备地址，也就是0x50，并且8位数据的最后一位是低电平表示写设备，然后第二个字节是要读的数据在eeprom内的地址，这样以后再产生开始条件，第三个字节在SDA上发出设备地址，此时的最后一位是高电平，表示读设备，第四个字节的数据就是读eeprom的对应地址的数据。
+读任意地址 eeprom 的数据，首先第一个字节得先在 SDA 上发出 eeprom 的设备地址，也就是 0x50，并且 8 位数据的最后一位是低电平表示写设备，然后第二个字节是要读的数据在 eeprom 内的地址，这样以后再产生开始条件，第三个字节在 SDA 上发出设备地址，此时的最后一位是高电平，表示读设备，第四个字节的数据就是读 eeprom 的对应地址的数据。
 
-可以看到，读eeprom需要两个开始条件，也就是2条消息，第一条消息写eeprom确定读的位置，大小为2个字节，第二条消息才是真正的读eeprom。
+可以看到，读 eeprom 需要两个开始条件，也就是 2 条消息，第一条消息写 eeprom 确定读的位置，大小为 2 个字节，第二条消息才是真正的读 eeprom。
 
 <h3 id="3.4">3.4 写eeprom</h3>
 ![linux-i2c-3.4.png](https://raw.githubusercontent.com/hello2mao/hello2mao.github.io/f68f7e805c54be0eeee638d9c194c6a650ae3a3c/public/img/technology/linux-i2c-3.4.png)
 
-写eeprom就相对简单，只需一个开始条件，第一个字节发出设备地址和置最低位为低电平表示写eeprom，第二个字节发出要读数据在eerpom的地址，第三个字节读到的数据就对应地址在eeprom上的数据
+写 eeprom 就相对简单，只需一个开始条件，第一个字节发出设备地址和置最低位为低电平表示写 eeprom，第二个字节发出要读数据在 eerpom 的地址，第三个字节读到的数据就对应地址在 eeprom 上的数据
 
 <h2 id="4">四、LinuxI2C驱动--从两个访问eeprom的例子开始</h2>
 本小节介绍两个在linux应用层访问eeprom的方法，并给出示例代码方便大家理解。第一个方法是通过sysfs文件系统对eeprom进行访问，第二个方法是通过eeprom的设备文件进行访问。这两个方法分别对应了i2c设备驱动的两个不同的实现，在后面的小结会详细的分析。
@@ -163,15 +163,16 @@ AT24C01A的存储大小是1K，页大小是8个字节。
 <h3 id="4.1">4.1 通过sysfs文件系统访问I2C设备</h3>
 eeprom的设备驱动在/sys/bus/i2c/devices/0-0050/目录下把eeprom设备映射为一个二进制节点，文件名为eeprom。对这个eeprom文件的读写就是对eeprom进行读写。
 
-我们可以先用cat命令来看下eeprom的内容。
+我们可以先用 cat 命令来看下 eeprom 的内容。
 
     [root@FORLINX210]# cat eeprom
     �����������X�����������������������������������������������
-发现里面都是乱码，然后用echo命令把字符串“test”输入给eeprom文件，然后再cat出来。
 
-就会发现字符串test已经存在eeprom里面了，我们知道sysfs文件系统断电后就没了，也无法对数据进行保存，为了验证确实把“test”字符串存储在了eeprom，可以把系统断电重启，然后cat eeprom，会发现test还是存在的，证明确实对eeprom进行了写入操作。
+发现里面都是乱码，然后用 echo 命令把字符串“test”输入给 eeprom 文件，然后再 cat 出来。
 
-当然，因为eeprom已经映射为一个文件了，我们还可以通过文件I/O写应用程序对其进行简单的访问测试。比如以下程序对特定地址（0x40）写入特定数据（Hi,this is an eepromtest!），然后再把写入的数据在此地址上读出来。
+就会发现字符串 test 已经存在 eeprom 里面了，我们知道 sysfs 文件系统断电后就没了，也无法对数据进行保存，为了验证确实把“test”字符串存储在了 eeprom，可以把系统断电重启，然后 cat eeprom，会发现 test 还是存在的，证明确实对 eeprom 进行了写入操作。
+
+当然，因为 eeprom 已经映射为一个文件了，我们还可以通过文件 I/O 写应用程序对其进行简单的访问测试。比如以下程序对特定地址（0x40）写入特定数据（Hi,this is an eepromtest!），然后再把写入的数据在此地址上读出来。
 
     #include<stdio.h>
     #include<stdlib.h>
@@ -218,7 +219,7 @@ eeprom的设备驱动在/sys/bus/i2c/devices/0-0050/目录下把eeprom设备映�
 <h3 id="4.2">4.2 通过devfs访问I2C设备</h3>
 linux的i2c驱动会针对每个i2c适配器在/dev/目录下生成一个主设备号为89的设备文件，简单的来说，对于本例的eeprom驱动，/dev/i2c/0就是它的设备文件，因此接下来的eeprom的访问就变为了对此设备文件的访问。
 
-我们需要用到两个结构体i2c_msg和i2c_rdwr_ioctl_data。
+我们需要用到两个结构体 i2c_msg 和 i2c_rdwr_ioctl_data。
 
     struct i2c_msg { //i2c消息结构体，每个i2c消息对应一个结构体
      __u16 addr; /* 从设备地址，此处就是eeprom地址，即0x50 */
@@ -232,7 +233,7 @@ linux的i2c驱动会针对每个i2c适配器在/dev/目录下生成一个主设�
      __u32 nmsgs;            /* i2c消息的数量 */
     };
 
-对一个eeprom上的特定地址（0x10）写入特定数据（0x58）并在从此地址读出写入数据的示例程序如下所示。
+对一个 eeprom 上的特定地址（0x10）写入特定数据（0x58）并在从此地址读出写入数据的示例程序如下所示。
 
     #include <stdio.h>
     #include <linux/types.h>
@@ -307,22 +308,22 @@ linux的i2c驱动会针对每个i2c适配器在/dev/目录下生成一个主设�
 <h3 id="4.3">4.3 总结</h3>
 本小节介绍了两种在linux应用层访问eeprom的方法，并且给出了示例程序，通过sysfs文件系统访问eeprom操作简单，无需了解eeprom的硬件特性以及访问时序，而通过devfs访问eeprom的方法则需要了解eeprom的读写时序。
 
-后面分析后会发现，第一种通过sysfs文件系统的二进制结点访问eeprom的方法是由eeprom的设备驱动实现的，是一种专有的方法；而第二种通过devfs访问eeprom的方法是linux i2c提供的一种通用的方法，访问设备的能力有限。
+后面分析后会发现，第一种通过 sysfs 文件系统的二进制结点访问 eeprom 的方法是由 eeprom 的设备驱动实现的，是一种专有的方法；而第二种通过 devfs 访问 eeprom 的方法是 linux i2c 提供的一种通用的方法，访问设备的能力有限。
 
 <h2 id="5">五、LinuxI2C驱动--浅谈LinuxI2C驱动架构</h2>
 前面几个小结介绍了i2c总线的协议，又介绍了我们关注的eeprom的读写访问时序，还给出了两个访问eeprom的例子，我的目的是为了能更好的理解后面解析Linux下i2c驱动。
 
-网上介绍Linux I2C驱动架构的文章非常的多，我把这些内容做了个归纳与简化，但是在搬出这些非常抽象的内容之前，我想先谈下我的理解。
+网上介绍 Linux I2C 驱动架构的文章非常的多，我把这些内容做了个归纳与简化，但是在搬出这些非常抽象的内容之前，我想先谈下我的理解。
 
 如下图
 
 ![linux-i2c-5.0.png](https://raw.githubusercontent.com/hello2mao/hello2mao.github.io/f68f7e805c54be0eeee638d9c194c6a650ae3a3c/public/img/technology/linux-i2c-5.0.png)
 
-图中画了一个三星的s5pv210处理器，在处理器的里面集成了一个I2C适配器，外面有一个eeprom，通过SDA、SCL连接到cpu内集成的i2c适配器上。这样cpu就可以控制i2c适配器与外部的eeprom进行交互，也就是i2c适配器产生符合i2c协议的信号与eeprom进行通信。
+图中画了一个三星的 s5pv210 处理器，在处理器的里面集成了一个 I2C 适配器，外面有一个 eeprom，通过 SDA、SCL 连接到 cpu 内集成的 i2c 适配器上。这样 cpu 就可以控制 i2c 适配器与外部的 eeprom 进行交互，也就是 i2c 适配器产生符合 i2c 协议的信号与 eeprom 进行通信。
 
-所以对应到linux驱动下，控制i2c适配器有一套驱动代码，叫做i2c总线驱动，是用来产生i2c时序信号的，可以发送和接受数据；控制eeprom有一套驱动代码，叫做i2c设备驱动，这套驱动代码才是真正的对硬件eeprom控制。这也符合linux设备驱动分层的思想。而两套驱动代码之间有一个i2c核心，用来起到承上启下的作用。
+所以对应到 linux 驱动下，控制 i2c 适配器有一套驱动代码，叫做 i2c 总线驱动，是用来产生 i2c 时序信号的，可以发送和接受数据；控制 eeprom 有一套驱动代码，叫做 i2c 设备驱动，这套驱动代码才是真正的对硬件 eeprom 控制。这也符合 linux 设备驱动分层的思想。而两套驱动代码之间有一个 i2c 核心，用来起到承上启下的作用。
 
-以一个写eeprom为例，应用层发出写eeprom消息，i2c设备驱动接到消息，把消息封装成一个前文提到的i2c消息结构体，然后经i2c核心的调度把消息传给i2c适配器，i2c适配器就根据当前cpu的i2c总线协议把消息通过SDA和SCL发给了eeprom。
+以一个写 eeprom 为例，应用层发出写 eeprom 消息，i2c 设备驱动接到消息，把消息封装成一个前文提到的 i2c 消息结构体，然后经 i2c 核心的调度把消息传给 i2c 适配器，i2c 适配器就根据当前 cpu 的 i2c 总线协议把消息通过 SDA 和 SCL 发给了 eeprom。
 
 接下来开始搬运，，
 
@@ -331,34 +332,34 @@ linux的i2c体系结构分为三个组成部分。放张图加深理解。
 
 ![linux-i2c-5.0.png](https://raw.githubusercontent.com/hello2mao/hello2mao.github.io/f68f7e805c54be0eeee638d9c194c6a650ae3a3c/public/img/technology/linux-i2c-5.0.png)
 
-（1）i2c核心
+（1）i2c 核心
 
-提供了I2C总线驱动的注册、注销方法
-提供了I2C设备驱动的注册、注销方法
-提供了I2C通信方法(algorithm)
+提供了 I2C 总线驱动的注册、注销方法
+提供了 I2C 设备驱动的注册、注销方法
+提供了 I2C 通信方法(algorithm)
 对应代码：drivers/i2c/i2c-core.c
 
-（2）i2c总线驱动
+（2）i2c 总线驱动
 
-I2C总线驱动是对I2C硬件体系结构中适配器端的实现，适配器可由CPU控制，甚至集成在CPU内部(大多数微控制器都这么做)。适配器就是我们经常所说的控制器。
+I2C 总线驱动是对 I2C 硬件体系结构中适配器端的实现，适配器可由 CPU 控制，甚至集成在 CPU 内部(大多数微控制器都这么做)。适配器就是我们经常所说的控制器。
 
-经由I2C总线驱动的代码，我们可以控制I2C适配器以主控方式产生开始位，停止位，读写周期，以及以从设备方式被读写，产生ACK等。
+经由 I2C 总线驱动的代码，我们可以控制 I2C 适配器以主控方式产生开始位，停止位，读写周期，以及以从设备方式被读写，产生 ACK 等。
 
-I2C总线驱动由i2c_adapter和i2c_algorithm来描述
+I2C 总线驱动由 i2c_adapter 和 i2c_algorithm 来描述
 对应代码：drivers/i2c/busses/i2c-s3c2410.c
 
-（3）i2c设备驱动
+（3）i2c 设备驱动
 
-I2C设备驱动是对I2C硬件体系结构中设备端的实现，设备一般挂接在收CPU控制的I2C适配器上，通过I2C适配器与CPU交换数据。
+I2C 设备驱动是对 I2C 硬件体系结构中设备端的实现，设备一般挂接在收 CPU 控制的 I2C 适配器上，通过 I2C 适配器与 CPU 交换数据。
 
-I2C设备驱动程序由i2c_driver来描述
+I2C 设备驱动程序由 i2c_driver 来描述
 
 对应代码：drivers/misc/eeprom/at24.c
 
 <h3 id="5.2">5.2 I2C重要数据结构</h3>
 在include/linux/i2c.h中定义四个I2C驱动中重要的数据结构：i2c_adapter,i2c_algorithm,i2c_driver,i2c_client.
 
-i2c_adapter对应物理上的一个i2c适配器
+i2c_adapter 对应物理上的一个 i2c 适配器
 
     struct i2c_adapter {
       struct module *owner;//所属模块
@@ -381,7 +382,7 @@ i2c_adapter对应物理上的一个i2c适配器
       struct list_head userspace_clients;
     };
 
-i2c_algorithm对应一套通讯方法
+i2c_algorithm 对应一套通讯方法
 
     struct i2c_algorithm {
       int (*master_xfer)(struct i2c_adapter *adap, struct i2c_msg *msgs,
@@ -393,7 +394,8 @@ i2c_algorithm对应一套通讯方法
       /* To determine what the adapter supports */
       u32 (*functionality) (struct i2c_adapter *);//返回说支持的通讯协议
     };
-i2c_driver对应一套驱动方法
+
+i2c_driver 对应一套驱动方法
 
     struct i2c_driver {
      unsigned int class;
@@ -412,7 +414,7 @@ i2c_driver对应一套驱动方法
      struct list_head clients;
     };
 
-i2c_client对应真实的物理设备，每个i2c设备都需要一个i2c_client来描述
+i2c_client 对应真实的物理设备，每个 i2c 设备都需要一个 i2c_client 来描述
 
     struct i2c_client {
      unsigned short flags;       /* div., see below      */
@@ -427,8 +429,8 @@ i2c_client对应真实的物理设备，每个i2c设备都需要一个i2c_client
      struct list_head detected;
     };
 
-（1）i2c_adapter与i2c_algorithm
-一个I2C适配器需要i2c_algorithm中提供的通信函数来控制适配器上产生特定的访问周期。i2c_algorithm中的关键函数master_xfer()用于产生I2C访问周期需要的信号，以i2c_msg为单位。
+（1）i2c_adapter 与 i2c_algorithm
+一个 I2C 适配器需要 i2c_algorithm 中提供的通信函数来控制适配器上产生特定的访问周期。i2c_algorithm 中的关键函数 master_xfer()用于产生 I2C 访问周期需要的信号，以 i2c_msg 为单位。
 
     struct i2c_msg {
      __u16 addr; /* slave address            */
@@ -437,13 +439,11 @@ i2c_client对应真实的物理设备，每个i2c设备都需要一个i2c_client
      __u8 *buf;      /* pointer to msg data          */
     };
 
-（2）i2c_adapter与i2c_client
-i2c_driver与i2c_client是一对多的关系，一个i2c_driver上可以支持多个同等类型的i2c_client。
+（2）i2c_adapter 与 i2c_client
+i2c_driver 与 i2c_client 是一对多的关系，一个 i2c_driver 上可以支持多个同等类型的 i2c_client。
 
-（3）i2c_adapter与i2c_client
-i2c_adapter与i2c_client的关系与I2C硬件体系中适配器和从设备的关系一致，i2c_client依附在i2c_adapter上。
-
-
+（3）i2c_adapter 与 i2c_client
+i2c_adapter 与 i2c_client 的关系与 I2C 硬件体系中适配器和从设备的关系一致，i2c_client 依附在 i2c_adapter 上。
 
 <h2 id="6">六、LinuxI2C驱动--I2C设备驱动</h2>
 本节主要分析eeprom的所属的i2c设备驱动，此驱动主要实现了能够通过sysfs文件系统访问eeprom。
@@ -465,7 +465,7 @@ i2c_adapter与i2c_client的关系与I2C硬件体系中适配器和从设备的�
      },
     }
 
-这样以后后面调用smdkc110_machine_init就会把资源注册进去。
+这样以后后面调用 smdkc110_machine_init 就会把资源注册进去。
 
      static void __init smdkc110_machine_init(void)
      {
@@ -477,9 +477,9 @@ i2c_adapter与i2c_client的关系与I2C硬件体系中适配器和从设备的�
 <h3 id="6.2">6.2 AT24C01A EEPROM 的I2C设备驱动</h3>
 <h4 id="6.2.1">6.2.1 at24_driver</h4>
 
-前面讲i2c驱动架构的时候，说到I2C设备驱动主要由i2c_driver来描述。
+前面讲 i2c 驱动架构的时候，说到 I2C 设备驱动主要由 i2c_driver 来描述。
 
-在drivers/misc/eeprom/at24.c中可以看到eeprom驱动对i2c_driver结构的实例化。
+在 drivers/misc/eeprom/at24.c 中可以看到 eeprom 驱动对 i2c_driver 结构的实例化。
 
      static struct i2c_driver at24_driver = {
      .driver = {
@@ -491,7 +491,7 @@ i2c_adapter与i2c_client的关系与I2C硬件体系中适配器和从设备的�
      .id_table = at24_ids,
      };
 
-其中probe和remove会在模块初始化和卸载的时候被调用。
+其中 probe 和 remove 会在模块初始化和卸载的时候被调用。
 
      static int __init at24_init(void)//模块初始化
      {
@@ -687,7 +687,7 @@ i2c_adapter与i2c_client的关系与I2C硬件体系中适配器和从设备的�
     return err;
     }
 
-at24_probe()函数主要的工作是在sys目录在创建bin结点文件，也就是前面通过sysfs文件系统访问i2c设备中提到的/sys/bus/i2c/devices/0-0050/eeprom文件，用户可以用此文件来操作eeprom，提供读/写操作方法，在probe里面读写操作已经与二进制结点绑定，读操作函数是at24_bin_read()，写操作函数是at24_bin_write()。
+at24_probe()函数主要的工作是在 sys 目录在创建 bin 结点文件，也就是前面通过 sysfs 文件系统访问 i2c 设备中提到的/sys/bus/i2c/devices/0-0050/eeprom 文件，用户可以用此文件来操作 eeprom，提供读/写操作方法，在 probe 里面读写操作已经与二进制结点绑定，读操作函数是 at24_bin_read()，写操作函数是 at24_bin_write()。
 
 其中有个重要的结构体：
 
@@ -714,7 +714,7 @@ at24_probe()函数主要的工作是在sys目录在创建bin结点文件，也�
      struct i2c_client *client[];
     };
 
-at24_data是此驱动的一些私有数据的封装，包括二进制结点，以及写缓冲区。
+at24_data 是此驱动的一些私有数据的封装，包括二进制结点，以及写缓冲区。
 
     static int __devexit at24_remove(struct i2c_client *client)
     {
@@ -732,7 +732,7 @@ at24_data是此驱动的一些私有数据的封装，包括二进制结点，�
     return 0;
     }
 
-at24_remove()基本就是at24_probe()的反操作。
+at24_remove()基本就是 at24_probe()的反操作。
 
 <h4 id="6.2.3">6.2.3 at24_bin_read()</h4>
     static ssize_t at24_bin_read(struct file *filp, struct kobject *kobj,
@@ -745,7 +745,8 @@ at24_remove()基本就是at24_probe()的反操作。
      at24 = dev_get_drvdata(container_of(kobj, struct device, kobj));
      return at24_read(at24, buf, off, count);//调用at24_read()
     }
-at24_bin_read()通过dev_get_drvdata()获取at24_data结构体数据。然后调用at24_read()。
+
+at24_bin_read()通过 dev_get_drvdata()获取 at24_data 结构体数据。然后调用 at24_read()。
 
     static ssize_t at24_read(struct at24_data *at24,
          char *buf, loff_t off, size_t count)
@@ -780,7 +781,8 @@ at24_bin_read()通过dev_get_drvdata()获取at24_data结构体数据。然后调
 
      return retval;
     }
-at24_read()传入的参数，at24是驱动私有数据结构体at24_data，buf是读eeprom后读到的数据存储的缓冲区，off是数据的偏移地址，count是要读数据的大小。at24_read()主要调用at24_eeprom_read()去读，但是此函数读eeprom能读到的数据个数有限制，不一定一次就把count个数据都读到，所以用while来读，并且读到status个数据后更新count，表示还剩多少个数据没读到，同时也要更新数据偏移off，和读入缓冲buf。
+
+at24_read()传入的参数，at24 是驱动私有数据结构体 at24_data，buf 是读 eeprom 后读到的数据存储的缓冲区，off 是数据的偏移地址，count 是要读数据的大小。at24_read()主要调用 at24_eeprom_read()去读，但是此函数读 eeprom 能读到的数据个数有限制，不一定一次就把 count 个数据都读到，所以用 while 来读，并且读到 status 个数据后更新 count，表示还剩多少个数据没读到，同时也要更新数据偏移 off，和读入缓冲 buf。
 
     static ssize_t at24_eeprom_read(struct at24_data *at24, char *buf,
         unsigned offset, size_t count)
@@ -896,7 +898,8 @@ at24_read()传入的参数，at24是驱动私有数据结构体at24_data，buf�
 
     return -ETIMEDOUT;
     }
-at24_eeprom_read()根据读eeprom所需要的时序，填充两个i2c消息结构体，第一个i2c消息结构体是写eeprom，告诉eeprom要读的数据是哪个，第二个i2c消息才是真正的读eeprom。最后把这两个i2c消息结构体传给i2c_transfer()进行实际的消息传输。i2c_transfer()是i2c核心的函数，用于i2c设备与i2c适配器直接的消息传递，后面会分析。这里我们看到了i2c设备驱动通过i2c核心向i2c总线驱动传递消息的主要途径，i2c总线驱动接收到i2c消息后就会控制i2c适配器根据传入的i2c消息，通过SDA和SCL与eeprom进行交互。
+
+at24_eeprom_read()根据读 eeprom 所需要的时序，填充两个 i2c 消息结构体，第一个 i2c 消息结构体是写 eeprom，告诉 eeprom 要读的数据是哪个，第二个 i2c 消息才是真正的读 eeprom。最后把这两个 i2c 消息结构体传给 i2c_transfer()进行实际的消息传输。i2c_transfer()是 i2c 核心的函数，用于 i2c 设备与 i2c 适配器直接的消息传递，后面会分析。这里我们看到了 i2c 设备驱动通过 i2c 核心向 i2c 总线驱动传递消息的主要途径，i2c 总线驱动接收到 i2c 消息后就会控制 i2c 适配器根据传入的 i2c 消息，通过 SDA 和 SCL 与 eeprom 进行交互。
 
 <h4 id="6.2.5">6.2.4 at24_bin_write()</h4>
      static ssize_t at24_bin_write(struct file *filp, struct kobject *kobj,
@@ -909,7 +912,7 @@ at24_eeprom_read()根据读eeprom所需要的时序，填充两个i2c消息结�
      return at24_write(at24, buf, off, count);
      }
 
-at24_bin_write()与at24_bin_read()一样操作，获得at24_data后调用at24_write().
+at24_bin_write()与 at24_bin_read()一样操作，获得 at24_data 后调用 at24_write().
 
     static ssize_t at24_write(struct at24_data *at24, const char *buf, loff_t off,
                size_t count)
@@ -944,7 +947,8 @@ at24_bin_write()与at24_bin_read()一样操作，获得at24_data后调用at24_wr
 
      return retval;
     }
-at24_write()的操作也是类似的，通过调用at24_eeprom_write()来实现。
+
+at24_write()的操作也是类似的，通过调用 at24_eeprom_write()来实现。
 
     static ssize_t at24_eeprom_write(struct at24_data *at24, const char *buf,
         unsigned offset, size_t count)
@@ -1017,11 +1021,12 @@ at24_write()的操作也是类似的，通过调用at24_eeprom_write()来实现�
 
     return -ETIMEDOUT;
     }
-与at24_eeprom_read()类似，at24_eeprom_write()因为写eeprom需要1条i2c消息，最后实际的传输也是通过i2c_transfer()实现。
+
+与 at24_eeprom_read()类似，at24_eeprom_write()因为写 eeprom 需要 1 条 i2c 消息，最后实际的传输也是通过 i2c_transfer()实现。
 
 <h3 id="6.3">6.3 总结</h3>
 
-由上面简单的分析可知，通过sysfs文件系统访问eeprom，对/sys/bus/i2c/devices/0-0050/eeprom的读写是通过at24_bin_read()/at24_bin_write() ==> at24_eeprom_read()/at24_eeprom_write() ==>i2c_transfer()来实现的。
+由上面简单的分析可知，通过 sysfs 文件系统访问 eeprom，对/sys/bus/i2c/devices/0-0050/eeprom 的读写是通过 at24_bin_read()/at24_bin_write() ==> at24_eeprom_read()/at24_eeprom_write() ==>i2c_transfer()来实现的。
 
 <h2 id="7">七、LinuxI2C驱动--I2C总线驱动</h2>
 前面分析了i2c设备驱动如何实现通过sysfs文件系统访问eeprom，对于读写eeprom，最后都是调用了i2c_transfer()，此函数的实现在i2c核心中。
@@ -1084,14 +1089,15 @@ at24_write()的操作也是类似的，通过调用at24_eeprom_write()来实现�
          return -EOPNOTSUPP;
      }
     }
-可以看到，语句ret = adap->algo->master_xfer(adap, msgs, num)就是i2c总线驱动的入口，此语句是寻找i2c_adapter对应的i2c_algorithm后，使用master_xfer()驱动硬件流程来进行实际的传输。
 
-那么i2c_adapter是在哪里绑定了i2c_algorithm呢？master_xfer()又是如何来启动i2c传输的呢？在i2c总线驱动中我们就可以找到答案。
+可以看到，语句 ret = adap->algo->master_xfer(adap, msgs, num)就是 i2c 总线驱动的入口，此语句是寻找 i2c_adapter 对应的 i2c_algorithm 后，使用 master_xfer()驱动硬件流程来进行实际的传输。
+
+那么 i2c_adapter 是在哪里绑定了 i2c_algorithm 呢？master_xfer()又是如何来启动 i2c 传输的呢？在 i2c 总线驱动中我们就可以找到答案。
 
 <h3 id="7.1">7.1 三星S5PV210 i2c适配器的硬件描述</h3>
 
-s5pv210处理器内部集成了一个i2c控制器，通过4个主要的寄存器就可以对其进行控制。
-在arch/arm/plat-samsung/include/plat/regs-iic.h中列出了这几个寄存器。
+s5pv210 处理器内部集成了一个 i2c 控制器，通过 4 个主要的寄存器就可以对其进行控制。
+在 arch/arm/plat-samsung/include/plat/regs-iic.h 中列出了这几个寄存器。
 
     #define S3C2410_IICREG(x) (x)
 
@@ -1100,28 +1106,28 @@ s5pv210处理器内部集成了一个i2c控制器，通过4个主要的寄存器
     #define S3C2410_IICADD    S3C2410_IICREG(0x08)//i2c地址寄存器
     #define S3C2410_IICDS     S3C2410_IICREG(0x0C)//i2c收发数据移位寄存器
 
-i2c寄存器支持收发两种模式，我们主要使用主模式，通过对IICCON、IICDS和IICADD寄存器的操作，可以在i2c总线上产生开始位，停止位，数据和地址，而传输的状态则是通过IICSTAT寄存器获取。
+i2c 寄存器支持收发两种模式，我们主要使用主模式，通过对 IICCON、IICDS 和 IICADD 寄存器的操作，可以在 i2c 总线上产生开始位，停止位，数据和地址，而传输的状态则是通过 IICSTAT 寄存器获取。
 
-在三星的i2c总线说明文档中给出了i2c总线进行传输的整个流程。
+在三星的 i2c 总线说明文档中给出了 i2c 总线进行传输的整个流程。
 
 ![linux-i2c-7.1.png](https://raw.githubusercontent.com/hello2mao/hello2mao.github.io/f68f7e805c54be0eeee638d9c194c6a650ae3a3c/public/img/technology/linux-i2c-7.1.png)
 
-以通过i2c总线写eeprom为例，具体的流程如下：
+以通过 i2c 总线写 eeprom 为例，具体的流程如下：
 
-1. 设置GPIO的相关引脚为IIC输出；
-2. 设置IIC（打开ACK，打开IIC中断，设置CLK等）；
-3. 设备地址赋给IICDS ，并设置IICSTAT，启动IIC发送设备地址出去；从而找到相应的设备即IIC总线上的设备。
-4. 第一个Byte的设备地址发送后，从EEPROM得到ACK信号，此信号触发中断；
-5. 在中断处理函数中把第二个Byte（设备内地址）发送出去；发送之后，接收到ACK又触发中断；
-6. 中断处理函数把第三个Byte（真正的数据）发送到设备中。
-7. 发送之后同样接收到ACK并触发中断，中断处理函数判断，发现数据传送完毕。
-8. IIC Stop信号，关IIC中断，置位各寄存器。
+1. 设置 GPIO 的相关引脚为 IIC 输出；
+2. 设置 IIC（打开 ACK，打开 IIC 中断，设置 CLK 等）；
+3. 设备地址赋给 IICDS ，并设置 IICSTAT，启动 IIC 发送设备地址出去；从而找到相应的设备即 IIC 总线上的设备。
+4. 第一个 Byte 的设备地址发送后，从 EEPROM 得到 ACK 信号，此信号触发中断；
+5. 在中断处理函数中把第二个 Byte（设备内地址）发送出去；发送之后，接收到 ACK 又触发中断；
+6. 中断处理函数把第三个 Byte（真正的数据）发送到设备中。
+7. 发送之后同样接收到 ACK 并触发中断，中断处理函数判断，发现数据传送完毕。
+8. IIC Stop 信号，关 IIC 中断，置位各寄存器。
 
-在下面的小节中将结合代码来分析i2c总线对上面流程的具体实现。
+在下面的小节中将结合代码来分析 i2c 总线对上面流程的具体实现。
 
 <h3 id="7.2">7.2 i2c总线驱动的加载/卸载</h3>
 
-i2c总线驱动被作为一个单独的模块加载，下面首先分析它的加载/卸载函数。
+i2c 总线驱动被作为一个单独的模块加载，下面首先分析它的加载/卸载函数。
 
     static int __init i2c_adap_s3c_init(void)
     {
@@ -1135,7 +1141,7 @@ i2c总线驱动被作为一个单独的模块加载，下面首先分析它的�
     }
     module_exit(i2c_adap_s3c_exit);
 
-三星s5pv210的i2c总线驱动是作为平台驱动来实现的，其中传入的结构体s3c24xx_i2c_driver就是platform_driver。
+三星 s5pv210 的 i2c 总线驱动是作为平台驱动来实现的，其中传入的结构体 s3c24xx_i2c_driver 就是 platform_driver。
 
     static struct platform_driver s3c24xx_i2c_driver = {
      .probe      = s3c24xx_i2c_probe,
@@ -1150,7 +1156,7 @@ i2c总线驱动被作为一个单独的模块加载，下面首先分析它的�
 
 <h3 id="7.3">7.3 i2c总线驱动的probe</h3>
 
-i2c总线驱动的probe函数会在一个合适的设备被发现的时候由总线驱动调用。
+i2c 总线驱动的 probe 函数会在一个合适的设备被发现的时候由总线驱动调用。
 
     /* s3c24xx_i2c_probe
     *
@@ -1312,9 +1318,10 @@ i2c总线驱动的probe函数会在一个合适的设备被发现的时候由总
         kfree(i2c);
     return ret;
     }
-可以看到，i2c24xx_i2c_probe()的主要工作有：使能硬件，申请i2c适配器使用的io地址、中断号，然后向i2c核心添加了这个适配器。
 
-s3c24xx_i2c是i2c适配器的私有数据结构体，封装了适配器的所有信息。
+可以看到，i2c24xx_i2c_probe()的主要工作有：使能硬件，申请 i2c 适配器使用的 io 地址、中断号，然后向 i2c 核心添加了这个适配器。
+
+s3c24xx_i2c 是 i2c 适配器的私有数据结构体，封装了适配器的所有信息。
 
     struct s3c24xx_i2c {
     spinlock_t      lock;//用于防止并发访问的锁
@@ -1343,7 +1350,7 @@ s3c24xx_i2c是i2c适配器的私有数据结构体，封装了适配器的所有
     #endif
     };
 
-初始化i2c控制器函数s3c24xx_i2c_init()如下
+初始化 i2c 控制器函数 s3c24xx_i2c_init()如下
 
      static int s3c24xx_i2c_init(struct s3c24xx_i2c *i2c)
      {
@@ -1386,25 +1393,27 @@ s3c24xx_i2c是i2c适配器的私有数据结构体，封装了适配器的所有
 
      return 0;
      }
-s3c24xx_i2c_init()中完成了前面所说的通过i2c总线写eeprom流程的（1）（2）两步。
 
-***
+s3c24xx_i2c_init()中完成了前面所说的通过 i2c 总线写 eeprom 流程的（1）（2）两步。
 
-在浅谈LinuxI2C驱动架构这一小节中提到了，i2c总线驱动是对I2C硬件体系结构中适配器端的实现，主要是实现了两个结构i2c_adapter和i2c_algorithm，从而控制i2c适配器产生通讯信号。
+---
 
-在i2c24xx_i2c_probe()中就填充了i2c_adapter，并且通过i2c->adap.algo = &s3c24xx_i2c_algorithm给i2c_adapter绑定了i2c_algorithm。
+在浅谈 LinuxI2C 驱动架构这一小节中提到了，i2c 总线驱动是对 I2C 硬件体系结构中适配器端的实现，主要是实现了两个结构 i2c_adapter 和 i2c_algorithm，从而控制 i2c 适配器产生通讯信号。
 
-其中s3c24xx_i2c_algorithm为
+在 i2c24xx_i2c_probe()中就填充了 i2c_adapter，并且通过 i2c->adap.algo = &s3c24xx_i2c_algorithm 给 i2c_adapter 绑定了 i2c_algorithm。
+
+其中 s3c24xx_i2c_algorithm 为
 
     static const struct i2c_algorithm s3c24xx_i2c_algorithm = {
         .master_xfer = s3c24xx_i2c_xfer,
         .functionality = s3c24xx_i2c_func,
     };
-其中s3c24xx_i2c_xfer()用来启动i2c传输，s3c24xx_i2c_func()返回所支持的通讯协议。
 
-所以说，i2c设备通过i2c_transfer()进行实际传输，在i2c核心中我们已经看到，i2c_transfer实际是调用了i2c_adapter对应的master_xfer()，此处，在i2c总线驱动中，把master_xfer()指定为了s3c24xx_i2c_xfer()，所以说此时，传输任务交给了s3c24xx_i2c_xfer()。
+其中 s3c24xx_i2c_xfer()用来启动 i2c 传输，s3c24xx_i2c_func()返回所支持的通讯协议。
 
-通过后面分析我们会看到，s3c24xx_i2c_xfer()只是启动了i2c传输，把i2c传输这个任务进行推进并且完成还需要靠我们在probe中注册的中断来完成，对应的中断处理函数是s3c24xx_i2c_irq()，后面都会详细分析。
+所以说，i2c 设备通过 i2c_transfer()进行实际传输，在 i2c 核心中我们已经看到，i2c_transfer 实际是调用了 i2c_adapter 对应的 master_xfer()，此处，在 i2c 总线驱动中，把 master_xfer()指定为了 s3c24xx_i2c_xfer()，所以说此时，传输任务交给了 s3c24xx_i2c_xfer()。
+
+通过后面分析我们会看到，s3c24xx_i2c_xfer()只是启动了 i2c 传输，把 i2c 传输这个任务进行推进并且完成还需要靠我们在 probe 中注册的中断来完成，对应的中断处理函数是 s3c24xx_i2c_irq()，后面都会详细分析。
 
 <h3 id="7.4">7.4 启动i2c传输</h3>
 接下来就是分析负责启动i2c传输任务的s3c24xx_i2c_xfer()。
@@ -1436,7 +1445,7 @@ s3c24xx_i2c_init()中完成了前面所说的通过i2c总线写eeprom流程的�
      return ret;
      }
 
-可以看到s3c24xx_i2c_xfer()是调用了s3c24xx_i2c_doxfer()来启动传输的。
+可以看到 s3c24xx_i2c_xfer()是调用了 s3c24xx_i2c_doxfer()来启动传输的。
 
     static int s3c24xx_i2c_doxfer(struct s3c24xx_i2c *i2c,
                    struct i2c_msg *msgs, int num)
@@ -1468,7 +1477,8 @@ s3c24xx_i2c_init()中完成了前面所说的通过i2c总线写eeprom流程的�
      spin_unlock_irq(&i2c->lock);
 
      timeout = wait_event_timeout(i2c->wait, i2c->msg_num == 0, HZ * 5);//等待消息传输完成，否则超时
-s3c24xx_i2c_doxfer()首先调用s3c24xx_i2c_set_master()来检查总线状态，s3c24xx_i2c_set_master()的实现如下
+
+s3c24xx_i2c_doxfer()首先调用 s3c24xx_i2c_set_master()来检查总线状态，s3c24xx_i2c_set_master()的实现如下
 
      static int s3c24xx_i2c_set_master(struct s3c24xx_i2c *i2c)
      {
@@ -1490,8 +1500,9 @@ s3c24xx_i2c_doxfer()首先调用s3c24xx_i2c_set_master()来检查总线状态，
 
      return -ETIMEDOUT;
      }
-在获知总线不忙后，把要消息写入i2c适配器私有数据结构，并且把状态改为STATE_START。
-然后使能中断，通过s3c24xx_i2c_message_start()发送第一个byte，这样在获取ACK后就会触发中断来推进i2c的传输。
+
+在获知总线不忙后，把要消息写入 i2c 适配器私有数据结构，并且把状态改为 STATE_START。
+然后使能中断，通过 s3c24xx_i2c_message_start()发送第一个 byte，这样在获取 ACK 后就会触发中断来推进 i2c 的传输。
 
     static void s3c24xx_i2c_message_start(struct s3c24xx_i2c *i2c,
                        struct i2c_msg *msg)
@@ -1532,11 +1543,11 @@ s3c24xx_i2c_doxfer()首先调用s3c24xx_i2c_set_master()来检查总线状态，
      writel(stat, i2c->regs + S3C2410_IICSTAT);//修改状态，流程（3）
     }
 
-s3c24xx_i2c_message_start()在i2c总线上发送了一个开始信号，即完成了通过i2c总线写eeprom中的流程（3）的工作，设备地址赋给IICDS ，并设置IICSTAT，启动IIC发送设备地址出去，当从设备收到此数据并且回复ACK后，i2c适配器收到ACK后就会触发中断来推进i2c的传输。
+s3c24xx_i2c_message_start()在 i2c 总线上发送了一个开始信号，即完成了通过 i2c 总线写 eeprom 中的流程（3）的工作，设备地址赋给 IICDS ，并设置 IICSTAT，启动 IIC 发送设备地址出去，当从设备收到此数据并且回复 ACK 后，i2c 适配器收到 ACK 后就会触发中断来推进 i2c 的传输。
 
 <h3 id="7.5">7.5 通过中断来推进i2c的传输</h3>
 
-发送完第一个byte，收到ACK信号后就会进入中断，并且以后只要收到ACK信号就都会进入中断。中断在probe中已经注册，它的实现
+发送完第一个 byte，收到 ACK 信号后就会进入中断，并且以后只要收到 ACK 信号就都会进入中断。中断在 probe 中已经注册，它的实现
 如下
 
     static irqreturn_t s3c24xx_i2c_irq(int irqno, void *dev_id)
@@ -1568,7 +1579,8 @@ s3c24xx_i2c_message_start()在i2c总线上发送了一个开始信号，即完�
      out:
      return IRQ_HANDLED;
     }
-i2c总线驱动的中断处理函数s3c24xx_i2c_irq()是调用i2c_s3c_irq_nextbyte()来推进i2c的传输的。
+
+i2c 总线驱动的中断处理函数 s3c24xx_i2c_irq()是调用 i2c_s3c_irq_nextbyte()来推进 i2c 的传输的。
 
     static int i2c_s3c_irq_nextbyte(struct s3c24xx_i2c *i2c, unsigned long iicstat
     {
@@ -1730,8 +1742,9 @@ i2c总线驱动的中断处理函数s3c24xx_i2c_irq()是调用i2c_s3c_irq_nextby
     out:
     return ret;
     }
-i2c_s3c_irq_nextbyte()推进了i2c的传输，以写eeprom为例，第一个Byte的设备地址发送后，从EEPROM得到ACK信号，此信号触发中断，在中断处理函数中把第二个Byte（设备内地址）发送出去；发送之后，接收到ACK又触发中断，中断处理函数把第三个Byte（真正的数据）发送到设备中，发送之后同样接收到ACK并触发中断，中断处理函数判断，发现数据传送完毕，就发送IIC Stop信号，关IIC中断，置位各寄存器。这样就把通过i2c总线写eeprom的整个流程都实现了。
+
+i2c_s3c_irq_nextbyte()推进了 i2c 的传输，以写 eeprom 为例，第一个 Byte 的设备地址发送后，从 EEPROM 得到 ACK 信号，此信号触发中断，在中断处理函数中把第二个 Byte（设备内地址）发送出去；发送之后，接收到 ACK 又触发中断，中断处理函数把第三个 Byte（真正的数据）发送到设备中，发送之后同样接收到 ACK 并触发中断，中断处理函数判断，发现数据传送完毕，就发送 IIC Stop 信号，关 IIC 中断，置位各寄存器。这样就把通过 i2c 总线写 eeprom 的整个流程都实现了。
 
 <h3 id="7.6">7.6 总结</h3>
 
-i2c总线驱动控制i2c适配器产生通信信号，通过master_xfer()启动一个i2c传输，然后通过中断推进i2c传输。
+i2c 总线驱动控制 i2c 适配器产生通信信号，通过 master_xfer()启动一个 i2c 传输，然后通过中断推进 i2c 传输。

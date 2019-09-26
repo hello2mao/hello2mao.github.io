@@ -9,7 +9,9 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="{{ site.baseurl }}/">{{ site.title }}</a>
+            <a class="navbar-brand" href="{{ site.baseurl }}/">{{
+                site.title
+            }}</a>
         </div>
 
         <!-- Collect the nav links, forms, and other content for toggling -->
@@ -24,13 +26,14 @@
                     <li>
                         <a href="{{ site.baseurl }}/">Home</a>
                     </li>
-                    {% for page in site.pages %}{% if page.title %}
                     <li>
-                        <a href="{{ page.url | prepend: site.baseurl }}">{{ page.title }}</a>
+                        <a href="{{ site.baseurl }}/">Note</a>
                     </li>
-                    {% endif %}{% endfor %}
                     <li>
-                        <a href="https://resume.github.io/?hello2mao">RESUME</a>
+                        <a href="{{ site.baseurl }}/tags">Tags</a>
+                    </li>
+                    <li>
+                        <a href="{{ site.baseurl }}/about/">About</a>
                     </li>
                 </ul>
             </div>
@@ -43,26 +46,26 @@
     // Drop Bootstarp low-performance Navbar
     // Use customize navbar with high-quality material design animation
     // in high-perf jank-free CSS3 implementation
-    var $body   = document.body;
-    var $toggle = document.querySelector('.navbar-toggle');
-    var $navbar = document.querySelector('#huxblog_navbar');
-    var $collapse = document.querySelector('.navbar-collapse');
+    var $body = document.body;
+    var $toggle = document.querySelector(".navbar-toggle");
+    var $navbar = document.querySelector("#huxblog_navbar");
+    var $collapse = document.querySelector(".navbar-collapse");
 
-    $toggle.addEventListener('click', handleMagic)
-    function handleMagic(e){
-        if ($navbar.className.indexOf('in') > 0) {
-        // CLOSE
+    $toggle.addEventListener("click", handleMagic);
+    function handleMagic(e) {
+        if ($navbar.className.indexOf("in") > 0) {
+            // CLOSE
             $navbar.className = " ";
             // wait until animation end.
-            setTimeout(function(){
+            setTimeout(function() {
                 // prevent frequently toggle
-                if($navbar.className.indexOf('in') < 0) {
-                    $collapse.style.height = "0px"
+                if ($navbar.className.indexOf("in") < 0) {
+                    $collapse.style.height = "0px";
                 }
-            },400)
-        }else{
-        // OPEN
-            $collapse.style.height = "auto"
+            }, 400);
+        } else {
+            // OPEN
+            $collapse.style.height = "auto";
             $navbar.className += " in";
         }
     }

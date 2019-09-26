@@ -1,16 +1,16 @@
 ---
-layout:     post
-title:      "解析Solidity预编译合约的实现"
-subtitle:   "Solidity precompiled contract overview"
-date:       2019-02-14 10:02:11
-author:     "hello2mao"
+layout: post
+title: "解析Solidity预编译合约的实现"
+subtitle: "Solidity precompiled contract overview"
+date: 2019-02-14 10:02:11
+author: "hello2mao"
 tags:
-    - ethereum
+    - blockchain
 ---
 
-在Solidity中存在很多预先编译好的合约（或者说是方法）可供调用，例如sha256、keccak256等，本文简单分析下其实现逻辑。
+在 Solidity 中存在很多预先编译好的合约（或者说是方法）可供调用，例如 sha256、keccak256 等，本文简单分析下其实现逻辑。
 
-例如有如下测试合约，在测试合约内调用sha256：
+例如有如下测试合约，在测试合约内调用 sha256：
 
 ```
 pragma solidity ^0.4.24;
@@ -25,10 +25,11 @@ contract Sha256Test {
     }
 }
 ```
-此合约源码需要经过solidity编译器[solc](https://github.com/ethereum/solidity)编译，编译器解析到sha256关键字就会插入一段合约调用的逻辑，编译器源码如下：
 
+此合约源码需要经过 solidity 编译器[solc](https://github.com/ethereum/solidity)编译，编译器解析到 sha256 关键字就会插入一段合约调用的逻辑，编译器源码如下：
 
 文件：[github.com/ethereum/solidity/libsolidity/codegen/ExpressionCompiler.cpp](https://github.com/ethereum/solidity/blob/f003696d7e0e4a1bbe884208db1d651c08cfb01c/libsolidity/codegen/ExpressionCompiler.cpp#L825)
+
 ```
 case FunctionType::Kind::ECRecover:
 case FunctionType::Kind::SHA256:
@@ -47,12 +48,13 @@ case FunctionType::Kind::RIPEMD160:
   break;
 }
 ```
-所以，当运行到此处时，对于sha256会调用地址是2的合约的sha256方法。那么在地址是2的地方的合约是什么时候部署进以太坊网络的呢？
 
-我们知道，通常智能合约的开发流程是用solidlity编写逻辑代码，再通过编译器编译元数据，最后再发布到以太坊上。以太坊底层通过EVM模块支持合约的执行与调用，调用时根据合约地址获取到代码，生成环境后载入到EVM中运行。
+所以，当运行到此处时，对于 sha256 会调用地址是 2 的合约的 sha256 方法。那么在地址是 2 的地方的合约是什么时候部署进以太坊网络的呢？
+
+我们知道，通常智能合约的开发流程是用 solidlity 编写逻辑代码，再通过编译器编译元数据，最后再发布到以太坊上。以太坊底层通过 EVM 模块支持合约的执行与调用，调用时根据合约地址获取到代码，生成环境后载入到 EVM 中运行。
 ![image](https://user-images.githubusercontent.com/8265961/52756872-bdfb1d80-303d-11e9-9076-0b365c1df65d.png)
 
-执行入口定义在evm.go中，功能就是组装执行环境（代码，执行人关系，参数等）。
+执行入口定义在 evm.go 中，功能就是组装执行环境（代码，执行人关系，参数等）。
 
 ```
     func (evm *EVM) Call(caller ContractRef, addr common.Address, input []byte, gas uint64, value *big.Int) (ret []byte, leftOverGas uint64, err error) {
@@ -121,12 +123,12 @@ case FunctionType::Kind::RIPEMD160:
 
 类似的函数有四个。
 
-- Call A->B A,B的环境独立
-- CallCode、 和Call类似 区别在于storage位置不一样
-- DelegateCall、 和CallCode类似，区别在于msg.send不一样
-- StaticCall 和call相似 只是不能修改状态
+-   Call A->B A,B 的环境独立
+-   CallCode、 和 Call 类似 区别在于 storage 位置不一样
+-   DelegateCall、 和 CallCode 类似，区别在于 msg.send 不一样
+-   StaticCall 和 call 相似 只是不能修改状态
 
-Contract和参数构造完成后调用执行函数，执行函数会检查调用的是否会之前编译好的原生合约，如果是原生合约则调用原生合约，否则调用解释器执行函数运算合约。
+Contract 和参数构造完成后调用执行函数，执行函数会检查调用的是否会之前编译好的原生合约，如果是原生合约则调用原生合约，否则调用解释器执行函数运算合约。
 
 ```
     // run runs the given contract and takes care of running precompiles with a fallback to the byte code interpreter.
@@ -144,7 +146,7 @@ Contract和参数构造完成后调用执行函数，执行函数会检查调用
     }
 ```
 
-这里所说的原生合约就是指native Go写的预编译的合约，在go-ethereum中有定义，如下：
+这里所说的原生合约就是指 native Go 写的预编译的合约，在 go-ethereum 中有定义，如下：
 
 ```
 // PrecompiledContractsByzantium contains the default set of pre-compiled Ethereum
@@ -160,7 +162,8 @@ var PrecompiledContractsByzantium = map[common.Address]PrecompiledContract{
   common.BytesToAddress([]byte{8}): &bn256Pairing{},
 }
 ```
-这里我们看到了地址是2的sha256，Go的实现如下：
+
+这里我们看到了地址是 2 的 sha256，Go 的实现如下：
 
 ```
 // SHA256 implemented as a native contract.
@@ -178,7 +181,9 @@ func (c *sha256hash) Run(input []byte) ([]byte, error) {
   return h[:], nil
 }
 ```
-可以看到实际就是使用的Go的sha256实现的。
+
+可以看到实际就是使用的 Go 的 sha256 实现的。
 
 参考：
-- [precompiles & solidity](https://medium.com/@rbkhmrcr/precompiles-solidity-e5d29bd428c4)
+
+-   [precompiles & solidity](https://medium.com/@rbkhmrcr/precompiles-solidity-e5d29bd428c4)

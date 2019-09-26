@@ -1,19 +1,20 @@
 ---
-layout:     post
-title:      "解析以太坊地址的生成过程"
-subtitle:   "Detail about ethereum account"
-date:       2018-05-22 11:38:12
-author:     "hello2mao"
+layout: post
+title: "解析以太坊地址的生成过程"
+subtitle: "Detail about ethereum account"
+date: 2018-05-22 11:38:12
+author: "hello2mao"
 tags:
-    - ethereum
+    - blockchain
 ---
 
-- [一、获得一个以太坊钱包地址](#%E4%B8%80%E8%8E%B7%E5%BE%97%E4%B8%80%E4%B8%AA%E4%BB%A5%E5%A4%AA%E5%9D%8A%E9%92%B1%E5%8C%85%E5%9C%B0%E5%9D%80)
-- [二、地址生成解析](#%E4%BA%8C%E5%9C%B0%E5%9D%80%E7%94%9F%E6%88%90%E8%A7%A3%E6%9E%90)
-- [三、总结](#%E4%B8%89%E6%80%BB%E7%BB%93)
+- [一、获得一个以太坊钱包地址](#%e4%b8%80%e8%8e%b7%e5%be%97%e4%b8%80%e4%b8%aa%e4%bb%a5%e5%a4%aa%e5%9d%8a%e9%92%b1%e5%8c%85%e5%9c%b0%e5%9d%80)
+- [二、地址生成解析](#%e4%ba%8c%e5%9c%b0%e5%9d%80%e7%94%9f%e6%88%90%e8%a7%a3%e6%9e%90)
+- [三、总结](#%e4%b8%89%e6%80%bb%e7%bb%93)
 
 # 一、获得一个以太坊钱包地址
-通过以太坊命令行客户端geth可以很简单的获得一个以太坊地址，如下：
+
+通过以太坊命令行客户端 geth 可以很简单的获得一个以太坊地址，如下：
 
 ```
 [work@host]$ geth account new
@@ -27,8 +28,9 @@ Address: {07a78fc0fb8c175d8e09e942086985d2835b6849}
 地址**0x07a78fc0fb8c175d8e09e942086985d2835b6849**就是新生成的以太坊地址。
 
 # 二、地址生成解析
-下面跟踪geth的源码：https://github.com/ethereum/go-ethereum 来分析其地址生成过程。
-geth是用https://github.com/urfave/cli 来做命令行解析的，运行geth account new时的入口在cmd/geth/main.go：
+
+下面跟踪 geth 的源码：https://github.com/ethereum/go-ethereum 来分析其地址生成过程。
+geth 是用https://github.com/urfave/cli 来做命令行解析的，运行 geth account new 时的入口在 cmd/geth/main.go：
 
 ```
 func init() {
@@ -45,7 +47,7 @@ func init() {
 }
 ```
 
-账户相关的命令在cmd/geth/accountcmd.go里，新建账户命令为new:  
+账户相关的命令在 cmd/geth/accountcmd.go 里，新建账户命令为 new:
 
 ```
 var (
@@ -74,7 +76,7 @@ var (
 )
 ```
 
-但new一个新账户的时候，会调用accountCreate：  
+但 new 一个新账户的时候，会调用 accountCreate：
 
 ```
 // accountCreate creates a new account into the keystore defined by the CLI flags.
@@ -105,11 +107,11 @@ func accountCreate(ctx *cli.Context) error {
 
 分为三步：
 
- 1. 获取配置
- 2. 解析用户密码
- 3. 生成地址
- 
-第三步生成地址调用的keystore.StoreKey（accounts/keystore/keystore_passphrase.go）：
+1.  获取配置
+2.  解析用户密码
+3.  生成地址
+
+第三步生成地址调用的 keystore.StoreKey（accounts/keystore/keystore_passphrase.go）：
 
 ```
 // StoreKey generates a key, encrypts with 'auth' and stores in the given directory
@@ -119,7 +121,7 @@ func StoreKey(dir, auth string, scryptN, scryptP int) (common.Address, error) {
 }
 ```
 
-这边直接调用了storeNewKey（accounts/keystore/key.go）创建新账户：  
+这边直接调用了 storeNewKey（accounts/keystore/key.go）创建新账户：
 
 ```
 func storeNewKey(ks keyStore, rand io.Reader, auth string) (*Key, accounts.Account, error) {
@@ -147,12 +149,12 @@ func newKey(rand io.Reader) (*Key, error) {
 }
 ```
 
-可以看到，newKey创建新账户时，  
+可以看到，newKey 创建新账户时，
 
- 1. 由secp256k1曲线生成私钥，是由随机的256bit组成
- 2. 采用椭圆曲线数字签名算法（ECDSA）将私钥映射成公钥，一个私钥只能映射出一个公钥。
- 3. 然后由公钥算出地址并构建一个自定义的Key
- 
+1.  由 secp256k1 曲线生成私钥，是由随机的 256bit 组成
+2.  采用椭圆曲线数字签名算法（ECDSA）将私钥映射成公钥，一个私钥只能映射出一个公钥。
+3.  然后由公钥算出地址并构建一个自定义的 Key
+
 第三步的代码如下：
 
 ```
@@ -167,7 +169,7 @@ func newKeyFromECDSA(privateKeyECDSA *ecdsa.PrivateKey) *Key {
 }
 ```
 
-由公钥算出地址是由crypto.PubkeyToAddress（crypto/crypto.go）完成的：
+由公钥算出地址是由 crypto.PubkeyToAddress（crypto/crypto.go）完成的：
 
 ```
 func PubkeyToAddress(p ecdsa.PublicKey) common.Address {
@@ -185,10 +187,12 @@ func Keccak256(data ...[]byte) []byte {
 }
 ```
 
-可以看到公钥经过Keccak-256单向散列函数变成了256bit，然后取160bit作为地址。本质上是从256bit的私钥映射到160bit的公共地址。这意味着一个账户可以有不止一个私钥。
+可以看到公钥经过 Keccak-256 单向散列函数变成了 256bit，然后取 160bit 作为地址。本质上是从 256bit 的私钥映射到 160bit 的公共地址。这意味着一个账户可以有不止一个私钥。
 
 # 三、总结
-总得来说，以太坊地址的生成过程如下：  
- 1. 由secp256k1曲线生成私钥，是由随机的256bit组成  
- 2. 采用椭圆曲线数字签名算法（ECDSA）将私钥映射成公钥。  
- 3. 公钥经过Keccak-256单向散列函数变成了256bit，然后取160bit作为地址  
+
+总得来说，以太坊地址的生成过程如下：
+
+1.  由 secp256k1 曲线生成私钥，是由随机的 256bit 组成
+2.  采用椭圆曲线数字签名算法（ECDSA）将私钥映射成公钥。
+3.  公钥经过 Keccak-256 单向散列函数变成了 256bit，然后取 160bit 作为地址
