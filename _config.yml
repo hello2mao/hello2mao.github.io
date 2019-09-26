@@ -64,6 +64,7 @@ featured-condition-size: 0 # A tag will be featured if the size of it is more th
 plugins:
   - jekyll-paginate
   - jekyll-seo-tag
+  - jekyll_github_sample
 
 paginate: 5
 paginate_path: "page:num"
