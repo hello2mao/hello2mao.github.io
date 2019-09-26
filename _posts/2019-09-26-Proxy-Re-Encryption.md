@@ -4,15 +4,16 @@ title: "代理重加密"
 subtitle: "Proxy Re-Encryption"
 date: 2019-09-26 10:31:11
 author: "hello2mao"
+hidden: true
 tags:
     - crypto
 ---
 
 <!-- TOC -->
 
-- [0.1. 作用](#01-作用)
-- [0.2. 功能](#02-功能)
-- [0.3. 流程](#03-流程)
+- [0.1. 作用](#01-%e4%bd%9c%e7%94%a8)
+- [0.2. 功能](#02-%e5%8a%9f%e8%83%bd)
+- [0.3. 流程](#03-%e6%b5%81%e7%a8%8b)
 
 <!-- /TOC -->
 
