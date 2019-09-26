@@ -13,6 +13,8 @@ tags:
 
 -   [概述](#概述)
 -   [解析](#解析)
+    -   [工作流程](#工作流程)
+    -   [密码学相关](#密码学相关)
 -   [参考](#参考)
 
 <!-- /TOC -->
@@ -29,6 +31,26 @@ NEO DevCon 2019 视频介绍：https://www.youtube.com/watch?time_continue=17432
 # 解析
 
 这个 Seraph ID 实际是 NEO 的 DID 实现方案，遵循的是 W3C 的 DID 标准：https://w3c-ccg.github.io/did-spec/
+
+## 工作流程
+
+以租房为例举例此 DID 的工作流程如下：
+
+![](/img/posts/seraphid-demo-workflow.png)
+
+## 密码学相关
+
+使用了如下密码学相关：
+
+1. Encryption algorithm
+   • ECC: secp256r1
+2. Signing algorithm
+   • ECDSA
+3. Hash algorithm
+   • RIPEMD160
+   • SHA256
+   • Murmur3
+   • Scrypt
 
 # 参考
 
