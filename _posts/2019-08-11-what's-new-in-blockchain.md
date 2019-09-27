@@ -4,7 +4,7 @@ title: "区块链技术追踪"
 subtitle: "what's new in blockchain"
 date: 2019-08-11 10:51:11
 author: "hello2mao"
-header-img: "img/eye.png"
+header-img: "img/posts/eye.png"
 tags:
     - blockchain
 ---
