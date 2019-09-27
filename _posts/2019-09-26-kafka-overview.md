@@ -1,12 +1,12 @@
 ---
-title: kafka调研
-date: 2019-09-26 10:31:11 Z
-tags:
-- message queue
 layout: post
-subtitle: kafka-overview
-author: hello2mao
+title: "kafka调研"
+subtitle: "kafka-overview"
+date: 2019-09-26 10:31:11
+author: "hello2mao"
 hidden: true
+tags:
+    - message queue
 ---
 
 <!-- TOC -->

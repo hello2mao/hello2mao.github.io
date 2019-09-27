@@ -1,11 +1,11 @@
 ---
-title: 解析以太坊地址的生成过程
-date: 2018-05-22 11:38:12 Z
-tags:
-- blockchain
 layout: post
-subtitle: Detail about ethereum account
-author: hello2mao
+title: "解析以太坊地址的生成过程"
+subtitle: "Detail about ethereum account"
+date: 2018-05-22 11:38:12
+author: "hello2mao"
+tags:
+    - blockchain
 ---
 
 - [一、获得一个以太坊钱包地址](#%e4%b8%80%e8%8e%b7%e5%be%97%e4%b8%80%e4%b8%aa%e4%bb%a5%e5%a4%aa%e5%9d%8a%e9%92%b1%e5%8c%85%e5%9c%b0%e5%9d%80)

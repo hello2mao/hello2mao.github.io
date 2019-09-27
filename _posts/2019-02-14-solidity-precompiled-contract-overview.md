@@ -1,11 +1,11 @@
 ---
-title: 解析Solidity预编译合约的实现
-date: 2019-02-14 10:02:11 Z
-tags:
-- blockchain
 layout: post
-subtitle: Solidity precompiled contract overview
-author: hello2mao
+title: "解析Solidity预编译合约的实现"
+subtitle: "Solidity precompiled contract overview"
+date: 2019-02-14 10:02:11
+author: "hello2mao"
+tags:
+    - blockchain
 ---
 
 在 Solidity 中存在很多预先编译好的合约（或者说是方法）可供调用，例如 sha256、keccak256 等，本文简单分析下其实现逻辑。
