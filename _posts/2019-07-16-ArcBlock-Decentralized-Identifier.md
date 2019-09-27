@@ -1,11 +1,11 @@
 ---
-layout: post
-title: "ArcBlock Decentralized Identifier 解析"
-subtitle: "ArcBlock Decentralized Identifier"
-date: 2019-07-16 10:51:11
-author: "hello2mao"
+title: ArcBlock Decentralized Identifier 解析
+date: 2019-07-16 10:51:11 Z
 tags:
-    - blockchain
+- blockchain
+layout: post
+subtitle: ArcBlock Decentralized Identifier
+author: hello2mao
 ---
 
 <!-- TOC -->

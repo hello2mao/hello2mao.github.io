@@ -1,12 +1,12 @@
 ---
-layout: post
-title: "代理重加密"
-subtitle: "Proxy Re-Encryption"
-date: 2019-09-26 10:31:11
-author: "hello2mao"
-hidden: true
+title: 代理重加密
+date: 2019-09-26 10:31:11 Z
 tags:
-    - crypto
+- crypto
+layout: post
+subtitle: Proxy Re-Encryption
+author: hello2mao
+hidden: true
 ---
 
 <!-- TOC -->

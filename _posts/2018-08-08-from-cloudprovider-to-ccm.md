@@ -1,11 +1,11 @@
 ---
-layout: post
-title: "Kubernetes：从Cloud Provider到Cloud Controller Mananger全解析"
-subtitle: "Concepts Underlying the Cloud Controller Manager "
-date: 2018-08-08 21:54:25
-author: "hello2mao"
+title: Kubernetes：从Cloud Provider到Cloud Controller Mananger全解析
+date: 2018-08-08 21:54:25 Z
 tags:
-    - kubernetes
+- kubernetes
+layout: post
+subtitle: 'Concepts Underlying the Cloud Controller Manager '
+author: hello2mao
 ---
 
 <!-- TOC -->

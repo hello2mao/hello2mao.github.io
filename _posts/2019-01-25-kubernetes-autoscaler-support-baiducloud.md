@@ -1,11 +1,11 @@
 ---
-layout: post
-title: "Kubernetes autoscaler增加对百度云容器引擎CCE的支持"
-subtitle: "kubernetes autoscaler support BaiduCloud"
-date: 2019-01-25 10:00:00
-author: "hello2mao"
+title: Kubernetes autoscaler增加对百度云容器引擎CCE的支持
+date: 2019-01-25 10:00:00 Z
 tags:
-    - kubernetes
+- kubernetes
+layout: post
+subtitle: kubernetes autoscaler support BaiduCloud
+author: hello2mao
 ---
 
 <!-- TOC -->
