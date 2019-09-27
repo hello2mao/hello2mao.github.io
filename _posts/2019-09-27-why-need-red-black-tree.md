@@ -2,7 +2,7 @@
 layout: post
 title: "有了二叉查找树、平衡树为啥还需要红黑树？"
 subtitle: "why need red-black tree"
-date: 2019-09-27 09:27:00
+date: 2019-09-27 01:31:11
 author: "hello2mao"
 hidden: true
 tags:
