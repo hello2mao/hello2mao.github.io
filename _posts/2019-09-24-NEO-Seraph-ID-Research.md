@@ -1,12 +1,12 @@
 ---
-layout: post
-title: "NEO（小蚁）Seraph ID调研"
-subtitle: "NEO Seraph ID Research"
-date: 2019-09-24 17:51:11
-author: "hello2mao"
-header-img: "img/posts/NEO-Seraph-ID.jpg"
+title: NEO（小蚁）Seraph ID调研
+date: 2019-09-24 17:51:11 Z
 tags:
-    - blockchain
+- blockchain
+layout: post
+subtitle: NEO Seraph ID Research
+author: hello2mao
+header-img: img/posts/NEO-Seraph-ID.jpg
 ---
 
 <!-- TOC -->

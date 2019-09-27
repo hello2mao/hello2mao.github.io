@@ -1,11 +1,11 @@
 ---
-layout: post
-title: "详解Linux-I2C驱动"
-subtitle: "Linux I2C driver"
-date: 2015-12-02 12:00:43
-author: "hello2mao"
+title: 详解Linux-I2C驱动
+date: 2015-12-02 12:00:43 Z
 tags:
-    - linux
+- linux
+layout: post
+subtitle: Linux I2C driver
+author: hello2mao
 ---
 
 #目录
