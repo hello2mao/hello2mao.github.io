@@ -1,11 +1,11 @@
 ---
-title: 解析Quorum -- 摩根大通的企业级区块链解决方案
-date: 2019-02-12 18:28:25 Z
-tags:
-- blockchain
 layout: post
-subtitle: Quorum overview
-author: hello2mao
+title: "解析Quorum -- 摩根大通的企业级区块链解决方案"
+subtitle: "Quorum overview"
+date: 2019-02-12 18:28:25
+author: "hello2mao"
+tags:
+    - blockchain
 ---
 
 <!-- TOC -->

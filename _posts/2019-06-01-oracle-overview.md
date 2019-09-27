@@ -1,11 +1,11 @@
 ---
-title: 预言机（Oracle）调研
-date: 2019-06-01 10:51:11 Z
-tags:
-- blockchain
 layout: post
-subtitle: oracle overview
-author: hello2mao
+title: "预言机（Oracle）调研"
+subtitle: "oracle overview"
+date: 2019-06-01 10:51:11
+author: "hello2mao"
+tags:
+    - blockchain
 ---
 
 <!-- TOC -->

@@ -1,12 +1,12 @@
 ---
-title: 布隆过滤器
-date: 2019-09-27 15:59:11 Z
-tags:
-- algorithm
 layout: post
-subtitle: bloom filter
-author: hello2mao
+title: "布隆过滤器"
+subtitle: "bloom filter"
+date: 2019-09-27 15:59:11
+author: "hello2mao"
 hidden: true
+tags:
+    - algorithm
 ---
 
 <!-- TOC -->

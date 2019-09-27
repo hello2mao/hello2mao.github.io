@@ -1,12 +1,12 @@
 ---
-title: kafka on mac
-date: 2019-09-26 10:31:11 Z
-tags:
-- message queue
 layout: post
-subtitle: kafka on mac
-author: hello2mao
+title: "kafka on mac"
+subtitle: "kafka on mac"
+date: 2019-09-26 10:31:11
+author: "hello2mao"
 hidden: true
+tags:
+    - message queue
 ---
 
 1. 安装 kafka

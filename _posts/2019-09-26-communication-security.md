@@ -1,12 +1,12 @@
 ---
-title: 通讯安全
-date: 2019-09-26 06:45:11 Z
-tags:
-- crypto
 layout: post
-subtitle: communication security
-author: hello2mao
+title: "通讯安全"
+subtitle: "communication security"
+date: 2019-09-26 06:45:11
+author: "hello2mao"
 hidden: true
+tags:
+    - crypto
 ---
 
 <!-- TOC -->

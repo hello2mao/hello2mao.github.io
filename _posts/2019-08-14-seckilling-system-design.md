@@ -1,12 +1,12 @@
 ---
-title: 秒杀架构设计
-date: 2019-08-14 17:51:11 Z
-tags:
-- system design
 layout: post
-subtitle: seckilling system design
-author: hello2mao
+title: "秒杀架构设计"
+subtitle: "seckilling system design"
+date: 2019-08-14 17:51:11
+author: "hello2mao"
 hidden: true
+tags:
+    - system design
 ---
 
 <!-- TOC -->

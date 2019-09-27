@@ -1,11 +1,11 @@
 ---
-title: Android 5.0 ART GC 对比 Android 4.x Dalvik GC
-date: 2015-12-11 23:00:00 Z
-tags:
-- android
 layout: post
-subtitle: Android 5.0 ART GC VS Android 4.x Dalvik GC
-author: hello2mao
+title: "Android 5.0 ART GC 对比 Android 4.x Dalvik GC"
+subtitle: "Android 5.0 ART GC VS Android 4.x Dalvik GC"
+date: 2015-12-11 23:00:00
+author: "hello2mao"
+tags:
+    - android
 ---
 
 为了研究 Android 虚拟机中的内存管理机制，前期进行了初步调研，下面列出 Android 5.0 ART 中 GC 的更新概要以供参考，资料来源于网络以及对源码的初步阅读。
