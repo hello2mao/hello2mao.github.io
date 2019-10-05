@@ -17,10 +17,10 @@ tags:
 - [4. java.lang.Math](#4-javalangmath)
 - [5. java.util.Collections](#5-javautilcollections)
 - [6. java.util.Arrays](#6-javautilarrays)
-- [7. java.util.ArrayList<E>](#7-javautilarrayliste)
-- [8. java.util.LinkedList<E>](#8-javautillinkedliste)
+- [7. java.util.ArrayList](#7-javautilarraylist)
+- [8. java.util.LinkedList](#8-javautillinkedlist)
 - [9. java.util.Queue](#9-javautilqueue)
-- [10. java.util.Stack<E>](#10-javautilstacke)
+- [10. java.util.Stack](#10-javautilstack)
 - [11. ASCII](#11-ascii)
 - [12. Ref](#12-ref)
 - [13. Progress](#13-progress)
@@ -102,7 +102,7 @@ Arrays.sort(num)
 List<String> aList = Arrays.asList(aStr);
 ```
 
-# 7. java.util.ArrayList<E>
+# 7. java.util.ArrayList
 
 ```java
 // new ArrayList
@@ -115,7 +115,7 @@ int size = res.size();
 List<Integer> newItem = new ArrayList<>(oldItem);
 ```
 
-# 8. java.util.LinkedList<E>
+# 8. java.util.LinkedList
 
 ```java
 // 声明生成的是一个链队列。list.get(0)获得最后 add 进去的元素。和 getLast()同样效果。
@@ -138,7 +138,7 @@ e = queue.poll());
 e = queue.peek());
 ```
 
-# 10. java.util.Stack<E>
+# 10. java.util.Stack
 
 ```java
 // 堆栈。
