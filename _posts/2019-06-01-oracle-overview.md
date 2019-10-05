@@ -5,26 +5,26 @@ subtitle: "oracle overview"
 date: 2019-06-01 10:51:11
 author: "hello2mao"
 tags:
-    - blockchain
+  - blockchain
 ---
 
 <!-- TOC -->
 
--   [一、概述](#一概述)
-    -   [1.1、为什么需要](#11为什么需要)
-    -   [1.2、应用场景](#12应用场景)
-    -   [1.3、现有的预言机产品](#13现有的预言机产品)
-    -   [1.4、基本原理](#14基本原理)
--   [二、蚂蚁区块链 BaaS 平台–外部数据源服务](#二蚂蚁区块链-baas-平台外部数据源服务)
--   [三、主流预言机：Oraclize](#三主流预言机oraclize)
-    -   [3.1 使用举例](#31-使用举例)
-    -   [3.2 数据源](#32-数据源)
-    -   [3.3 收费](#33-收费)
-    -   [3.4 真实性：](#34-真实性)
-    -   [3.5 解析助手](#35-解析助手)
-    -   [3.6 加密查询](#36-加密查询)
-    -   [3.7 原理](#37-原理)
--   [四、参考](#四参考)
+- [一、概述](#一概述)
+  - [1.1、为什么需要](#11为什么需要)
+  - [1.2、应用场景](#12应用场景)
+  - [1.3、现有的预言机产品](#13现有的预言机产品)
+  - [1.4、基本原理](#14基本原理)
+- [二、蚂蚁区块链 BaaS 平台–外部数据源服务](#二蚂蚁区块链-baas-平台外部数据源服务)
+- [三、主流预言机：Oraclize](#三主流预言机oraclize)
+  - [3.1 使用举例](#31-使用举例)
+  - [3.2 数据源](#32-数据源)
+  - [3.3 收费](#33-收费)
+  - [3.4 真实性：](#34-真实性)
+  - [3.5 解析助手](#35-解析助手)
+  - [3.6 加密查询](#36-加密查询)
+  - [3.7 原理](#37-原理)
+- [四、参考](#四参考)
 
 <!-- /TOC -->
 
@@ -43,10 +43,10 @@ tags:
 
 适用于以下任意场景：
 
--   智能合约需要可信访问 Web 数据。
--   智能合约通过调用 Open API 使用互联网服务。
--   智能合约需要与外部系统交互。
--   智能合约依赖公共现实事件，如天气、赛事信息、航班信息等。
+- 智能合约需要可信访问 Web 数据。
+- 智能合约通过调用 Open API 使用互联网服务。
+- 智能合约需要与外部系统交互。
+- 智能合约依赖公共现实事件，如天气、赛事信息、航班信息等。
 
 具体的：
 
@@ -221,12 +221,12 @@ contract YoutubeViews is usingOraclize {
 
 Orcalize 的数据源有：
 
--   URL：互联网中的连接。
--   computation：它允许抓取应用的链下执行结果。在退出前，该应用必须在最后一行打印查询结果（在标准输出栏）
--   nested：nested 数据源是一个元数据源，它不提供访问其他服务的权限。它用来提供简单相加逻辑，允许单个查询在任何可用数据源的基础上进行子查询，并产生一个单独字符串作为结果。
--   IPFS：文件传输系统中的数据
--   blockchain：blockchain 数据源允许用户访问其他区块链的数据。可以提交给 blockchain 数据源的查询包括 bitcoin blockchain height、litecoinhashrate、bitcoin difficulty、1NPFRDJuEdyqEn2nmLNaWMfojNksFjbL4S balance 等
--   WolframAlpha：WolframAlpha 是开发计算数学应用软件的沃尔夫勒姆研究公司开发出的新一代的搜索引擎，能根据问题直接给出答案的网站，于 2009 年 5 月 15 日晚 7 点（美国中部当地时间，北京时间 5 月 16 日上午 8 点）提前上线，用户在搜索框键入需要查询的问题后，该搜索引擎将直接向用户返回答案，而不是返回一大堆链接。
+- URL：互联网中的连接。
+- computation：它允许抓取应用的链下执行结果。在退出前，该应用必须在最后一行打印查询结果（在标准输出栏）
+- nested：nested 数据源是一个元数据源，它不提供访问其他服务的权限。它用来提供简单相加逻辑，允许单个查询在任何可用数据源的基础上进行子查询，并产生一个单独字符串作为结果。
+- IPFS：文件传输系统中的数据
+- blockchain：blockchain 数据源允许用户访问其他区块链的数据。可以提交给 blockchain 数据源的查询包括 bitcoin blockchain height、litecoinhashrate、bitcoin difficulty、1NPFRDJuEdyqEn2nmLNaWMfojNksFjbL4S balance 等
+- WolframAlpha：WolframAlpha 是开发计算数学应用软件的沃尔夫勒姆研究公司开发出的新一代的搜索引擎，能根据问题直接给出答案的网站，于 2009 年 5 月 15 日晚 7 点（美国中部当地时间，北京时间 5 月 16 日上午 8 点）提前上线，用户在搜索框键入需要查询的问题后，该搜索引擎将直接向用户返回答案，而不是返回一大堆链接。
 
 ## 3.3 收费
 
@@ -256,7 +256,7 @@ Oraclize 在以太坊上部署了一个名为 usingOraclize 的智能合约，�
 
 # 四、参考
 
--   Oraclize：https://provable.xyz/
--   去中心化的预言机：全面概览：https://medium.com/@liyunlong518/%E5%8E%BB%E4%B8%AD%E5%BF%83%E5%8C%96%E7%9A%84%E9%A2%84%E8%A8%80%E6%9C%BA-%E5%85%A8%E9%9D%A2%E6%A6%82%E8%A7%88-2487b5d97926
--   什么是区块链预言机（BlockChain Oracle）：https://juejin.im/post/5c236f456fb9a049c965b9e4
--   区块链落地的必需工具——预言机（Oracle)：https://blog.csdn.net/weixin_43761479/article/details/85067727
+- Oraclize：https://provable.xyz/
+- 去中心化的预言机：全面概览：https://medium.com/@liyunlong518/%E5%8E%BB%E4%B8%AD%E5%BF%83%E5%8C%96%E7%9A%84%E9%A2%84%E8%A8%80%E6%9C%BA-%E5%85%A8%E9%9D%A2%E6%A6%82%E8%A7%88-2487b5d97926
+- 什么是区块链预言机（BlockChain Oracle）：https://juejin.im/post/5c236f456fb9a049c965b9e4
+- 区块链落地的必需工具——预言机（Oracle)：https://blog.csdn.net/weixin_43761479/article/details/85067727

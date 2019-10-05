@@ -6,7 +6,7 @@ date: 2019-09-26 10:31:11
 author: "hello2mao"
 hidden: true
 tags:
-    - message queue
+  - message queue
 ---
 
 <!-- TOC -->
@@ -48,8 +48,8 @@ kafka + zookeeper 架构如下：
 创建一条记录，记录中一个要指定对应的 topic 和 value，key 和 partition 可选。 先序列化，然后按照 topic 和 partition，放进对应的发送队列中。kafka produce 都是批量请求，会积攒一批，然后一起发送，不是调 send()就进行立刻进行网络发包。
 如果 partition 没填，那么情况会是这样的：
 
--   key 有填：按照 key 进行哈希，相同 key 去一个 partition。（如果扩展了 partition 的数量那么就不能保证了）
--   key 没填：round-robin 来选 partition
+- key 有填：按照 key 进行哈希，相同 key 去一个 partition。（如果扩展了 partition 的数量那么就不能保证了）
+- key 没填：round-robin 来选 partition
 
 这些要发往同一个 partition 的请求按照配置，攒一波，然后由一个单独的线程一次性发过去。
 
@@ -65,9 +65,9 @@ kafka + zookeeper 架构如下：
 
 kafka 支持 3 种消息投递语义
 
--   At most once：最多一次，消息可能会丢失，但不会重复
--   At least once：最少一次，消息不会丢失，可能会重复
--   Exactly once：只且一次，消息不丢失不重复，只且消费一次（0.11 中实现，仅限于下游也是 kafka）
+- At most once：最多一次，消息可能会丢失，但不会重复
+- At least once：最少一次，消息不会丢失，可能会重复
+- Exactly once：只且一次，消息不丢失不重复，只且消费一次（0.11 中实现，仅限于下游也是 kafka）
 
 在业务中，常常都是使用 At least once 的模型，如果需要可重入的话，往往是业务自己实现。
 
@@ -95,8 +95,8 @@ kafka 支持 3 种消息投递语义
 
 **解决重复消费有两个方法：**
 
--   下游系统保证幂等性，重复消费也不会导致多条记录。
--   把 commit offset 和业务处理绑定成一个事务。
+- 下游系统保证幂等性，重复消费也不会导致多条记录。
+- 把 commit offset 和业务处理绑定成一个事务。
 
 本来 exactly once 实现第 1 点就 ok 了。
 但是在一些使用场景下，我们的数据源可能是多个 topic，处理后输出到多个 topic，这时我们会希望输出时要么全部成功，要么全部失败。这就需要实现事务性。既然要做事务，那么干脆把重复消费的问题从根源上解决，把 commit offset 和输出到其他 topic 绑定成一个事务。

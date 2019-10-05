@@ -5,7 +5,7 @@ subtitle: "kubernetes autoscaler support BaiduCloud"
 date: 2019-01-25 10:00:00
 author: "hello2mao"
 tags:
-    - kubernetes
+    - cloud native
 ---
 
 <!-- TOC -->

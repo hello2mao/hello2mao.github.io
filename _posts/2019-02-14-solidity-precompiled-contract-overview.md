@@ -5,7 +5,7 @@ subtitle: "Solidity precompiled contract overview"
 date: 2019-02-14 10:02:11
 author: "hello2mao"
 tags:
-    - blockchain
+  - blockchain
 ---
 
 在 Solidity 中存在很多预先编译好的合约（或者说是方法）可供调用，例如 sha256、keccak256 等，本文简单分析下其实现逻辑。
@@ -123,10 +123,10 @@ case FunctionType::Kind::RIPEMD160:
 
 类似的函数有四个。
 
--   Call A->B A,B 的环境独立
--   CallCode、 和 Call 类似 区别在于 storage 位置不一样
--   DelegateCall、 和 CallCode 类似，区别在于 msg.send 不一样
--   StaticCall 和 call 相似 只是不能修改状态
+- Call A->B A,B 的环境独立
+- CallCode、 和 Call 类似 区别在于 storage 位置不一样
+- DelegateCall、 和 CallCode 类似，区别在于 msg.send 不一样
+- StaticCall 和 call 相似 只是不能修改状态
 
 Contract 和参数构造完成后调用执行函数，执行函数会检查调用的是否会之前编译好的原生合约，如果是原生合约则调用原生合约，否则调用解释器执行函数运算合约。
 
@@ -186,4 +186,4 @@ func (c *sha256hash) Run(input []byte) ([]byte, error) {
 
 参考：
 
--   [precompiles & solidity](https://medium.com/@rbkhmrcr/precompiles-solidity-e5d29bd428c4)
+- [precompiles & solidity](https://medium.com/@rbkhmrcr/precompiles-solidity-e5d29bd428c4)

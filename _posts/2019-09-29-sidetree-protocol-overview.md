@@ -13,12 +13,12 @@ tags:
 - [1. 概述](#1-%e6%a6%82%e8%bf%b0)
 - [2. 背景知识](#2-%e8%83%8c%e6%99%af%e7%9f%a5%e8%af%86)
   - [2.1. DID 与 DID Document](#21-did-%e4%b8%8e-did-document)
-- [3. Sidetree协议](#3-sidetree%e5%8d%8f%e8%ae%ae)
-- [4. ION: Sidetree的bitcoin实现](#4-ion-sidetree%e7%9a%84bitcoin%e5%ae%9e%e7%8e%b0)
+- [3. Sidetree 协议](#3-sidetree-%e5%8d%8f%e8%ae%ae)
+- [4. ION: Sidetree 的 bitcoin 实现](#4-ion-sidetree-%e7%9a%84-bitcoin-%e5%ae%9e%e7%8e%b0)
   - [4.1. Create DIDs](#41-create-dids)
   - [4.2. Discover DIDs](#42-discover-dids)
   - [4.3. Authenticate DIDs](#43-authenticate-dids)
-- [5. Element: Sidetree的ethereum实现](#5-element-sidetree%e7%9a%84ethereum%e5%ae%9e%e7%8e%b0)
+- [5. Element: Sidetree 的 ethereum 实现](#5-element-sidetree-%e7%9a%84-ethereum-%e5%ae%9e%e7%8e%b0)
 - [6. 参考](#6-%e5%8f%82%e8%80%83)
 
 <!-- /TOC -->
@@ -32,14 +32,13 @@ Sidetree 是一个基于现有区块链的第二层（L2）协议，专门用于
 - [ION](https://github.com/decentralized-identity/ion)：微软开源 的 ION 项目，是 Sidetree 协议基于比特币区块链的一个实现。
 - [Element](https://github.com/decentralized-identity/element)：Transmute Industries 与 ConsenSys 合作的项目，是 Sidetree 协议基于 Ethereum 和 IPFS 的一个实现。
 
-
 # 2. 背景知识
 
 ## 2.1. DID 与 DID Document
 
-# 3. Sidetree协议
+# 3. Sidetree 协议
 
-# 4. ION: Sidetree的bitcoin实现
+# 4. ION: Sidetree 的 bitcoin 实现
 
 ## 4.1. Create DIDs
 
@@ -47,7 +46,7 @@ Sidetree 是一个基于现有区块链的第二层（L2）协议，专门用于
 
 ## 4.3. Authenticate DIDs
 
-# 5. Element: Sidetree的ethereum实现
+# 5. Element: Sidetree 的 ethereum 实现
 
 # 6. 参考
 

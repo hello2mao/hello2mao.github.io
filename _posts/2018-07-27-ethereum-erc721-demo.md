@@ -5,7 +5,7 @@ subtitle: "Ethereum ERC721 Demo -- Simple CryptoKitties"
 date: 2018-07-27 17:21:52
 author: "hello2mao"
 tags:
-    - blockchain
+  - blockchain
 ---
 
 - [一、概述](#%e4%b8%80%e6%a6%82%e8%bf%b0)

@@ -9,7 +9,6 @@ tags:
   - blockchain
 ---
 
-
 UTXO（Unspent Transaction Output）在比特币中类似于以太坊中的账户模型。
 
 - 在比特币中，一笔交易的每一条输入和输出实际上都是 UTXO，输入 UTXO 就是以前交易剩下的， 更准确的说是以前交易的输出 UTXO。
