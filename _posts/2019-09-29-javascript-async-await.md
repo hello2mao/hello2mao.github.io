@@ -1,7 +1,7 @@
 ---
 layout: post
-title: "Javascript async await"
-subtitle: "Javascript async await"
+title: "javascript async await"
+subtitle: "javascript async await"
 date: 2019-09-29 18:15:00
 author: "hello2mao"
 hidden: true
