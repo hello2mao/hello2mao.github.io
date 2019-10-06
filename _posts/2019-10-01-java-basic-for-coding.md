@@ -96,7 +96,7 @@ Collections.reverse(aList);
 
 ```java
 // sort array with quick sort: O(nlogn)，快排
-Arrays.sort(num)
+Arrays.sort(nums)
 
 // 字符串数组类型的 aStr 转换成 List 类型的 aList
 List<String> aList = Arrays.asList(aStr);
