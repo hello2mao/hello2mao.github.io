@@ -22,8 +22,6 @@ tags:
 - [9. java.util.Queue](#9-javautilqueue)
 - [10. java.util.Stack](#10-javautilstack)
 - [11. ASCII](#11-ascii)
-- [12. Ref](#12-ref)
-- [13. Progress](#13-progress)
 
 <!-- /TOC -->
 
@@ -148,15 +146,3 @@ Stack<Integer> stack = new Stack();
 # 11. ASCII
 
 - 需要记住的 ASCII 码表：0（48），9（57），A（65），Z（90），a（97），z（122）
-
-# 12. Ref
-
-- [Leetcode 分类顺序表](https://cspiration.com/leetcodeClassification)
-- [azl397985856/leetcode](https://github.com/azl397985856/leetcode)
-- [MisterBooo/LeetCodeAnimation](https://github.com/MisterBooo/LeetCodeAnimation)
-- 常用知识点: https://www.cnblogs.com/BigJunOba/p/9508688.html
-- [数据结构和算法必知必会的 50 个代码实现](https://github.com/wangzheng0822/algo)
-
-# 13. Progress
-
-![leetcode](https://leetcode-badge.chyroc.cn/?name=hello2mao)
