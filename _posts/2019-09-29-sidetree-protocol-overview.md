@@ -4,6 +4,7 @@ title: "[WIP] 去中心化数字身份协议Sidetree解析"
 subtitle: "Sidetree-Protocol-Overview"
 date: 2019-09-29 10:51:11
 author: "hello2mao"
+hidden: true
 tags:
   - blockchain
 ---

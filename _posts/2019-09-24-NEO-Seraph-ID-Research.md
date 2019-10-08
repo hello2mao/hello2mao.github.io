@@ -11,11 +11,11 @@ tags:
 
 <!-- TOC -->
 
--   [1. 概述](#1-概述)
--   [2. 解析](#2-解析)
-    -   [2.1. 工作流程](#21-工作流程)
-    -   [2.2. 密码学相关](#22-密码学相关)
--   [3. 参考](#3-参考)
+- [1. 概述](#1-%e6%a6%82%e8%bf%b0)
+- [2. 解析](#2-%e8%a7%a3%e6%9e%90)
+  - [2.1. 工作流程](#21-%e5%b7%a5%e4%bd%9c%e6%b5%81%e7%a8%8b)
+  - [2.2. 密码学相关](#22-%e5%af%86%e7%a0%81%e5%ad%a6%e7%9b%b8%e5%85%b3)
+- [3. 参考](#3-%e5%8f%82%e8%80%83)
 
 <!-- /TOC -->
 
@@ -42,11 +42,11 @@ NEO DevCon 2019 视频介绍：https://www.youtube.com/watch?time_continue=17432
 
 使用了如下密码学相关：
 
-1. Encryption algorithm
+1. Encryption algorithm  
    • ECC: secp256r1
-2. Signing algorithm
+2. Signing algorithm  
    • ECDSA
-3. Hash algorithm
+3. Hash algorithm  
    • RIPEMD160
    • SHA256
    • Murmur3
