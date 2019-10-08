@@ -10,7 +10,6 @@ baseurl: ""
 
 # SNS settings
 github_username: hello2mao
-RSS: true
 weibo_username:     hello2mao
 zhihu_username:     hello2mao
 twitter_username:  hello2mao
