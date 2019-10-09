@@ -13,7 +13,9 @@ tags:
 - [1. 概述](#1-%e6%a6%82%e8%bf%b0)
 - [2. 背景知识](#2-%e8%83%8c%e6%99%af%e7%9f%a5%e8%af%86)
   - [2.1. DID](#21-did)
-  - [2.2. Bitcoin、Ethereum、IPFS](#22-bitcoinethereumipfs)
+  - [2.2. Bitcoin](#22-bitcoin)
+  - [IPFS](#ipfs)
+  - [JSON Web Signature (JWS)](#json-web-signature-jws)
 - [3. Sidetree 协议](#3-sidetree-%e5%8d%8f%e8%ae%ae)
   - [3.1. 协议概述](#31-%e5%8d%8f%e8%ae%ae%e6%a6%82%e8%bf%b0)
   - [3.2. 工作原理](#32-%e5%b7%a5%e4%bd%9c%e5%8e%9f%e7%90%86)
@@ -66,7 +68,11 @@ DID 解决方案使用 DID 文档、可验证声明、PKI 体系等来解决去�
 - 断言： 确定主体身份的特定语句
 - 解析：解析、验证特定主体身份的机制
 
-## 2.2. Bitcoin、Ethereum、IPFS
+## 2.2. Bitcoin
+
+## IPFS
+
+## JSON Web Signature (JWS)
 
 # 3. Sidetree 协议
 
@@ -125,6 +131,10 @@ Anchor File:
 这其实是为了后续实现 Sidetree 轻节点预留的，因为进行 DID 解析（例如 DID URL Dereferrence）的时候，如果只是需要一些元数据，那么只需下载`Anchor File`即可，而不需要把较大的`Batch File`下载下来。
 
 ## 3.4. Sidetree REST API
+
+实现 Sidetree 协议的节点需要提供 REST API，且所有的请求都需要使用 JWS 签名。
+
+提供的接口列表如下，详细的可参考：[sidetree-rest-api](https://github.com/decentralized-identity/sidetree/blob/master/docs/protocol.md#sidetree-rest-api)
 
 - DID and DID Document Creation
 - DID Document resolution
@@ -457,6 +467,8 @@ Response:
 ```
 
 # 6. Element: 基于以太坊的、使用 Sidetree 协议的 DID 实现
+
+TBD
 
 # 7. 参考
 
