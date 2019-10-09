@@ -14,8 +14,11 @@ layout: default
       <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1 ">
         <div class="site-heading">
           <h1>
-            {% if page.title %}{{ page.title }}{% else %}{{ site.title }}{%
-            endif %}
+            {% if page.title %}
+            {{ page.title }}
+            {% else %}
+            {{ site.title }}
+            {% endif %}
           </h1>
           <span class="subheading">{{ page.description }}</span>
         </div>
@@ -51,13 +54,11 @@ layout: default
         "
     >
       <!-- Featured Tags -->
-      {% if site.featured-tags %}
       <section>
         <hr class="hidden-sm hidden-xs" />
         <h5><a href="{{ '/tags/' | prepend: site.baseurl }}">TAGS</a></h5>
         <div class="tags">
-          {% for tag in site.tags reversed %} {% if tag[1].size >
-          site.featured-condition-size %}
+          {% for tag in site.tags reversed %}
           <a
             href="{{ site.baseurl }}/tags/#{{ tag[0] }}"
             title="{{ tag[0] }}"
@@ -65,21 +66,17 @@ layout: default
           >
             {{ tag[0] }}
           </a>
-          {% endif %} {% endfor %}
+          {% endfor %}
         </div>
       </section>
-      {% endif %}
 
       <!-- Short About -->
       <section class="visible-md visible-lg">
         <hr />
         <h5><a href="{{ '/about/' | prepend: site.baseurl }}">ABOUT ME</a></h5>
         <div class="short-about">
-          {% if site.sidebar-avatar %}
-          <img src="{{ site.sidebar - avatar }}" />
-          {% endif %} {% if site.sidebar-about-description %}
-          <p>{{ site.sidebar - about - description }}</p>
-          {% endif %}
+          <img src="/img/Wechat.jpeg" />
+          <p>Stay hungry, Stay foolish</p>
           <!-- SNS Link -->
           <ul class="list-inline">
             {% if site.github_username %}

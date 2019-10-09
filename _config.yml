@@ -10,8 +10,8 @@ baseurl: ""
 
 # SNS settings
 github_username: hello2mao
-weibo_username:     hello2mao
-zhihu_username:     hello2mao
+# weibo_username:     hello2mao
+# zhihu_username:     hello2mao
 twitter_username:  hello2mao
 facebook_username:  hello2mao
 
@@ -33,15 +33,6 @@ kramdown:
 
 # Disqus settings
 disqus_username: hello2mao
-
-# Sidebar settings
-sidebar: true # whether or not using Sidebar.
-sidebar-about-description: "Stay hungry, Stay foolish"
-sidebar-avatar: /img/Wechat.jpeg # use absolute URL, seeing it's used in both `/` and `/about/`
-
-# Featured Tags
-featured-tags: true # whether or not using Feature-Tags
-featured-condition-size: 0 # A tag will be featured if the size of it is more than this condition value
 
 # Friends
 # friends: [
