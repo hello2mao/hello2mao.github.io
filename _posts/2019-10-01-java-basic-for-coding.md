@@ -21,7 +21,8 @@ tags:
 - [8. java.util.LinkedList](#8-javautillinkedlist)
 - [9. java.util.Queue](#9-javautilqueue)
 - [10. java.util.Stack](#10-javautilstack)
-- [11. ASCII](#11-ascii)
+- [11. java.util.HashMap](#11-javautilhashmap)
+- [12. ASCII](#12-ascii)
 
 <!-- /TOC -->
 
@@ -143,6 +144,49 @@ e = queue.peek());
 Stack<Integer> stack = new Stack();
 ```
 
-# 11. ASCII
+# 11. java.util.HashMap
+
+```java
+public class GFG { 
+    public static void main(String[] args) 
+    { 
+  
+        HashMap<String, Integer> map 
+            = new HashMap<>(); 
+  
+        print(map); 
+        map.put("vishal", 10); 
+        map.put("sachin", 30); 
+        map.put("vaibhav", 20); 
+  
+        System.out.println("Size of map is:- "
+                           + map.size()); 
+  
+        print(map); 
+        if (map.containsKey("vishal")) { 
+            Integer a = map.get("vishal"); 
+            System.out.println("value for key"
+                               + " \"vishal\" is:- "
+                               + a); 
+        } 
+  
+        map.clear(); 
+        print(map); 
+    } 
+  
+    public static void print(Map<String, Integer> map) 
+    { 
+        if (map.isEmpty()) { 
+            System.out.println("map is empty"); 
+        } 
+  
+        else { 
+            System.out.println(map); 
+        } 
+    } 
+} 
+```
+
+# 12. ASCII
 
 - 需要记住的 ASCII 码表：0（48），9（57），A（65），Z（90），a（97），z（122）
