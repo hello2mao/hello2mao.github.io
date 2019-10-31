@@ -11,21 +11,22 @@ tags:
 
 <!-- TOC -->
 
-- [1. java.lang.Integer](#1-javalanginteger)
-- [2. java.lang.Long](#2-javalanglong)
-- [3. java.lang.StringBuffer](#3-javalangstringbuffer)
-- [4. java.lang.Math](#4-javalangmath)
-- [5. java.util.Collections](#5-javautilcollections)
-- [6. java.util.Arrays](#6-javautilarrays)
-- [7. java.util.ArrayList](#7-javautilarraylist)
-- [8. java.util.LinkedList](#8-javautillinkedlist)
-- [9. java.util.Queue](#9-javautilqueue)
-- [10. java.util.Stack](#10-javautilstack)
-- [11. ASCII](#11-ascii)
+- [java.lang.Integer](#javalanginteger)
+- [java.lang.Long](#javalanglong)
+- [java.lang.String](#javalangstring)
+- [java.lang.StringBuffer](#javalangstringbuffer)
+- [java.lang.Math](#javalangmath)
+- [java.util.Collections](#javautilcollections)
+- [java.util.Arrays](#javautilarrays)
+- [java.util.ArrayList](#javautilarraylist)
+- [java.util.LinkedList](#javautillinkedlist)
+- [java.util.Queue](#javautilqueue)
+- [java.util.Stack](#javautilstack)
+- [ASCII](#ascii)
 
 <!-- /TOC -->
 
-# 1. java.lang.Integer
+# java.lang.Integer
 
 ```java
 // max int
@@ -38,14 +39,32 @@ Integer.MIN_VALUE
 int s = Integer.parseInt(sInt);
 ```
 
-# 2. java.lang.Long
+# java.lang.Long
 
 ```java
  // String 转 long
  long ls = Long.parseLong(sInt);
 ```
 
-# 3. java.lang.StringBuffer
+# java.lang.String
+
+```java
+// Java program to demonstrate 
+// working of toCharArray() method 
+  
+class Gfg { 
+    public static void main(String args[]) 
+    { 
+        String s = "GeeksforGeeks"; 
+        char[] gfg = s.toCharArray(); 
+        for (int i = 0; i < gfg.length; i++) { 
+            System.out.println(gfg[i]); 
+        } 
+    } 
+} 
+```
+
+# java.lang.StringBuffer
 
 ```java
 // String 转 StringBuffer
@@ -73,7 +92,7 @@ sb.reverse();
 sb.setCharAt(1,'D');
 ```
 
-# 4. java.lang.Math
+# java.lang.Math
 
 ```java
 // min
@@ -83,14 +102,14 @@ Math.min(num1, num2)
 Math.max(num1, num2)
 ```
 
-# 5. java.util.Collections
+# java.util.Collections
 
 ```java
 // reverse ArrayList
 Collections.reverse(aList);
 ```
 
-# 6. java.util.Arrays
+# java.util.Arrays
 
 ```java
 // sort array with quick sort: O(nlogn)，快排
@@ -100,7 +119,7 @@ Arrays.sort(nums)
 List<String> aList = Arrays.asList(aStr);
 ```
 
-# 7. java.util.ArrayList
+# java.util.ArrayList
 
 ```java
 // new ArrayList
@@ -113,14 +132,14 @@ int size = res.size();
 List<Integer> newItem = new ArrayList<>(oldItem);
 ```
 
-# 8. java.util.LinkedList
+# java.util.LinkedList
 
 ```java
 // 声明生成的是一个链队列。list.get(0)获得最后 add 进去的元素。和 getLast()同样效果。
 Queue<String> queue = new LinkedList<String>();
 ```
 
-# 9. java.util.Queue
+# java.util.Queue
 
 ```java
 // queue
@@ -136,13 +155,13 @@ e = queue.poll());
 e = queue.peek());
 ```
 
-# 10. java.util.Stack
+# java.util.Stack
 
 ```java
 // 堆栈。
 Stack<Integer> stack = new Stack();
 ```
 
-# 11. ASCII
+# ASCII
 
 - 需要记住的 ASCII 码表：0（48），9（57），A（65），Z（90），a（97），z（122）
