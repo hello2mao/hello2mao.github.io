@@ -4,8 +4,8 @@
 - [2. 背景知识](#2-%e8%83%8c%e6%99%af%e7%9f%a5%e8%af%86)
   - [2.1. DID](#21-did)
   - [2.2. Bitcoin](#22-bitcoin)
-  - [IPFS](#ipfs)
-  - [JSON Web Signature (JWS)](#json-web-signature-jws)
+  - [2.3. IPFS](#23-ipfs)
+  - [2.4. JSON Web Signature (JWS)](#24-json-web-signature-jws)
 - [3. Sidetree 协议](#3-sidetree-%e5%8d%8f%e8%ae%ae)
   - [3.1. 协议概述](#31-%e5%8d%8f%e8%ae%ae%e6%a6%82%e8%bf%b0)
   - [3.2. 工作原理](#32-%e5%b7%a5%e4%bd%9c%e5%8e%9f%e7%90%86)
@@ -60,9 +60,9 @@ DID 解决方案使用 DID 文档、可验证声明、PKI 体系等来解决去�
 
 ## 2.2. Bitcoin
 
-## IPFS
+## 2.3. IPFS
 
-## JSON Web Signature (JWS)
+## 2.4. JSON Web Signature (JWS)
 
 # 3. Sidetree 协议
 
