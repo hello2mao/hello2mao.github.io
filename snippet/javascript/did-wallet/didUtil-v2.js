@@ -1,9 +1,10 @@
-var  bs58 = require('bs58')
+var bs58 = require('bs58')
 var CryptoJS = require('crypto-js')
 var Buffer =  require('buffer').Buffer
 var elliptic = require('elliptic')
 var secp256k1 = require('secp256k1/elliptic')
 const bip39 = require('bip39')
+var HDKey = require('./HDKey')
 
 let ec = new elliptic.ec('secp256k1');
 
@@ -106,4 +107,39 @@ function createDid() {
     console.log('recovery pubKey: ' + recoveryKeyPair.pubKey.toString('hex'))
 }
 
-createDid();
+function createDidV2() {
+    // gen seed 
+    let entropy = randomBytes(32).toString('hex')
+    console.log('entropy: ' +entropy);
+    const mnemonic = bip39.entropyToMnemonic(entropy)
+    console.log('mnemonic: '+mnemonic);
+    let seed = bip39.mnemonicToSeedSync(mnemonic).toString('hex')
+    console.log('seed: '+seed)
+
+    seed = '1d55ab509aebcb049b37ccd10ff86821ec6755c5957a2d0e62e285c2b1bf1419c1f34c45392e53539e3454394855ee0a49b56826ec2ef5d91aec192d2760af1b'
+
+    // HDKey
+    let hdkey = HDKey.fromMasterSeed(seed)
+    console.log('privateKey: '+hdkey.privateKey)
+    console.log('publicKey: '+hdkey.publicKey)
+    console.log('chainCode: '+hdkey.chainCode)
+    console.log('privateExtendedKey: ' + hdkey.privateExtendedKey)
+    console.log('publicExtendedKey: ' + hdkey.publicExtendedKey)
+
+    let childHDKey = hdkey.deriveChild(0)
+    console.log('childHDKey privateKey: '+childHDKey.privateKey)
+    console.log('childHDKey publicKey: '+childHDKey.publicKey)
+    console.log('childHDKey chainCode: '+childHDKey.chainCode)
+    console.log('childHDKey privateExtendedKey: ' + childHDKey.privateExtendedKey)
+    console.log('childHDKey publicExtendedKey: ' + childHDKey.publicExtendedKey)
+
+    let childkey = hdkey.derive("m/0/2147483647/1")
+    console.log('childkey privateKey: '+childkey.privateKey)
+    console.log('childkey publicKey: '+childkey.publicKey)
+    console.log('childkey chainCode: '+childkey.chainCode)
+    console.log('childkey privateExtendedKey: ' + childkey.privateExtendedKey)
+    console.log('childkey publicExtendedKey: ' + childkey.publicExtendedKey)
+
+}
+
+createDidV2()
