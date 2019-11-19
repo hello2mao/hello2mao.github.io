@@ -10,11 +10,16 @@ tags:
 
 <!-- TOC -->
 
-- [1. 确定性钱包](#1-确定性钱包)
-- [2. 助记词 (BIP-39)](#2-助记词-bip-39)
-- [3. 拓展公钥和私钥](#3-拓展公钥和私钥)
-- [4. 硬化密钥派生](#4-硬化密钥派生)
-- [5. HD 钱包密钥标识符（路径）](#5-hd-钱包密钥标识符路径)
+- [1. 确定性钱包](#1-%e7%a1%ae%e5%ae%9a%e6%80%a7%e9%92%b1%e5%8c%85)
+- [2. 助记词 (BIP-39)](#2-%e5%8a%a9%e8%ae%b0%e8%af%8d-bip-39)
+- [3. 拓展公钥和私钥](#3-%e6%8b%93%e5%b1%95%e5%85%ac%e9%92%a5%e5%92%8c%e7%a7%81%e9%92%a5)
+- [4. 硬化密钥派生](#4-%e7%a1%ac%e5%8c%96%e5%af%86%e9%92%a5%e6%b4%be%e7%94%9f)
+- [5. HD 钱包密钥标识符（路径）](#5-hd-%e9%92%b1%e5%8c%85%e5%af%86%e9%92%a5%e6%a0%87%e8%af%86%e7%ac%a6%e8%b7%af%e5%be%84)
+- [6. 从种子开始生成 HD 钱包](#6-%e4%bb%8e%e7%a7%8d%e5%ad%90%e5%bc%80%e5%a7%8b%e7%94%9f%e6%88%90-hd-%e9%92%b1%e5%8c%85)
+- [7. 子密钥衍生函数(Child Key Derivation, CKD)](#7-%e5%ad%90%e5%af%86%e9%92%a5%e8%a1%8d%e7%94%9f%e5%87%bd%e6%95%b0child-key-derivation-ckd)
+- [8. 扩展密钥(extended key)](#8-%e6%89%a9%e5%b1%95%e5%af%86%e9%92%a5extended-key)
+- [9. HD Wallet 的分层密钥生成结构图](#9-hd-wallet-%e7%9a%84%e5%88%86%e5%b1%82%e5%af%86%e9%92%a5%e7%94%9f%e6%88%90%e7%bb%93%e6%9e%84%e5%9b%be)
+- [10. 参考：](#10-%e5%8f%82%e8%80%83)
 
 <!-- /TOC -->
 
@@ -95,3 +100,28 @@ BIP-39 标准允许用户在生成种子的时候使用可选密码。
 </tr>
 </tbody>
 </table>
+
+# 6. 从种子开始生成 HD 钱包
+
+![](https://stevenocean.github.io/2018/09/23/generate-hd-wallet-by-bip39/generate-hd-master-key.jpg)
+
+# 7. 子密钥衍生函数(Child Key Derivation, CKD)
+
+![](https://stevenocean.github.io/2018/09/23/generate-hd-wallet-by-bip39/hd-key-derivation-bip32.jpg)
+
+# 8. 扩展密钥(extended key)
+
+将 密钥 Key 和 Chain Code 结合起来称为 扩展密钥（extended key），可以通过 扩展密钥 来生成自其而下的所有分支。
+
+扩展密钥 中提供的密钥可以为 私钥 或者 公钥，和 链码 结合起来分别称为 扩展私钥（extended private key） 和 扩展公钥（extended public key），并且分别记为 (k, c) 和 (K, c)，其中公钥 K = point(k)。
+
+# 9. HD Wallet 的分层密钥生成结构图
+
+![](https://stevenocean.github.io/2018/09/23/generate-hd-wallet-by-bip39/generate-hd-wallet.jpg)
+
+# 10. 参考：
+
+- [bip-32](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki)
+- [bip-39](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki)
+- [以太坊钱包详解](https://github.com/xitu/gold-miner/blob/master/TODO1/ethereumbook-wallets.md)
+- [基于 BIP-32 和 BIP-39 规范生成 HD 钱包（分层确定性钱包）](https://stevenocean.github.io/2018/09/23/generate-hd-wallet-by-bip39.html)

@@ -1,0 +1,20 @@
+{
+  "name": "did-wallet",
+  "version": "1.0.0",
+  "description": "",
+  "main": "didUtil.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bip39": "^3.0.2",
+    "bs58": "^4.0.1",
+    "buffer": "^5.4.3",
+    "crypto-js": "^3.1.9-1",
+    "elliptic": "^6.5.1",
+    "hdkey": "^1.1.1",
+    "secp256k1": "^3.7.1"
+  }
+}
