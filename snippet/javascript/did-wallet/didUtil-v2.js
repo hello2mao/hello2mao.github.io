@@ -116,8 +116,6 @@ function createDidV2() {
     let seed = bip39.mnemonicToSeedSync(mnemonic).toString('hex')
     console.log('seed: '+seed)
 
-    seed = '1d55ab509aebcb049b37ccd10ff86821ec6755c5957a2d0e62e285c2b1bf1419c1f34c45392e53539e3454394855ee0a49b56826ec2ef5d91aec192d2760af1b'
-
     // HDKey
     let hdkey = HDKey.fromMasterSeed(seed)
     console.log('privateKey: '+hdkey.privateKey)
