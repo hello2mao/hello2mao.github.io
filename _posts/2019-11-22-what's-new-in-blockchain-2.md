@@ -9,6 +9,17 @@ tags:
   - blockchain
 ---
 
+## leverage blockchain to secure the data in 5G telecommunication networks
+
+原文链接：https://www.coindesk.com/cisco-patent-would-secure-5g-networks-with-a-blockchain
+
+网络技术巨头思科（Cisco）获得了一项专利，详细说明了它将如何利用区块链技术来保护 5G 电信网络中的数据。
+
+区块链平台旨在管理设备用户（如电话或笔记本电脑）与虚拟网络之间的数据会话。也就是说，该项新技术可以通过区块链网络接口管理网络和连接设备之间的部分数据交换。该公司描述了如何使用区块链平台来支持网络层，这是一种能够实现多个独立虚拟化网络更有效地在同一个物理基础设施中运行的架构。
+
+根据专利文件显示，这种面向服务的体系结构支持网络层，使用了一组隔离的可编程资源集，通过相应网络层内的软件程序实现单独的网络功能和应用服务，而不干扰共存网络层上的其他功能和服务。
+
+
 ## Three Ways to Prepare for Mainnet
 
 原文链接：https://developers.libra.org/blog/2019/10/29/a-guide-to-running-libra-validators
