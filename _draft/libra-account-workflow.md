@@ -1,25 +1,51 @@
 <!-- TOC -->
 
-- [1. 客户端](#1-%e5%ae%a2%e6%88%b7%e7%ab%af)
-  - [1.1. CLI 创建账户](#11-cli-%e5%88%9b%e5%bb%ba%e8%b4%a6%e6%88%b7)
-  - [1.2. client入口](#12-client%e5%85%a5%e5%8f%a3)
-  - [1.3. account命令的执行](#13-account%e5%91%bd%e4%bb%a4%e7%9a%84%e6%89%a7%e8%a1%8c)
-  - [1.4. create命令的执行](#14-create%e5%91%bd%e4%bb%a4%e7%9a%84%e6%89%a7%e8%a1%8c)
-  - [1.5. GRPC Client](#15-grpc-client)
-- [2. 服务端（Validator节点）](#2-%e6%9c%8d%e5%8a%a1%e7%ab%afvalidator%e8%8a%82%e7%82%b9)
-  - [2.1. Validator入口](#21-validator%e5%85%a5%e5%8f%a3)
-  - [2.2. AC UpdateToLatestLedger](#22-ac-updatetolatestledger)
-  - [2.3. storage-client](#23-storage-client)
-  - [2.4. storage-service](#24-storage-service)
-  - [2.5. LibraDB](#25-libradb)
+- [1. 引言](#1-%e5%bc%95%e8%a8%80)
+- [2. 客户端](#2-%e5%ae%a2%e6%88%b7%e7%ab%af)
+  - [2.1. 启动客户端](#21-%e5%90%af%e5%8a%a8%e5%ae%a2%e6%88%b7%e7%ab%af)
+  - [2.2. CLI 创建账户](#22-cli-%e5%88%9b%e5%bb%ba%e8%b4%a6%e6%88%b7)
+  - [2.3. client入口](#23-client%e5%85%a5%e5%8f%a3)
+  - [2.4. account命令的执行](#24-account%e5%91%bd%e4%bb%a4%e7%9a%84%e6%89%a7%e8%a1%8c)
+  - [2.5. create命令的执行](#25-create%e5%91%bd%e4%bb%a4%e7%9a%84%e6%89%a7%e8%a1%8c)
+  - [2.6. GRPC Client](#26-grpc-client)
+- [3. 服务端（Validator节点）](#3-%e6%9c%8d%e5%8a%a1%e7%ab%afvalidator%e8%8a%82%e7%82%b9)
+  - [3.1. Validator入口](#31-validator%e5%85%a5%e5%8f%a3)
+  - [3.2. AC UpdateToLatestLedger](#32-ac-updatetolatestledger)
+  - [3.3. storage-client](#33-storage-client)
+  - [3.4. storage-service](#34-storage-service)
+  - [3.5. LibraDB](#35-libradb)
 
 <!-- /TOC -->
 
-# 1. 客户端
+# 1. 引言
 
-## 1.1. CLI 创建账户
+Libra是facebook发起的一个区块链项目，其使命是建立一套简单的、无国界的货币和为数十亿人服务的金融基础设施。
 
-通过CLI命令`account create`创建新账户，地址为：`20928f6ee91b58415e0a81aee2ba57a7aeb68ee3eebef3cc2e5c6eb6c12fa4fc`
+开发者上手Libra，第一件事就是创建一个自己的Libra账户。本文通过分析源码深度解析了账号的创建流程，为大家打通客户端与验证节点（Validator）之间的交互过程。
+
+# 2. 客户端
+
+## 2.1. 启动客户端
+
+目前有两个方式可以启动客户端并连接到验证节点上。
+
+（1）方式一：直接启动客户端连接在Libra的官方测试网上  
+
+命令如下：
+```shell
+sh scripts/cli/start_cli_testnet.sh
+```
+
+(2)方式二：在本地启动自己的验证节点，并启动客户端连接上去。
+
+命令如下：
+```shell
+cargo run -p libra-swarm -- -s
+```
+
+## 2.2. CLI 创建账户
+
+通过CLI命令`account create`创建新账户，地址为：`20928f6ee91b58415e0a81aee2ba57a7aeb68ee3eebef3cc2e5c6eb6c12fa4fc`，如下所示：
 
 ```
 libra% account create
@@ -27,18 +53,16 @@ libra% account create
 Created/retrieved account #0 address 20928f6ee91b58415e0a81aee2ba57a7aeb68ee3eebef3cc2e5c6eb6c12fa4fc
 ```
 
-通过命令`account list`，查看账户的status，还是`Local`
+通过命令`account list`，查看账户的`status`是`Local`，`sequence number`是0
 
 ```
 libra% account list
 User account index: 0, address: 20928f6ee91b58415e0a81aee2ba57a7aeb68ee3eebef3cc2e5c6eb6c12fa4fc, sequence number: 0, status: Local
 ```
 
-创建账户时的Validator节点的日志，见：[libra-create-account.log](/file/libra-create-account.log)
+## 2.3. client入口
 
-## 1.2. client入口
-
-在`/client/src/main.rs`的`main`函数中：
+client的入口在`/client/src/main.rs`的`main`函数中：
 
 ```rust
     // 注：省略了部分代码
@@ -66,7 +90,7 @@ User account index: 0, address: 20928f6ee91b58415e0a81aee2ba57a7aeb68ee3eebef3cc
     }
 ```
 
-所以当用户在命令行输入`account create`时，实际进入的是这个`loop`。
+所以当用户在命令行输入`account create`时，实际进入的是这个`loop`，会执行如下逻辑：
 
 1. 命令解析  
 命令解析主要是把用户在CLI中输入的命令按照空格分割，`params[0]`为主命令。  
@@ -75,7 +99,7 @@ User account index: 0, address: 20928f6ee91b58415e0a81aee2ba57a7aeb68ee3eebef3cc
 3. 命令的执行  
 运行这个实例的`execute`方法，并返回结果。  
 
-`alias_to_cmd`是client支持的命令，在main函数启动的时候初始化的，如下：
+`alias_to_cmd`是client支持的命令的别名列表，在main函数启动的时候初始化的，如下：
 
 ```rust
 let (commands, alias_to_cmd) = get_commands(args.faucet_account_file.is_some());
@@ -117,7 +141,7 @@ pub fn get_commands(
 - `transfer`：转账相关，对应TransferCommand
 - `dev`：本地Move开发相关，对应DevCommand
 
-而这四个命令都实现了同一个`trait`：
+而这四个命令都实现了同一个`trait`（注：rust中的trait的含义类似于接口）：
 
 ```rust
 /// Trait to perform client operations.
@@ -139,9 +163,9 @@ pub trait Command {
 }
 ```
 
-## 1.3. account命令的执行
+## 2.4. account命令的执行
 
-`account`的实现在`/client/src/account_commands.rs`中：
+`account`命令对于`Command`的实现在`/client/src/account_commands.rs`中：
 
 ```rust
 /// Major command for account related operations.
@@ -172,7 +196,7 @@ impl Command for AccountCommand {
 }
 ```
 
-## 1.4. create命令的执行
+## 2.5. create命令的执行
 
 在`execute`的时候，初始了`account`的五个子命令，然后调用`subcommand_execute（）`去执行相应的子命令，对于`account create`，就是执行`AccountCommandCreate`的`execute`，如下：
 
@@ -217,7 +241,7 @@ let mut client_proxy = ClientProxy::new(
     .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, &format!("{}", e)[..]))?;
 ```
 
-而`create_next_account()`在`/client/src/client_proxy.rs`中，如下：
+`ClientProxy`的`create_next_account()`在`/client/src/client_proxy.rs`中，如下：
 
 ```rust
 /// Returns the account index that should be used by user to reference this account
@@ -235,10 +259,33 @@ let mut client_proxy = ClientProxy::new(
 
 这个方法做了两件事：
 
-1. 调用`wallet.new_address()`创建一个新地址，此处调用的是`libra_wallet`，通过参考文档可以发现，这个是个bitcoin的BIP32类似的分层确定性钱包，只是签名算法使用的是`ed25519`，详见：[libra_wallet](https://github.com/libra/libra/tree/master/client/libra_wallet)
+1. 调用`wallet.new_address()`创建一个新地址，此处调用的是`libra_wallet`，通过参考文档可以发现，这是个类似bitcoin的BIP32的分层确定性钱包，只是签名算法使用的是`ed25519`，详见：[libra_wallet](https://github.com/libra/libra/tree/master/client/libra_wallet)
 2. 调用`get_account_data_from_address()`从服务器上获取该新生成地址的账户信息。`get_account_data_from_address`简单的调用了`GRPCClient`的`get_account_blob()`，然后对返回的信息封装成 `AccountData`。
 
-## 1.5. GRPC Client
+`AccountData`结构如下：
+
+```rust
+/// Struct used to store data for each created account.  We track the sequence number
+/// so we can create new transactions easily
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
+#[cfg_attr(any(test, feature = "fuzzing"), derive(Clone))]
+pub struct AccountData {
+    /// Address of the account.
+    pub address: AccountAddress,
+    /// (private_key, public_key) pair if the account is not managed by wallet.
+    pub key_pair: Option<KeyPair<Ed25519PrivateKey, Ed25519PublicKey>>,
+    /// Latest sequence number maintained by client, it can be different from validator.
+    pub sequence_number: u64,
+    /// Whether the account is initialized on chain, cached local only, or status unknown.
+    pub status: AccountStatus,
+}
+```
+
+`account create`打印的`status`和`sequence number`就来自这里。
+
+## 2.6. GRPC Client
+
+接下来看`GRPCClient`的`get_account_blob()`。
 
 `GRPCClient`则是真正与validator通讯的grpc客户端。代码在`/client/src/grpc_client.rs`。
 
@@ -320,9 +367,9 @@ fn get_with_proof_async(
 
 至此，客户端部分的内容就追踪完毕。
 
-# 2. 服务端（Validator节点）
+# 3. 服务端（Validator节点）
 
-## 2.1. Validator入口
+## 3.1. Validator入口
 
 如下是Validator节点的架构。
 
@@ -359,12 +406,12 @@ service AdmissionControl {
 
 而`UpdateToLatestLedger`就是对应于客户端`update_to_latest_ledger_async_opt()`的处理。
 
-## 2.2. AC UpdateToLatestLedger
+## 3.2. AC UpdateToLatestLedger
 
 在`/admission_control/admission-control-service/admission_control_service.rs`中，`AdmissionControlService`的`update_to_latest_ledger()`方法如下：
 
 ```rust
-/// This API is used to update the client to the latest ledger version and optionally also
+    /// This API is used to update the client to the latest ledger version and optionally also
     /// request 1..n other pieces of data.  This allows for batch queries.  All queries return
     /// proofs that a client should check to validate the data.
     /// Note that if a client only wishes to update to the latest LedgerInfo and receive the proof
@@ -378,7 +425,7 @@ service AdmissionControl {
     ) {
         debug!("[GRPC] AdmissionControl::update_to_latest_ledger");
         let _timer = SVC_COUNTERS.req(&ctx);
-        // 调用update_to_latest_ledger_inner
+        // 调用内部方法update_to_latest_ledger_inner
         let resp = self.update_to_latest_ledger_inner(req);
         provide_grpc_response(resp, ctx, sink);
     }
@@ -393,7 +440,7 @@ service AdmissionControl {
         req: UpdateToLatestLedgerRequest,
     ) -> Result<UpdateToLatestLedgerResponse> {
         let rust_req = libra_types::get_with_proof::UpdateToLatestLedgerRequest::try_from(req)?;
-        // 调用storage_read_client
+        // 调用storage_read_client，去读storage
         let (
             response_items,
             ledger_info_with_sigs,
@@ -412,11 +459,11 @@ service AdmissionControl {
     }
 ```
 
-`update_to_latest_ledger_inner()`则调用了`storage_read_client`的`update_to_latest_ledger()`方法。
+`update_to_latest_ledger_inner()`则调用了`storage_read_client`的`update_to_latest_ledger()`方法去读storage。
 
-## 2.3. storage-client
+## 3.3. storage-client
 
-`storage_read_client`是对`LibraDB`的读client。在这里：`/storage/storage-client/src/lib.rs`，`update_to_latest_ledger()`方法如下：
+`storage_read_client`是对storage-service的读client。在这里：`/storage/storage-client/src/lib.rs`，`update_to_latest_ledger()`方法如下：
 
 ```rust
 fn update_to_latest_ledger(
@@ -434,9 +481,9 @@ fn update_to_latest_ledger(
     }
 ```
 
-而在`update_to_latest_ledger_async()`方法中，则通过grpc的方式调用了`Libra Storage Service`的`UpdateToLatestLedger`。
+而在`update_to_latest_ledger_async()`方法中，则通过grpc的方式调用了storage-service的`UpdateToLatestLedger`。
 
-## 2.4. storage-service
+## 3.4. storage-service
 
 从这里可以看到，Libra的storage模块单独作为一个grpc service对内提供读写服务。
 
@@ -484,7 +531,9 @@ service Storage {
 }
 ```
 
-我们重点看`UpdateToLatestLedger`这个read api，对应到storage-service中就是`update_to_latest_ledger()`，如下：
+可以看出storage-service对外提供1个写接口、5个读接口。
+
+我们重点看`UpdateToLatestLedger`这个read api，对应到storage-service中就是`update_to_latest_ledger()`，位置：`/storage/storage-service/src/lib.rs`，如下：
 
 ```rust
 fn update_to_latest_ledger(
@@ -495,6 +544,7 @@ fn update_to_latest_ledger(
     ) {
         debug!("[GRPC] Storage::update_to_latest_ledger");
         let _timer = SVC_COUNTERS.req(&ctx);
+        // 调用内部方法update_to_latest_ledger_inner
         let resp = self.update_to_latest_ledger_inner(req);
         provide_grpc_response(resp, ctx, sink);
     }
@@ -509,6 +559,7 @@ fn update_to_latest_ledger_inner(
     ) -> Result<UpdateToLatestLedgerResponse> {
         let rust_req = libra_types::get_with_proof::UpdateToLatestLedgerRequest::try_from(req)?;
 
+        // 调用db的方法
         let (
             response_items,
             ledger_info_with_sigs,
@@ -533,11 +584,11 @@ fn update_to_latest_ledger_inner(
 
 
 
-## 2.5. LibraDB
+## 3.5. LibraDB
 
-所有libra中需要持久化存储的数据入口都在`LibraDB`中，包括读写操作。
+`LibraDB`是对底层DB存储的封装，所有libra中需要持久化存储的数据入口都在`LibraDB`中，包括读写操作。
 
-其中`update_to_latest_ledger()`如下：
+其中`update_to_latest_ledger()`在`storage/libradb/src/lib.rs`,如下：
 
 ```rust
 /// This backs the `UpdateToLatestLedger` public read API which returns the latest
@@ -695,7 +746,7 @@ pub enum RequestItem {
 在上面方法中调用了`get_account_state_with_proof()`
 
 ```rust
-// ================================== Public API ==================================
+    // ================================== Public API ==================================
     /// Returns the account state corresponding to the given version and account address with proof
     /// based on `ledger_version`
     fn get_account_state_with_proof(
@@ -717,13 +768,15 @@ pub enum RequestItem {
             ledger_version,
             latest_version
         );
-
+        // 调用 ledger_store 的 get_transaction_info_with_proof 获取指定 Version 的 txn_info 和 txn_info_accumulator_proof
         let (txn_info, txn_info_accumulator_proof) = self
             .ledger_store
             .get_transaction_info_with_proof(version, ledger_version)?;
+        // 调用 state_store 的 get_account_state_with_proof_by_state_root 获取指定地址和version的account_state_blob 和 sparse_merkle_proof
         let (account_state_blob, sparse_merkle_proof) = self
             .state_store
             .get_account_state_with_proof_by_version(address, version)?;
+        // 组装成`AccountStateWithProof`后，返回
         Ok(AccountStateWithProof::new(
             version,
             account_state_blob,
@@ -746,7 +799,7 @@ pub enum RequestItem {
 
 我们知道Libra底层存储使用的是`RocksDB`，因为它是一种k-v存储，所以在读和写的时候，肯定存在着对上层数据结构的编解码，而这部分就通过`schemadb`实现的。从DB读取出来的数据会被解码到不同含义的逻辑结构中，在`LibraDB`中，就是各种store，例如：`event_store`、`ledger_store`、`state_store`、`system_store`和`transaction_store`。
 
-**此处就通过这些store通过固定的schema读取rocksdb内的账本数据。**
+**此处就通过这些store根据固定的schema读取rocksdb内的账本数据。**
 
 那什么是`AccountStateWithProof`呢？
 
@@ -766,11 +819,13 @@ pub struct AccountStateWithProof {
 
 `AccountStateWithProof`有三个字段：
 
-- `version`：这个账号初次有交易时，此交易的version。因为在libra中，账号在钱包中创建好后，我们看到的status就是`Local`，只有当这个账号发生过交易后，才会存在于账本中，status也会变为`Persisted`。而此处的version就记录的使这个账号被记录在账本中的那边交易的version。
-- `blob`：记录的是账户状态，如果为空，就说明账号在账本中不存在，那么客户端上`account list`时，账户的status就是`Local`。（TODO）
-- `proof`：一个证明（TODO）
+- `version`：这个账号初次有交易时，此交易的version。因为在libra中，账号在钱包中创建好后，我们看到的status就是`Local`，只有当这个账号发生过交易后，才会存在于账本中，status也会变为`Persisted`。而此处的version就记录的使这个账号被记录在账本中的那个交易的version。
+- `blob`：记录的是账户状态，如果为空，就说明账号在账本中不存在，那么客户端上`account list`时，账户的status就是`Local`。
+- `proof`：用户证明账户状态的完整proof。
 
-所以对于`account create`，返回的blob必然是空的，也解释了`account list`的status是`Local`的原因。
+所以对于`account create`，返回的blob必然是空的，这也解释了`account list`的status是`Local`的原因。
+
+至此，分析完了服务端的流程。
 
 
 
