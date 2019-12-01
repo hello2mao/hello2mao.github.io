@@ -41,7 +41,8 @@ tags:
 # 4. Consensus
 - [【Libra 技术解读】详解LibraBFT共识机制](https://mp.weixin.qq.com/s/oyu9ndRPvzCFWF7QcH_tvA)
 - [【Libra 技术解读】详解Libra共识源码](https://mp.weixin.qq.com/s/mYchizsguCyfbQnltRrjbQ)
-- [Libra 技术解读！详解move语法、解释器和介绍器](https://mp.weixin.qq.com/s/9MyNnhmaXa3tIN2zaFgKMg)
+- [LibraBFT算法简述](https://zhuanlan.zhihu.com/p/69941436)
+- [突破区块链不可能三角（四）——区块链中的BFT及HotStuff BFT（Libra BFT）分析](https://zhuanlan.zhihu.com/p/78772451)
 
 # 5. Crypto
 - [LIBRA 中的可验证随机数 VRF](https://learnblockchain.cn/2019/07/14/libra-VRF/)
@@ -60,6 +61,8 @@ tags:
 - [解读 Libra Move：一种可编程资源语言](https://learnblockchain.cn/2019/06/28/deep-move/)
 - [伯克利女程序员硬核详解 Libra 编程语言 Move 的主要特征及基本语法](https://www.chainnews.com/articles/775489969485.htm)
 - [move语言简介](https://mp.weixin.qq.com/s/cXBECPk_zIs22YlQyyqeug)
+- [Libra 技术解读！详解move语法、解释器和介绍器](https://mp.weixin.qq.com/s/9MyNnhmaXa3tIN2zaFgKMg)
+
 
 # 10. Network
 

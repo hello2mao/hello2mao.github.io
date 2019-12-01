@@ -9,6 +9,18 @@ tags:
   - blockchain
 ---
 
+## Three Ways to Prepare for Mainnet
+
+原文链接：https://developers.libra.org/blog/2019/10/29/a-guide-to-running-libra-validators
+
+本文讲述了如何去运行一个Libra Validator节点，以及作为一个Validator节点，在主网到来前，需要做的准备及建议。
+
+这些建议包括：
+
+- 准备额外的数据目录：因为区块链的数据是与日俱增的，可以通过node-config的dir选项指定。
+- 监控：推荐使用Prometheus进行性能监控
+- 安全的保存私钥：Libra Validator节点会有三组私钥，分别是共识私钥、网络身份私钥、网络签名私钥。
+
 ## eth-2.0-roadmap
 
 原文链接：https://medium.com/taipei-ethereum-meetup/eth2-0-roadmap-70e1c23f139f
