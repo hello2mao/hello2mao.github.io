@@ -1,4 +1,3 @@
-
 ---
 layout: post
 title: "Quorum新的权限模型"
