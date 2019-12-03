@@ -1,3 +1,13 @@
+---
+layout: post
+title: "Libra源码分析：账号创建流程"
+subtitle: "Libra Account Workflow"
+date: 2019-12-03 20:29:11
+author: "hello2mao"
+tags:
+  - blockchain
+---
+
 <!-- TOC -->
 
 - [1. 引言](#1-%e5%bc%95%e8%a8%80)
