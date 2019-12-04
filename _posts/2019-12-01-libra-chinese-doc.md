@@ -70,11 +70,12 @@ tags:
 # 11. Storage
 - [Libra 源码分析：Libra 中数据存储的 Schema](https://learnblockchain.cn/2019/06/30/Schema-for-data-storage-in-Libra/)
 - [Libra 源码分析：打通 Libra CLI 客户端与 libradb 模块](https://learnblockchain.cn/2019/07/01/Proficient-client-and-libradb-modules/)
+- [Sparse Merkle Tree解析](https://zhuanlan.zhihu.com/p/79949990)
+- [Accumulator Proof解析](https://mp.weixin.qq.com/s/BIl8ucIEi1odFskmPL8oBg)
 
 # 12. Virtual Machine
 
 # 13. Other
 - [通过 Libra 学习 Protobuf](https://learnblockchain.cn/2019/06/29/Learn-Protobuf-in-Libra/)
 - [Libra第一笔转账——硬核方式](https://mp.weixin.qq.com/s/EjXPKupRX-qkIt_f8yBJbA)
-- [Accumulator Proof解析](https://mp.weixin.qq.com/s/BIl8ucIEi1odFskmPL8oBg)
 - [如何黑盒破解 Libra 的序列化算法](https://mp.weixin.qq.com/s/ZEjYqlBUNPBbPmhKK-eKxg)
