@@ -9,6 +9,31 @@ tags:
   - blockchain
 ---
 
+## Facebook Libra is Architecturally Unsound
+
+原文链接：http://www.stephendiehl.com/posts/libra.html
+
+本文从纯技术角度，分析了Libra架构设计的不合理之处。
+
+- Libra 在许可网络上采用拜占庭容错设计的作法不合逻辑：共识算法带来的根本就是废热式的开销，只会限制系统的整体吞吐量。
+- Libra 缺乏交易隐私
+- Libra HotStuff BFT 无法支撑支付通道所需要的吞吐量
+- Libra 的 Move 语言怕是靠不住
+- Libra 的密码学工程尚不完善
+- Libra 项目缺少消费者保护机制
+
+## It’s Not That Difficult
+
+原文链接：https://medium.com/@tjayrush/its-not-that-difficult-33a428c3c2c3
+
+本文对以太坊难度炸弹的爆发和拆除进行了详细的分析。包括如下几个方面：
+
+- 原始难度数据
+- 每个区块的难度变化
+- 难度的相对变化
+- 拆除炸弹的更佳方式
+- 如何更好地重置定时的难度炸弹
+
 ## leverage blockchain to secure the data in 5G telecommunication networks
 
 原文链接：https://www.coindesk.com/cisco-patent-would-secure-5g-networks-with-a-blockchain
