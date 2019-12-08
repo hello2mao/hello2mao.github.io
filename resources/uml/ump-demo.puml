@@ -1,0 +1,43 @@
+@startuml
+title  UML Demo
+package 关系 {
+    ClassA <-- ClassB:关联
+    ClassA <.. ClassB : 依赖
+    ClassA o-- ClassB:聚集
+    ClassA <|-- ClassB:泛化
+    ClassA <|.. ClassB:实现
+}
+
+
+package 类 {
+    Class China {
+        -String area
+        -int rivers
+        -long person
+
+        +String getArea()
+        +long getPerson()
+    }
+}
+
+package 类图注释 {
+
+    class MainActivity
+    note left:左侧注明用途
+    note right of MainActivity:右侧注明用途
+    note top of MainActivity:上面注明用途
+    note bottom of MainActivity:下面注明用途
+
+    class List<<general>>
+    note top of List : 接口类型,xxList extends it
+
+    class ArrayList
+    note left : 基于长度可变的数组的列表
+
+    note "Collection 的衍生接口和类" as NOTE
+    List .. NOTE
+    NOTE .. ArrayList
+
+    List <|-- ArrayList
+}
+@enduml

@@ -1,0 +1,78 @@
+@startuml
+title  decoupling
+'skinparam packageStyle rect/' 加入这行代码，样式纯矩形'/
+skinparam backgroundColor #EEEBDC
+skinparam roundcorner 20
+skinparam sequenceArrowThickness 2
+'skinparam handwritten true
+class Rxbus {
++IEventSubscriber iEventSubscriber
++addSubscriber(IEventSubscriber)
++sendMessageTo(Event)
+}
+
+interface IEventSubscriber
+Rxbus --> IEventSubscriber
+namespace com.xueshuyuan.cn.view #purple{
+
+interface ILoginView{
++void loginWithPw()
++void loginByToken()
++void register()
++void success()
+}
+class LoginActivity<<接收反馈并更新UI>> {
++void loginWithPw()
++void loginByToken()
++void register()
++void success()
+}
+
+ILoginView <|--[#red] LoginActivity
+}
+
+namespace com.xueshuyuan.cn.presenter #orange{
+interface ILoginPresenter{
++void loginByToken()
++void register()
+}
+class LoginPresenterImpl<<承接事件及接收通知处理并转发反馈>> {
++ILoginView iLoginView
++ILoginManager iLoginManager
++LoginPresenterImpl(ILoginView, ILoginManager)
++void loginWithPw()
++void loginByToken()
++void register()
++void receiveMessage(Event)
+}
+
+ILoginPresenter <|--[#red] LoginPresenterImpl
+com.xueshuyuan.cn.view.LoginActivity <..[#red] LoginPresenterImpl :  Dependency
+com.xueshuyuan.cn.moudle.LoginManagerImpl <..[#red] LoginPresenterImpl :  Dependency
+.IEventSubscriber <|..[#red] ILoginPresenter
+}
+
+
+namespace com.xueshuyuan.cn.moudle #green{
+interface ILoginManager{
++void loginWithPw()
++void loginByToken()
++void register()
++boolean checkUserExit()
++boolean checkPw()
+}
+class LoginManagerImpl<<承接事件及Rxbus发送通知>> {
++void loginWithPw()
++void loginByToken()
++void register()
++boolean checkUserExit()
++boolean checkPw()
++void sendMessageToXX(Event)
+}
+
+ILoginManager <|--[#red] LoginManagerImpl
+}
+
+
+
+@enduml
