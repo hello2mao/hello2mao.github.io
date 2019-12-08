@@ -1,5 +1,5 @@
 [package]
-name = "native-thread"
+name = "futures"
 version = "0.1.0"
 authors = ["hello2mao <hello2mao@gmail.com>"]
 edition = "2018"
