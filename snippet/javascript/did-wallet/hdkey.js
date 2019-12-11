@@ -105,7 +105,7 @@ HDKey.prototype.deriveChild = function (index) {
     data = Buffer.concat([Buffer.from(hexToBytes(this.publicKey)), indexBuffer])
   }
 
-  let I = CryptoJS.HmacSHA512(data, this.chainCode).toString();
+  let I = CryptoJS.HmacSHA512(data.toString('hex'), this.chainCode).toString();
   var IL = I.slice(0, 64)
   var IR = I.slice(64)
 
@@ -116,6 +116,7 @@ HDKey.prototype.deriveChild = function (index) {
     // ki = parse256(IL) + kpar (mod n)
     try {
       hd.privateKey = secp256k1.privateKeyTweakAdd(Buffer.from(hexToBytes(this.privateKey)), Buffer.from(hexToBytes(IL))).toString('hex')
+      console.log("privateKey: "+ hd.privateKey)
       // throw if IL >= n || (privateKey + IL) === 0
     } catch (err) {
       // In case parse256(IL) >= n or ki == 0, one should proceed with the next value for i
@@ -164,7 +165,7 @@ HDKey.prototype.toJSON = function () {
 
 // Creates an hdkey object from a master seed 
 HDKey.fromMasterSeed = function (seed) {
-  let I = CryptoJS.HmacSHA512(MASTER_SECRET, seed).toString();
+  let I = CryptoJS.HmacSHA512(seed, MASTER_SECRET).toString();
   var IL = I.slice(0, 64)
   var IR = I.slice(64)
 
