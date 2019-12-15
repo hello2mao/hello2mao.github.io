@@ -1,0 +1,47 @@
+@startuml
+title  LibraWallet
+
+package libra_types {
+  Interface TransactionSigner {
+    +sign_txn(&self, raw_txn: RawTransaction) -> Result<SignedTransaction>
+  }
+}
+
+package libra_wallet {
+  package wallet_library {
+    Class WalletLibrary {
+      ..WalletLibrary contains all the information needed to recreate a particular wallet..
+      -mnemonic: Mnemonic
+      -key_factory: KeyFactory
+      -addr_map: HashMap<AccountAddress, ChildNumber>
+      -key_leaf: ChildNumbe
+
+      +new() -> Self
+      +new_from_mnemonic(mnemonic: Mnemonic) -> Self
+      +mnemonic(&self) -> String
+      +write_recovery(&self, output_file_path: &Path) -> Result<()>
+      +recover(input_file_path: &Path) -> Result<WalletLibrary>
+      +key_leaf(&self) -> u64
+      +generate_addresses(&mut self, depth: u64) -> Result<()>
+      +new_address_at_child_number(&mut self, child_number: ChildNumber) -> Result<AccountAddress>
+      +new_address(&mut self) -> Result<(AccountAddress, ChildNumber)>
+      +get_addresses(&self) -> Result<Vec<AccountAddress>>
+      +sign_txn(&self, txn: RawTransaction) -> Result<SignedTransaction>
+    }
+    TransactionSigner <|.. WalletLibrary
+  }
+  
+  package mnemonic {
+    Class Mnemonic {
+      +from(s: &str) -> Result<Mnemonic>
+      +mnemonic(entropy: &[u8]) -> Result<Mnemonic>
+      +write(&self, output_file_path: &Path) -> Result<()>
+      +read(input_file_path: &Path) -> Result<Self>
+    }
+  }
+  
+
+
+}
+
+@enduml
