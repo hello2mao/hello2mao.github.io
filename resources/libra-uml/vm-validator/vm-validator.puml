@@ -1,0 +1,27 @@
+@startuml
+title  VMValidator
+
+package vm-validator {
+  
+  Interface TransactionValidation {
+    validate_transaction(&self, _txn: SignedTransaction) -> Box<dyn Future<Item = Option<VMStatus>, Error = Error> + Send>;
+  }
+
+  class vm_validator {
+    
+
+    class VMValidator {
+      -storage_read_client: Arc<dyn StorageRead>,
+      -vm: LibraVM,
+
+      +new(config: &NodeConfig, storage_read_client: Arc<dyn StorageRead>) -> Self
+      +validate_transaction(&self, _txn: SignedTransaction) -> Box<dyn Future<Item = Option<VMStatus>, Error = Error> + Send>;
+    }
+    TransactionValidation <|.. VMValidator
+
+    +get_account_state(storage_read_client: Arc<dyn StorageRead>, address: AccountAddress) -> Result<(u64, u64)>
+
+  }
+}
+
+@enduml

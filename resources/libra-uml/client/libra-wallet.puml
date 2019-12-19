@@ -1,13 +1,13 @@
 @startuml
 title  LibraWallet
 
-package libra_types {
+package libra-types {
   Interface TransactionSigner {
-    +sign_txn(&self, raw_txn: RawTransaction) -> Result<SignedTransaction>
+    sign_txn(&self, raw_txn: RawTransaction) -> Result<SignedTransaction>
   }
 }
 
-package libra_wallet {
+package libra-wallet {
   package wallet_library {
     Class WalletLibrary {
       ..WalletLibrary contains all the information needed to recreate a particular wallet..
