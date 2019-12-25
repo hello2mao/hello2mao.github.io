@@ -1,0 +1,687 @@
+syntax = "proto3";
+
+message AccessPath {
+  bytes address = 1;
+  bytes path = 2;
+}
+
+message AccountStateBlob { bytes blob = 1; }
+
+message AccountStateWithProof {
+  uint64 version = 1;
+  AccountStateBlob blob = 2;
+  AccountStateProof proof = 3;
+}
+
+// An event emitted from a smart contract
+message Event {
+  bytes key = 1;
+  uint64 sequence_number = 2;
+  bytes event_data = 3;
+  bytes type_tag = 4;
+}
+
+// An event along with the proof for the event
+message EventWithProof {
+uint64 transaction_version = 1;
+uint64 event_index = 2;
+Event event = 3;
+EventProof proof = 4;
+}
+
+// A list of events.
+message EventsList {
+repeated Event events = 1;
+}
+
+// A list of EventList's, each representing all events for a transaction.
+message EventsForVersions {
+  repeated EventsList events_for_version = 1;
+}
+
+// -----------------------------------------------------------------------------
+// ---------------- Update to latest ledger request
+// -----------------------------------------------------------------------------
+
+// This API is used to update the client to the latest ledger version and
+// optionally also request 1..n other pieces of data.  This allows for batch
+// queries.  All queries return proofs that a client should check to validate
+// the data.
+//
+// Note that if a client only wishes to update to the latest LedgerInfo and
+// receive the proof that this latest ledger extends the client_known_version
+// ledger the client had, they can simply set the requested_items to an empty
+// list.
+message UpdateToLatestLedgerRequest {
+  // This is the version the client already trusts. Usually the client should
+  // set this to the version it obtained the last time it synced with the
+  // chain. If this is the first time ever the client sends a request, it must
+  // use the waypoint hard-coded in its software.
+  uint64 client_known_version = 1;
+
+  // The items for which we are requesting data in this API call.
+  repeated RequestItem requested_items = 2;
+}
+
+message RequestItem {
+  oneof requested_items {
+      GetAccountStateRequest get_account_state_request = 1;
+      GetAccountTransactionBySequenceNumberRequest
+      get_account_transaction_by_sequence_number_request = 2;
+      GetEventsByEventAccessPathRequest get_events_by_event_access_path_request =
+      3;
+      GetTransactionsRequest get_transactions_request = 4;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// ---------------- Update to latest ledger response
+// -----------------------------------------------------------------------------
+
+// Response from getting latest ledger
+message UpdateToLatestLedgerResponse {
+  // Responses to the queries posed by the requests. The proofs generated will
+  // be relative to the version of the latest ledger provided below.
+  repeated ResponseItem response_items = 1;
+
+  // The latest ledger info this node has. It will come with at least 2f+1
+  // validator signatures as well as a proof that shows the latest ledger
+  // extends the old ledger the client had.
+  LedgerInfoWithSignatures ledger_info_with_sigs = 2;
+
+  // A proof for Validator changes from what the client last knew. This is
+  // used to inform the client of validator changes from the client's last
+  // known version until the current version.
+  ValidatorChangeProof validator_change_proof = 3;
+
+  // A proof that shows the latest ledger accumulator is consistent with the
+  // old accumulator at "client_known_version".
+  AccumulatorConsistencyProof ledger_consistency_proof = 4;
+}
+
+// Individual response items to the queries posed by the requests
+message ResponseItem {
+  oneof response_items {
+      GetAccountStateResponse get_account_state_response = 3;
+      GetAccountTransactionBySequenceNumberResponse
+          get_account_transaction_by_sequence_number_response = 4;
+      GetEventsByEventAccessPathResponse get_events_by_event_access_path_response = 5;
+      GetTransactionsResponse get_transactions_response = 6;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// ---------------- Get account state (balance, sequence number, etc.)
+// -----------------------------------------------------------------------------
+
+// Gets latest state for an account.
+message GetAccountStateRequest {
+  // Account for which we are fetching the state.
+  bytes address = 1;
+}
+
+// State information returned by a get account state query.
+message GetAccountStateResponse {
+  // Blob value representing the account state together with proof the client
+  // can utilize to verify it.
+  AccountStateWithProof account_state_with_proof = 1;
+}
+
+// -----------------------------------------------------------------------------
+// ---------------- Get single transaction by account + sequence number
+// -----------------------------------------------------------------------------
+// Get transactions that altered an account - this includes both sent and
+// received. A user of this should check that the data returned matches what
+// they expect.  As an example, a potential attack vector would be something
+// like the following: Alice is buying an apple from Bob. Alice's phone signs a
+// transaction X with sequence number N that pays coins to Bob. Alice transmits
+// this signature to Bob's payment terminal which then submits the transaction
+// and checks its status to see if Alice can be given the apple. However, as Bob
+// is doing this Alice constructs a second transaction X' also with sequence
+// number N. Alice gets that transaction inserted in the blockchain. If Bob
+// isn't thoughtful about how he uses this API he may assume that if he asks for
+// the N'th transaction on Alice's account that when the API returns that this
+// means the transaction has gone through. The point here is that one should be
+// careful in reading too much into "transaction X is on the chain" and focus on
+// the logs, which tell you what the transaction did.
+//
+// If a client submitted a transaction, they should also verify that the hash of
+// the returned transaction matches what they submitted.  As an example, if a
+// client has two wallets that share the same account, they may both submit a
+// transaction at the same sequence number and only one will be committed.  A
+// client should never assume that if they receive the response that this
+// transaction was included that it means that this is definitely the
+// transaction that was submitted.  They should check that the hash matches what
+// they sent
+message GetAccountTransactionBySequenceNumberRequest {
+  // Account for which to query transactions
+  bytes account = 1;
+
+  uint64 sequence_number = 2;
+
+  // Set to true to fetch events for the transaction at this version
+  bool fetch_events = 3;
+}
+
+// Transaction information for transactions requested by
+// GetAccountTransactionsRequest
+message GetAccountTransactionBySequenceNumberResponse {
+// When the transaction requested is committed, return the committed
+// transaction with proof.
+TransactionWithProof transaction_with_proof = 2;
+// When the transaction requested is not committed, we give a proof that
+// shows the current sequence number is smaller than what would have been if
+// the transaction was committed.
+AccountStateWithProof proof_of_current_sequence_number = 3;
+}
+
+// -----------------------------------------------------------------------------
+// ---------------- Get events by event access path
+// -----------------------------------------------------------------------------
+
+// Get events that exist on an event access path.  In the current world,
+// a user may specify events that were received, events that were sent, or any
+// event that modifies their account
+message GetEventsByEventAccessPathRequest {
+  AccessPath access_path = 1;
+
+  // The sequence number of the event to start with for this query. Use a
+  // sequence number of MAX_INT to represent the latest.
+  uint64 start_event_seq_num = 2;
+
+  // If ascending is true this query will return up to `limit` events that were
+  // emitted after `start_event_seq_num`. Otherwise it will return up to `limit`
+  // events before the offset. Both cases are inclusive.
+  bool ascending = 3;
+
+  // Limit number of results
+  uint64 limit = 4;
+}
+
+message GetEventsByEventAccessPathResponse {
+  // Returns an event and proof of each of the events in the request. The first
+  // element of proofs will be the closest to `start_event_seq_num`.
+  repeated EventWithProof events_with_proof = 1;
+
+  // If the number of events returned is less than `limit` for an ascending
+  // query or if start_event_seq_num > the latest seq_num for a descending
+  // query,  returns the state of the account containing the given access path
+  // in the latest state. This allows the client to verify that there are in
+  // fact no extra events.
+  //
+  // The LedgerInfoWithSignatures which is on the main
+  // UpdateToLatestLedgerResponse can be used to validate this.
+  AccountStateWithProof proof_of_latest_event = 2;
+}
+
+// -----------------------------------------------------------------------------
+// ---------------- Get transactions
+// -----------------------------------------------------------------------------
+
+// Get up to limit transactions starting from start_version.
+message GetTransactionsRequest {
+  // The version of the transaction to start with for this query.  Use a version
+  // of MAX_INT to represent the latest.
+  uint64 start_version = 1;
+
+  // Limit number of results
+  uint64 limit = 2;
+
+  // Set to true to fetch events for the transaction at each version
+  bool fetch_events = 3;
+}
+
+message GetTransactionsResponse {
+  TransactionListWithProof txn_list_with_proof = 1;
+}
+
+/// The unique identifier for a module on the chain.
+message ModuleId {
+  bytes address = 1;
+  string name = 2;
+}
+
+/// Even though we don't always need all hashes, we pass them in and return them
+/// always so that we keep them in sync on the client and don't make the client
+/// worry about which one(s) to pass in which cases
+///
+/// This structure serves a dual purpose.
+///
+/// First, if this structure is signed by 2f+1 validators it signifies the state
+/// of the ledger at version `version` -- it contains the transaction
+/// accumulator at that version which commits to all historical transactions.
+/// This structure may be expanded to include other information that is derived
+/// from that accumulator (e.g. the current time according to the time contract)
+/// to reduce the number of proofs a client must get.
+///
+/// Second, the structure contains a `consensus_data_hash` value. This is the
+/// hash of an internal data structure that represents a block that is voted on
+/// by consensus.
+///
+/// Combining these two concepts when the consensus algorithm votes on a block B
+/// it votes for a LedgerInfo with the `version` being the latest version that
+/// will be committed if B gets 2f+1 votes. It sets `consensus_data_hash` to
+/// represent B so that if those 2f+1 votes are gathered, the block is valid to
+/// commit
+message LedgerInfo {
+  // Current latest version of the system
+  uint64 version = 1;
+
+  // Root hash of transaction accumulator at this version
+  bytes transaction_accumulator_hash = 2;
+
+  // Hash of consensus-specific data that is opaque to all parts of the system
+  // other than consensus.  This is needed to verify signatures because
+  // consensus signing includes this hash
+  bytes consensus_data_hash = 3;
+
+  // The block id of the last committed block corresponding to this ledger info.
+  // This field is not particularly interesting to the clients, but can be used
+  // by the validators for synchronization.
+  bytes consensus_block_id = 4;
+
+  // Epoch number corresponds to the set of validators that are active for this
+  // ledger info. The main motivation for keeping the epoch number in the
+  // LedgerInfo is to ensure that the client has enough information to verify
+  // that the signatures for this info are coming from the validators that
+  // indeed form a quorum. Without epoch number a potential attack could reuse
+  // the signatures from the validators in one epoch in order to sign the wrong
+  // info belonging to another epoch, in which these validators do not form a
+  // quorum. The very first epoch number is 0.
+  uint64 epoch = 5;
+
+  // Consensus protocol operates in rounds: the number corresponds to the proposal round of a
+  // given commit. Not relevant to the clients,
+  // but can be used by the validators for synchronization.
+  uint64 round = 6;
+
+  // Timestamp that represents the microseconds since the epoch (unix time) that is
+  // generated by the proposer of the block.  This is strictly increasing with every block.
+  // If a client reads a timestamp > the one they specified for transaction expiration time,
+  // they can be certain that their transaction will never be included in a block in the future
+  // (assuming that their transaction has not yet been included)
+  uint64 timestamp_usecs = 7;
+
+  // An optional field with the validator set for the next epoch in case it's the last
+  // ledger info in the current epoch.
+  ValidatorSet next_validator_set = 8;
+}
+
+/// The validator node returns this structure which includes signatures
+/// from each validator to confirm the state.  The client needs to only pass
+/// back the LedgerInfo element since the validator node doesn't need to know
+/// the signatures again when the client performs a query, those are only there
+/// for the client to be able to verify the state
+message LedgerInfoWithSignatures {
+  // Signatures of the root node from each validator
+  repeated ValidatorSignature signatures = 1;
+
+  LedgerInfo ledger_info = 2;
+}
+
+message ValidatorSignature {
+  // The account address of the validator, which can be used for retrieving its
+  // public key during the given epoch.
+  bytes validator_id = 1;
+  bytes signature = 2;
+}
+
+message AccumulatorProof {
+  // The siblings. The ones near the leaf are at the beginning of the list. The
+  // placeholder nodes are represented by empty byte arrays, other nodes should
+  // be exactly 32-bytes long.
+  repeated bytes siblings = 1;
+}
+
+message SparseMerkleProof {
+  // This proof can be used to authenticate whether a given leaf exists in the
+  // tree or not. In Rust:
+  //   - If this is `Some(HashValue, HashValue)`
+  //     - If the first `HashValue` equals requested key, this is an inclusion
+  //       proof and the second `HashValue` equals the hash of the
+  //       corresponding account blob.
+  //     - Otherwise this is a non-inclusion proof. The first `HashValue` is
+  //       the only key that exists in the subtree and the second `HashValue`
+  //       equals the hash of the corresponding account blob.
+  //   - If this is `None`, this is also a non-inclusion proof which indicates
+  //     the subtree is empty.
+  //
+  // In protobuf, this leaf field should either be
+  //   - empty, which corresponds to None in the Rust structure.
+  //   - exactly 64 bytes, which corresponds to Some<(HashValue, HashValue)>
+  //     in the Rust structure.
+  bytes leaf = 1;
+
+  // The siblings. The ones near the leaf are at the beginning of the list. The
+  // placeholder nodes are represented by empty byte arrays, other nodes should
+  // be exactly 32-bytes long.
+  repeated bytes siblings = 2;
+}
+
+message AccumulatorConsistencyProof {
+  // The root hashes of the subtrees that represent new leaves. Note that none
+  // of these hashes should be default hash.
+  repeated bytes subtrees = 1;
+}
+
+message AccumulatorRangeProof {
+  // The siblings on the left of the path from root to the first leaf. The ones
+  // near the leaf are at the beginning of the list. The placeholder nodes are
+  // represented by empty byte arrays, other nodes should be exactly 32-bytes
+  // long.
+  repeated bytes left_siblings = 1;
+
+  // The siblings on the right of the path from root to the last leaf. The ones
+  // near the leaf are at the beginning of the list. The placeholder nodes are
+  // represented by empty byte arrays, other nodes should be exactly 32-bytes
+  // long.
+  repeated bytes right_siblings = 2;
+}
+
+// The complete proof used to authenticate a transaction.
+message TransactionProof {
+  AccumulatorProof ledger_info_to_transaction_info_proof = 1;
+  TransactionInfo transaction_info = 2;
+}
+
+// The complete proof used to authenticate an account state.
+message AccountStateProof {
+  AccumulatorProof ledger_info_to_transaction_info_proof = 1;
+  TransactionInfo transaction_info = 2;
+  SparseMerkleProof transaction_info_to_account_proof = 3;
+}
+
+// The complete proof used to authenticate an event.
+message EventProof {
+  AccumulatorProof ledger_info_to_transaction_info_proof = 1;
+  TransactionInfo transaction_info = 2;
+  AccumulatorProof transaction_info_to_event_proof = 3;
+}
+
+// The complete proof used to authenticate a list of transactions.
+message TransactionListProof {
+  AccumulatorRangeProof ledger_info_to_transaction_infos_proof = 1;
+  repeated TransactionInfo transaction_infos = 2;
+}
+
+// `TransactionInfo` is the object we store in the transaction accumulator. It
+// consists of the transaction as well as the execution result of this
+// transaction. This are later returned to the client so that a client can
+// validate the tree
+message TransactionInfo {
+  // Hash of the transaction that is stored.
+  bytes transaction_hash = 1;
+
+  // The root hash of Sparse Merkle Tree describing the world state at the end
+  // of this transaction
+  bytes state_root_hash = 2;
+
+  // The root hash of Merkle Accumulator storing all events emitted during this
+  // transaction.
+  bytes event_root_hash = 3;
+
+  // The amount of gas used by this transaction.
+  uint64 gas_used = 4;
+
+  // The major status of executing this transaction.
+  uint64 major_status = 5;
+}
+
+// An argument to the transaction if the transaction takes arguments
+message TransactionArgument {
+  enum ArgType {
+      U64 = 0;
+      ADDRESS = 1;
+      STRING = 2;
+      BYTEARRAY = 3;
+  }
+}
+
+// A generic structure that represents signed RawTransaction
+message SignedTransaction {
+  // LCS bytes representation of a SignedTransaction.
+  bytes txn_bytes = 5;
+}
+
+// A generic structure that represents a transaction, covering all possible
+// variants.
+message Transaction {
+  bytes transaction = 1;
+}
+
+message TransactionWithProof {
+  // The version of the returned signed transaction.
+  uint64 version = 1;
+
+  // The transaction itself.
+  Transaction transaction = 2;
+
+  // The proof authenticating the transaction.
+  TransactionProof proof = 3;
+
+  // The events yielded by executing the transaction, if requested.
+  EventsList events = 4;
+}
+
+// A generic structure that represents a block of transactions originated from a
+// particular validator instance.
+message SignedTransactionsBlock {
+  // Set of Signed Transactions
+  repeated SignedTransaction transactions = 1;
+  // Public key of the validator that created this block
+  bytes validator_public_key = 2;
+  // Signature of the validator that created this block
+  bytes validator_signature = 3;
+}
+
+// Account state as a whole.
+// After execution, updates to accounts are passed in this form to storage for
+// persistence.
+message AccountState {
+  // Account address
+  bytes address = 1;
+  // Account state blob
+  bytes blob = 2;
+}
+
+// Transaction struct to commit to storage
+message TransactionToCommit {
+  // The signed transaction which was executed
+  Transaction transaction = 1;
+  // State db updates
+  repeated AccountState account_states = 2;
+  // Events yielded by the transaction.
+  repeated Event events = 3;
+  // The amount of gas used.
+  uint64 gas_used = 4;
+  // The major status of executing the transaction.
+  uint64 major_status = 5;
+}
+
+// Wrapper message for `uint64`.
+//
+// The JSON representation for `UInt64Value` is JSON string.
+message UInt64Value {
+  // The uint64 value.
+  uint64 value = 1;
+}
+
+// A list of consecutive transactions with proof. This is mainly used for state
+// synchronization when a validator would request a list of transactions from a
+// peer, verify the proof, execute the transactions and persist them. Note that
+// the transactions are supposed to belong to the same epoch E, otherwise
+// verification will fail.
+message TransactionListWithProof {
+  // The list of transactions.
+  repeated Transaction transactions = 1;
+
+  // The list of corresponding Event objects (only present if fetch_events was set to true in req)
+  EventsForVersions events_for_versions = 2;
+
+  // If the list is not empty, the version of the first transaction.
+  UInt64Value first_transaction_version = 3;
+
+  // The proof authenticating the transactions and events.When this is used
+  // for state synchronization, the validator who requests the transactions
+  // will provide a version in the request and the proofs will be relative to
+  // the given version. When this is returned in GetTransactionsResponse, the
+  // proofs will be relative to the ledger info returned in
+  // UpdateToLatestLedgerResponse.
+  TransactionListProof proof = 4;
+}
+
+// This is used to prove validator changes.
+message ValidatorChangeProof {
+  // A list of LedgerInfos with contiguous increasing epoch numbers.
+  repeated LedgerInfoWithSignatures ledger_info_with_sigs = 1;
+
+  // A flag (when true) that indicates the above list is incomplete and only
+  // contains the first N epoch changes.
+  bool more = 2;
+}
+
+// Protobuf definition for the Rust struct ValidatorPublicKeys
+message ValidatorPublicKeys {
+  // Validator account address
+  bytes account_address = 1;
+  // Consensus public key
+  bytes consensus_public_key = 2;
+  // Validator voting power for consensus
+  uint64 consensus_voting_power = 3;
+  // Network signing publick key
+  bytes network_signing_public_key = 4;
+  /// Network identity publick key
+  bytes network_identity_public_key = 5;
+}
+
+// Protobuf definition for the Rust struct ValidatorSet.
+message ValidatorSet {
+  repeated ValidatorPublicKeys validator_public_keys = 1;
+}
+
+// The statuses and errors produced by the VM can be categorized into a
+// couple different types:
+// 1. Validation Statuses: all the errors that can (/should) be
+//    the result of executing the prologue -- these are primarily used by
+//    the vm validator and AC.
+// 2. Verification Errors: errors that are the result of performing
+//    bytecode verification (happens at the time of publishing).
+// 3. VM Invariant Errors: errors that arise from an internal invariant of
+//    the VM being violated. These signify a problem with either the VM or
+//    bytecode verifier.
+// 4. Binary Errors: errors that can occur during the process of
+//    deserialization of a transaction.
+// 5. Runtime Statuses: errors that can arise from the execution of a
+//    transaction (assuming the prologue executes without error). These are
+//    errors that can occur during execution due to things such as division
+//    by zero, running out of gas, etc. These do not signify an issue with
+//    the VM.
+message VMStatus {
+  // e.g. assertion violation, out of gas
+  uint64 major_status = 1;
+  // Any substatus code. e.g. assertion error number
+  bool has_sub_status = 2;
+  uint64 sub_status = 3;
+  bool has_message = 4;
+  string message = 5;
+}
+
+// The request for submitting a transaction to an upstream validator or full node.
+message AdmissionControlMsg {
+  oneof message {
+    SubmitTransactionRequest submit_transaction_request = 1;
+    SubmitTransactionResponse submit_transaction_response = 2;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// ---------------- Submit transaction
+// -----------------------------------------------------------------------------
+// The request for transaction submission.
+message SubmitTransactionRequest {
+  // Transaction submitted by user.
+  SignedTransaction transaction = 1;
+}
+
+// AC response status containing code and optionally an error message.
+message AdmissionControlStatus {
+  AdmissionControlStatusCode code = 1;
+  string message = 2;
+}
+
+// Additional statuses that are possible from admission control in addition
+// to VM statuses.
+enum AdmissionControlStatusCode {
+  // Validator accepted the transaction.
+  Accepted = 0;
+  // The sender is blacklisted.
+  Blacklisted = 1;
+  // The transaction is rejected, e.g. due to incorrect signature.
+  Rejected = 2;
+}
+
+// The response for transaction submission.
+//
+// How does a client know if their transaction was included?
+// A response from the transaction submission only means that the transaction
+// was successfully added to mempool, but not that it is guaranteed to be
+// included in the chain.  Each transaction should include an expiration time in
+// the signed transaction.  Let's call this T0.  As a client, I submit my
+// transaction to a validator. I now need to poll for the transaction I
+// submitted.  I can use the query that takes my account and sequence number. If
+// I receive back that the transaction is completed, I will verify the proofs to
+// ensure that this is the transaction I expected.  If I receive a response that
+// my transaction is not yet completed, I must check the latest timestamp in the
+// ledgerInfo that I receive back from the query.  If this time is greater than
+// T0, I can be certain that my transaction will never be included.  If this
+// time is less than T0, I need to continue polling.
+message SubmitTransactionResponse {
+  // The status of a transaction submission can either be a VM status, or
+  // some other admission control/mempool specific status e.g. Blacklisted.
+  oneof status {
+    VMStatus vm_status = 1;
+    AdmissionControlStatus ac_status = 2;
+    MempoolAddTransactionStatus mempool_status = 3;
+  }
+  // Public key(id) of the validator that processed this transaction
+  bytes validator_id = 4;
+}
+
+// -----------------------------------------------------------------------------
+// ---------------- Service definition
+// -----------------------------------------------------------------------------
+service AdmissionControl {
+  // Public API to submit transaction to a validator.
+  rpc SubmitTransaction(SubmitTransactionRequest)
+      returns (SubmitTransactionResponse) {}
+
+  // This API is used to update the client to the latest ledger version and
+  // optionally also request 1..n other pieces of data.  This allows for batch
+  // queries.  All queries return proofs that a client should check to validate
+  // the data. Note that if a client only wishes to update to the latest
+  // LedgerInfo and receive the proof of this latest version, they can simply
+  // omit the requested_items (or pass an empty list)
+  rpc UpdateToLatestLedger(
+      UpdateToLatestLedgerRequest)
+      returns (UpdateToLatestLedgerResponse) {}
+}
+
+enum MempoolAddTransactionStatusCode {
+  // Transaction was sent to Mempool
+  Valid = 0;
+  // The sender does not have enough balance for the transaction.
+  InsufficientBalance = 1;
+  // Sequence number is old, etc.
+  InvalidSeqNumber = 2;
+  // Mempool is full (reached max global capacity)
+  MempoolIsFull = 3;
+  // Account reached max capacity per account
+  TooManyTransactions = 4;
+  // Invalid update. Only gas price increase is allowed
+  InvalidUpdate = 5;
+}
+
+message MempoolAddTransactionStatus {
+  MempoolAddTransactionStatusCode code = 1;
+  string message = 2;
+}

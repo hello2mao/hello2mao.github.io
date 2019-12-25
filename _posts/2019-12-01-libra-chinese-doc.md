@@ -44,6 +44,7 @@ tags:
 - [【Libra 技术解读】详解Libra共识源码](https://mp.weixin.qq.com/s/mYchizsguCyfbQnltRrjbQ)
 - [LibraBFT算法简述](https://zhuanlan.zhihu.com/p/69941436)
 - [突破区块链不可能三角（四）——区块链中的BFT及HotStuff BFT（Libra BFT）分析](https://zhuanlan.zhihu.com/p/78772451)
+- [Facebook主导的Libra所基于的共识HotStuff是如何工作的？](https://mp.weixin.qq.com/s/TJNKUs8wRiFwoGikHRLgmg)
 
 # 5. Crypto
 - [LIBRA 中的可验证随机数 VRF](https://learnblockchain.cn/2019/07/14/libra-VRF/)
