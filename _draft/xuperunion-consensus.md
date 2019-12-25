@@ -15,6 +15,8 @@
     - [3.2.4. 验证者](#324-%e9%aa%8c%e8%af%81%e8%80%85)
     - [3.2.5. Q&amp;A](#325-qampa)
   - [3.3. Chained-BFT](#33-chained-bft)
+    - [3.3.1. HotStuff](#331-hotstuff)
+    - [3.3.2. DPoS 3.0: Integrate DPoS with ChainedBFT](#332-dpos-30-integrate-dpos-with-chainedbft)
 - [4. 参考资料](#4-%e5%8f%82%e8%80%83%e8%b5%84%e6%96%99)
 
 <!-- /TOC -->
@@ -396,9 +398,15 @@ func (tp *TDpos) minerScheduling(timestamp int64) (term int64, pos int64, blockP
 1. 首先在时间调度算法切片上，有3个时间间隔配置，分别为出块间隔、轮内BP节点切换的时间间隔和切换轮的时间间隔，这个其实很简单，这样在切换BP节点时会可以让区块有足够的时间广播给下一个BP;
 2. 在网络拓扑上进行的优化，超级节点的选举是在每轮的第一个区块，并且提前一轮确定，这时网络层有足够的时间在BP节点之间建立直接的链接，这样也可以降低我们切换BP节点的分叉率。
 
+**（1）TDPoS+Chained-BFT最终确认时间是多少？**
+
+3个块。（通过Chained-BFT实现）
+
 ## 3.3. Chained-BFT
 
 超级链底层有一个共识的公共组件叫chained-bft，其是Hotstuff算法的实现。
+
+### 3.3.1. HotStuff
 
 HotStuff提出了一个三阶段投票的BFT类共识协议，该协议实现了safety、liveness、responsiveness特性。通过在投票过程中引入门限签名实现了O(n) 的消息验证复杂度。
 
@@ -407,6 +415,20 @@ HotStuff提出了一个三阶段投票的BFT类共识协议，该协议实现了
 - PBFT： 两阶段投票，每个view有超时，viewchange通过一轮投票来完成，viewchange消息中包含了prepared消息（即达成了第一阶段投票的消息）。
 - Tendermint: 两阶段投票，一个round中的各个阶段都有超时时间，roundchange通过超时触发（而不是投票），网络节点保存自己已经达成第一阶段投票的消息（即polka消息）。
 - hotStuff: 三阶段投票，每个view有超时，采用阈值签名减小消息复杂度。liveness与safety解耦为两个部分
+
+### 3.3.2. DPoS 3.0: Integrate DPoS with ChainedBFT
+
+相关PR：
+
+- [DPoS 3.0: Integrate DPoS with ChainedBFT](https://github.com/xuperchain/xuperunion/pull/347)
+- [Consensus common module support chained-bft hotstuff](https://github.com/xuperchain/xuperunion/pull/311)
+- [Add safety rules for Chained-bft. ](https://github.com/xuperchain/xuperunion/pull/320)
+- [Add QuorumCert in Block struct and add some unit test for chained-bft.](https://github.com/xuperchain/xuperunion/pull/325)
+
+从相关PR中可以看出ChainedBFT对DPoS的增强主要体现在以下两个方面：
+
+1. 拜占庭容错：使用ChainedBFT使得网络能够容忍三分之一的拜占庭节点。
+2. 交易的确认：引入锁块机制，交易会被三个块锁住。
 
 # 4. 参考资料
 
