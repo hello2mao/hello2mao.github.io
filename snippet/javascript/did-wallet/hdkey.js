@@ -116,7 +116,7 @@ HDKey.prototype.deriveChild = function (index) {
     // ki = parse256(IL) + kpar (mod n)
     try {
       hd.privateKey = secp256k1.privateKeyTweakAdd(Buffer.from(hexToBytes(this.privateKey)), Buffer.from(hexToBytes(IL))).toString('hex')
-      console.log("privateKey: "+ hd.privateKey)
+      // console.log("privateKey: "+ hd.privateKey)
       // throw if IL >= n || (privateKey + IL) === 0
     } catch (err) {
       // In case parse256(IL) >= n or ki == 0, one should proceed with the next value for i

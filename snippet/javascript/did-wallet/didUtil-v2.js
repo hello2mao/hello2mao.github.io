@@ -40,19 +40,23 @@ function hexToBytes(hex) {
 
 function createDidV2() {
     // gen seed 
-    let entropy = randomBytes(32).toString('hex')
-    console.log('entropy: ' +entropy);
-    const mnemonic = bip39.entropyToMnemonic(entropy)
-    console.log('mnemonic: '+mnemonic);
-    let seed = bip39.mnemonicToSeedSync(mnemonic).toString('hex')
-    console.log('seed: '+seed)
-
+    // let entropy = randomBytes(32).toString('hex')
+    // console.log('entropy: ' +entropy);
+    // const mnemonic = bip39.entropyToMnemonic(entropy)
+    // console.log('mnemonic: '+mnemonic);
+    // let seed = bip39.mnemonicToSeedSync(mnemonic).toString('hex')
+    // console.log('seed: '+seed)
+    let seed = '713b479c7f4c8328d19aad19edf8430026e9d47c554bf248c86ce97bcb91de79d7306104a062d690c2f79d07c4354f0654d0016ccdac0557c480437b923fe350';
     // HDKey
     let hdkey = HDKey.fromMasterSeed(seed)
     console.log('m: '+hdkey.privateKey)
+    console.log('M: '+hdkey.publicKey)
+
 
     console.log('m/0: ' + hdkey.deriveChild(0).privateKey)
-    console.log('m/1: ' + hdkey.deriveChild(1).privateKey)
+    console.log('m/1/2: ' + hdkey.deriveChild(1).deriveChild(2).privateKey)
+    console.log('m/1/2: ' + hdkey.derive('m/1/2').privateKey)
+
     console.log('m/2: ' + hdkey.deriveChild(2).privateKey)
 
 
