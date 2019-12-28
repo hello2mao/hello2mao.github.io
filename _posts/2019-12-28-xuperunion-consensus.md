@@ -1,3 +1,13 @@
+---
+layout: post
+title: "XuperUnion 共识"
+subtitle: "XuperUnion Consensus"
+date: 2019-12-28 12:15:11
+author: "hello2mao"
+tags:
+  - blockchain
+---
+
 <!-- TOC -->
 
 - [1. XuperUnion](#1-xuperunion)
