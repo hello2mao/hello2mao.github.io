@@ -1,1 +1,0 @@
-# Go [hello2mao.github.io](https://hello2mao.github.io)
