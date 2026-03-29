@@ -1,0 +1,39 @@
+title: Notes
+description: AI-powered knowledge base
+theme: just-the-docs
+repository: hello2mao/hello2mao.github.io
+url: https://hello2mao.github.io
+
+# Just the Docs 常见配置
+nav_enabled: true
+heading_anchors: true
+
+# 搜索功能
+search_enabled: true
+search_heading_level: 2
+search_trim: true
+search_tokenizer_separator: /[\s/]+/
+
+# 顶部导航栏
+aux_links:
+  "GitHub 仓库":
+    - "//github.com/hello2mao/hello2mao.github.io"
+
+# 链接外部链接在新标签页打开
+heading_anchors: true
+
+# Footer
+footer_contents: "© 2024 · Built with Jekyll and Just the Docs"
+
+# Mermaid 图表支持
+mermaid:
+  enabled: true
+
+# Code copy button
+callouts_level: quiet
+callouts: true
+
+collections:
+  docs:
+    output: true
+    permalink: /:collection/:path/
