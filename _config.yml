@@ -4,6 +4,9 @@ remote_theme: just-the-docs/just-the-docs
 repository: hello2mao/hello2mao.github.io
 url: https://hello2mao.github.io
 
+plugins:
+  - jekyll-remote-theme
+
 # Just the Docs 常见配置
 nav_enabled: true
 heading_anchors: true
@@ -12,15 +15,11 @@ heading_anchors: true
 search_enabled: true
 search_heading_level: 2
 search_trim: true
-search_tokenizer_separator: /[\s/]+/
 
 # 顶部导航栏
 aux_links:
   "GitHub 仓库":
     - "//github.com/hello2mao/hello2mao.github.io"
-
-# 链接外部链接在新标签页打开
-heading_anchors: true
 
 # Footer
 footer_contents: "© 2024 · Built with Jekyll and Just the Docs"
