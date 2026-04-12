@@ -1,7 +1,5 @@
 ---
 title: LLM推理KVCache的演进详解
-layout: default
-nav_order: 2
 parent: LLM
 ---
 
