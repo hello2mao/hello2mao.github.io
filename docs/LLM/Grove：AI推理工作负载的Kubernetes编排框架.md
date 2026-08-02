@@ -22,22 +22,33 @@ parent: LLM
 | 启动顺序控制 | MPI 等工作负载要求 Worker Pod 全部就绪后才能启动 Leader |
 | 拓扑感知调度 | 推理组件间通信密集，需要 NVLink 域内优化布局 |
 
-**许可证**：Apache 2.0 | **所属**：NVIDIA Dynamo 生态
+**许可证**：Apache 2.0 | **语言**：Go | **所属**：NVIDIA Dynamo 生态
 
 ---
 
 ## 二、核心概念
 
-Grove 引入了四个核心抽象：
+Grove 引入了四个核心抽象，构成完整的层级体系：
 
-### 1. PodClique（Pod 小组）
+```
+PodCliqueSet (PCS)                  ← 顶层资源，定义完整推理服务
+├── PodGang                         ← 调度器层：定义 Gang 调度单元（自动创建）
+├── PodClique（独立）                ← 单节点组件（路由层、Cache 等）
+└── PodCliqueScalingGroup (PCSG)    ← 多节点组件分组（Prefill/Decode）
+    └── PodClique（多个角色）        ← leader/worker 等
+```
 
-**基础构建单元**。代表一组具有相同配置的 Pod，对应推理系统中的某个角色（如 Leader、Worker、Frontend）。类似 ReplicaSet，但增加了 **Gang 终止语义**——整组 Pod 要么全部运行，要么全部终止。
+### 1. PodClique（`pclq`）
 
-- 支持独立的扩缩策略
-- 可单独使用（单节点组件），也可组合到 PodCliqueScalingGroup 中（多节点组件的角色）
+**基础构建单元**。代表一组具有相同配置的 Pod，对应推理系统中的某个角色（如 Leader、Worker、Frontend）。类似 ReplicaSet，但增加了 **Gang 终止语义**。
 
-### 2. PodCliqueScalingGroup（Pod 小组扩缩组）
+关键字段：
+- `roleName`：角色名称（prefill/decode/leader/worker 等）
+- `replicas` / `minAvailable`：副本数与最小可用数（Gang 调度和终止阈值）
+- `startsAfter`：显式启动依赖（DAG 定义，用于控制启动顺序）
+- `scaleConfig`：HPA 自动扩缩配置
+
+### 2. PodCliqueScalingGroup（`pcsg`）
 
 **多节点协调单元**。将多个 PodClique 捆绑在一起，作为一个整体进行 Gang 调度和同步扩缩。适用于紧耦合的角色组合，如：
 
@@ -46,28 +57,26 @@ Grove 引入了四个核心抽象：
 
 扩缩时保持各角色之间预设的副本数比例。
 
-### 3. PodCliqueSet（Pod 小组集合）
+### 3. PodCliqueSet（`pcs`）
 
-**顶层资源对象**。定义完整推理服务的所有组件，管理一组 PodClique 和 PodCliqueScalingGroup 的协同部署与共同调度。PodCliqueSet 的副本（replicas）用于系统级扩缩：
+**顶层资源对象**。定义完整推理服务的所有组件，支持系统级扩缩（多副本）用于 A/B 测试、灰度发布、跨可用区高可用。
 
-- A/B 测试 / 灰度发布
-- 跨可用区高可用部署
-- 完整服务实例的水平扩展
+### 4. PodGang（`pg`）
 
-### 4. PodGang（Pod 帮）
+**调度器 API**。定义 Gang 调度的最小单元——一组 Pod 集合，每组定义参与 Gang 调度的最小副本数（`MinReplicas`）。由 Grove 自动创建，用户通常无需直接操作。
 
-**调度器 API**。定义 Gang 调度的最小单元。PodGang 是多组同类 Pod 的集合，每组定义参与 Gang 调度所需的最小副本数。由 Grove 自动创建和管理，用户通常无需直接操作。
+PodGang 状态：
+- `Phase`：Pending → Starting → Running
+- `PlacementScore`：网络拓扑最优性评分（1.0 为最优，可用于监控调优）
 
 ---
 
 ## 三、三层扩缩体系
 
-Grove 提供三个独立的扩缩层次，满足不同粒度的运维需求：
-
 ```
-PodCliqueSet (replicas)          ← 系统级：复制整套推理服务
-    └── PodCliqueScalingGroup (replicas)   ← 组件级：扩缩多节点组件实例
-            └── PodClique (replicas)       ← 角色级：调整某一角色的 Pod 数量
+PodCliqueSet (replicas)                      ← 系统级：复制整套推理服务
+    └── PodCliqueScalingGroup (replicas)     ← 组件级：扩缩多节点组件实例
+            └── PodClique (replicas)         ← 角色级：调整某一角色的 Pod 数量
 ```
 
 | 扩缩层次 | 命令示例 | 适用场景 |
@@ -107,42 +116,31 @@ spec:
 将 Prefill 和 Decode 拆分到不同的 Worker，独立扩缩：
 
 ```yaml
-apiVersion: grove.io/v1alpha1
-kind: PodCliqueSet
-metadata:
-  name: single-node-disaggregated
 spec:
-  replicas: 1
   template:
     cliques:
     - name: prefill
       spec:
         replicas: 3
-        podSpec:
-          containers:
-          - name: prefill
-            image: my-prefill-server:latest
     - name: decode
       spec:
         replicas: 2
-        podSpec:
-          containers:
-          - name: decode
-            image: my-decode-server:latest
 ```
 
 ### 场景三：多节点分离推理（大模型，如 DeepSeek-R1、Llama-4-Maverick）
 
 通过 PodCliqueScalingGroup 将 Leader 和 Worker 捆绑为 Gang 调度单元：
 
-```
-PodCliqueSet
-└── PodCliqueScalingGroup (prefill-group)
-│   ├── PodClique: prefill-leader (1 Pod)
-│   └── PodClique: prefill-worker (N Pods)
-└── PodCliqueScalingGroup (decode-group)
-    ├── PodClique: decode-leader (1 Pod)
-    └── PodClique: decode-worker (M Pods)
+```yaml
+spec:
+  template:
+    podCliqueScalingGroups:
+    - name: prefill-group
+      cliqueNames: [prefill-leader, prefill-worker]
+      replicas: 2    # 2 个 Prefill 实例
+    - name: decode-group
+      cliqueNames: [decode-leader, decode-worker]
+      replicas: 1
 ```
 
 ### 场景四：Agentic Pipeline
@@ -151,54 +149,151 @@ PodCliqueSet
 
 ---
 
-## 五、架构与实现
+## 五、核心机制深度解析
+
+### 5.1 调度门控机制（Scheduling Gates）
+
+Grove 使用 Kubernetes 1.27+ 的 Scheduling Gates 特性实现 Gang 调度：
+
+1. Operator 创建所有 Pod 时设置 `schedulingGates`（如 `grove.io/podgang`）
+2. Pod 被创建但不会被调度（处于 `ScheduleGated` 状态）
+3. 当所有 Pod 创建完毕（PodGang `Initialized` 条件为 True）
+4. Operator **仅移除自己的** 调度门控，保留其他 Controller（如 Kueue）的门控
+5. 调度器开始对全部 Pod 进行 Gang 调度（All-or-Nothing）
+
+> ⚠️ 设计要点：第 4 步"仅移除 Grove 自己的门控"是多租户生产环境下的关键修复，避免与 Kueue 等其他调度 Controller 竞争。
+
+### 5.2 Gang 终止（Gang Termination）
+
+当可运行 Pod 数低于 `MinAvailable` 阈值超过 `TerminationDelay`（默认 4 小时）时，触发 Gang 终止。
+
+**正确的 PCSG 终止公式**：
+```
+existingReplicas - breachedReplicas < MinAvailable  →  触发终止
+```
+
+**双重保护机制**，防止边界情况下的循环操作：
+1. **WasPCSGEverHealthy 门控**：仅对曾经健康过的工作负载触发终止，避免对永远无法调度的工作负载持续循环删除
+2. **GangTerminationInProgress 标志**：DeleteAllOf 成功后立即设置，防止在终止完成前再次触发
+
+### 5.3 拓扑感知调度
+
+通过 `ClusterTopologyBinding`（集群级别资源）将可移植的 Grove 拓扑域名映射到实际节点标签：
+
+```yaml
+apiVersion: grove.io/v1alpha1
+kind: ClusterTopologyBinding
+metadata:
+  name: gpu-fabric
+spec:
+  levels:                    # 从宽到窄排列
+    - domain: zone
+      key: topology.kubernetes.io/zone
+    - domain: rack
+      key: topology.kubernetes.io/rack
+    - domain: host
+      key: kubernetes.io/hostname
+```
+
+拓扑约束层级继承：**PCS → PCSG → PCLQ**，子层约束必须等于或更严格于父层。
+
+两种约束类型：
+- `pack.required`：硬要求，无法满足则不调度
+- `pack.preferred`：软偏好，无法满足则回退到更宽泛的域
+
+### 5.4 滚动更新
+
+- **Generation Hash 追踪**：每次 PCS Spec 变更生成 Hash，所有子资源的 label 记录当前 Hash，实现精确的更新进度追踪
+- **更新策略**：`RollingRecreate`（默认，维护可用性）或 `OnDelete`（手动触发）
+- **ReuseReservationRef 优化**：Rolling Update 时建议复用上次 PodGang 的拓扑预留，节省重新调度的开销
+
+### 5.5 自动 Multi-Node NVLink（Auto MNNVL）
+
+通过注解驱动，自动管理 NVIDIA Multi-Node NVLink：
+
+```yaml
+metadata:
+  annotations:
+    grove.io/mnnvl-group: "my-group"    # 加入 MNNVL 组
+    # grove.io/mnnvl-group: "none"      # 显式退出（覆盖父层继承）
+```
+
+注解层级继承（PCS → PCSG → PCLQ），每个 MNNVL 组每个 PCS 副本创建一个 `ComputeDomain` 资源，与 NVIDIA DRA Driver 深度集成。
+
+### 5.6 启动顺序（DAG 依赖）
+
+通过 `startsAfter` 字段在 PodClique 间定义 DAG 依赖关系，Webhook 自动检测循环并拒绝非法配置：
+
+```yaml
+cliques:
+- name: worker
+  spec: ...
+- name: leader
+  spec:
+    startsAfter: [worker]    # leader 等 worker 全部就绪后才启动
+```
+
+### 5.7 Pod 命名规范
+
+Grove 使用层级化、可读性强的命名，通过 Pod 名称直接反映拓扑层级：
+
+| 场景 | 格式 |
+|------|------|
+| 独立 PodClique 的 Pod | `<pcs-name>-<pcs-idx>-<pclq-name>-<random>` |
+| PCSG 所属 PodClique 的 Pod | `<pcs-name>-<pcs-idx>-<pcsg-name>-<pcsg-idx>-<pclq-name>-<random>` |
+
+---
+
+## 六、架构与实现
 
 ### 项目结构
 
 ```
 grove/
-├── operator/           # Kubernetes Operator（Go）
-│   ├── api/           # CRD 定义（PodClique、PodCliqueSet 等）
-│   ├── internal/      # 控制器逻辑
-│   └── samples/       # 示例 YAML
-├── scheduler/          # 自定义调度器插件
-│   └── api/           # PodGang API 定义
-└── docs/              # 文档
-    ├── quickstart.md
-    ├── installation.md
-    └── user-guide/
+├── operator/                   # Kubernetes Operator（Go）
+│   ├── api/core/v1alpha1/     # CRD 定义（PodClique、PodCliqueSet 等）
+│   ├── internal/
+│   │   ├── controller/        # 各资源的调和器（Reconciler）
+│   │   ├── mnnvl/             # Multi-Node NVLink 管理
+│   │   ├── scheduler/         # 调度器后端适配（KAI / Volcano）
+│   │   └── webhook/           # 准入 Webhook
+│   ├── charts/                # Helm Chart
+│   └── samples/               # 示例 YAML
+├── scheduler/                  # 自定义调度器插件
+│   └── api/core/v1alpha1/
+│       └── podgang.go         # PodGang 调度 API
+└── docs/                      # 文档
 ```
 
-### 关键组件
+**调度器后端**：支持 KAI-Scheduler（NVIDIA）和 Volcano，通过 Operator 内部 `scheduler` 包适配，可插拔切换。
 
-**Grove Operator**：
-- 监听 PodCliqueSet 等 CR 的变化
-- 自动创建和管理 PodClique、PodCliqueScalingGroup、PodGang 等子资源
-- 负责 Rolling Updates（滚动升级）和生命周期管理
-- 集成 HPA（Horizontal Pod Autoscaler）支持多级自动扩缩
+### 关键设计创新
 
-**Grove Scheduler Plugin**：
-- 实现 Gang Scheduling 逻辑
-- 确保 PodGang 内所有 Pod 同时被调度（All-or-Nothing）
-- 支持拓扑感知放置（NVLink 域、NUMA 节点等）
+1. **Scheduling Gates 的正确性处理**：仅移除 Grove 自己的 Gate，与 Kueue 等其他 Controller 安全共存
+2. **层级化命名规范**：通过 Pod 名称直接反映拓扑层级，极大提升可观测性
+3. **分层拓扑约束继承**：PCS → PCSG → PCLQ 的约束继承与覆盖，通过 ClusterTopologyBinding 解耦硬件细节
+4. **注解驱动的 MNNVL 管理**：不污染核心 API，通过注解 opt-in，与 DRA 深度集成
+5. **Generation Hash 驱动的滚动更新**：精确追踪每个子资源的更新进度
+6. **双重 Gang 终止保护**：WasEverHealthy + GangTerminationInProgress 防止各类边界情况下的循环操作
+7. **PlacementScore**：调度器返回网络最优性评分（1.0 最优），可用于监控和调优
 
-### 2025 已完成特性
+### 路线图
 
+**2025 年已完成**：
 - ✅ 层次化 Gang Scheduling
 - ✅ 多级水平自动扩缩
 - ✅ 启动顺序控制
 - ✅ 滚动更新
 - ✅ 拓扑感知调度
 
-### 2026 规划特性
-
-- 资源优化滚动更新
-- 拓扑分散约束
-- 自动拓扑检测
+**2026 年规划**：
+- 资源优化滚动更新（Resource-Optimized Rolling Updates）
+- 拓扑分散约束（Topology Spread Constraints）
+- 自动拓扑检测（Automatic Topology Detection）
 
 ---
 
-## 六、快速开始
+## 七、快速开始
 
 ```bash
 # 1. 创建本地 kind 集群
@@ -220,11 +315,13 @@ kubectl get pcs,pclq,pcsg,pg,pod -o wide
 - `pcsg` = PodCliqueScalingGroup
 - `pg` = PodGang
 
+示例工作负载会自动创建：1 个 PodCliqueSet、4 个 PodClique、1 个 PodCliqueScalingGroup、1 个 PodGang 和 9 个 Pod，可以直接观察 Gang Scheduling 效果。
+
 ---
 
-## 七、与生态的关系
+## 八、与生态的关系
 
-Grove 是 **NVIDIA Dynamo** AI 推理生态的基础设施层之一：
+Grove 是 **NVIDIA Dynamo** AI 推理生态的基础设施编排层：
 
 ```
 应用层：推理请求
@@ -238,13 +335,13 @@ Grove 是 **NVIDIA Dynamo** AI 推理生态的基础设施层之一：
 基础设施：GPU / NVLink / RDMA
 ```
 
-Grove 处于最底层，负责将推理引擎的所有组件在 Kubernetes 上正确调度、部署和扩缩，它与 **LMCache**（KV Cache 管理层）是互补关系：Grove 解决"如何部署"，LMCache 解决"如何高效利用缓存"。
+Grove 与 **LMCache**（KV Cache 管理层）互补：Grove 解决"如何部署"，LMCache 解决"如何高效利用缓存"。
 
 Grove 也支持与 [Dynamo Planner](https://docs.nvidia.com/dynamo/latest/planner/planner_intro.html) 集成，由 Planner 负责自动扩缩决策，Grove 负责执行。
 
 ---
 
-## 八、总结
+## 九、总结
 
 Grove 的核心价值在于将分离推理（Disaggregated Inference）、多节点大模型部署这类原本需要大量自定义脚本和 Operator 才能实现的复杂场景，抽象为简洁的 Kubernetes 原语。
 
@@ -260,4 +357,5 @@ Grove 的核心价值在于将分离推理（Disaggregated Inference）、多节
 **延伸阅读**：
 - [Grove 核心概念文档](https://github.com/ai-dynamo/grove/blob/main/docs/user-guide/01_core-concepts/01_overview.md)
 - [Grove API 参考](https://github.com/ai-dynamo/grove/blob/main/docs/api-reference/operator-api.md)
+- [拓扑感知调度文档](https://github.com/ai-dynamo/grove/blob/main/docs/user-guide/topology-aware-scheduling.md)
 - [NVIDIA Dynamo 文档](https://docs.nvidia.com/dynamo/latest/)
